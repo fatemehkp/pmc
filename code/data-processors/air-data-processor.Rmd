@@ -23,8 +23,8 @@ output:
 ```{r load packages}
 library(tidyverse)
 library(here)
-library(lubridate)
-library(naniar) # for replacing -999 with NA
+#library(lubridate)
+#library(naniar) # for replacing -999 with NA
 ```
 
 ```{r Call Functions}
@@ -35,6 +35,7 @@ source(here('code','data-processors','air-data-smooth-mvavg-function.R'))
 
 ```{r load data}
 load('C:\\Users\\fkazem01\\Box\\Projects\\USA Spatial\\data\\processed\\state-region.RDa')
+load('C:\\Users\\fkazem01\\Box\\Projects\\USA Spatial\\data\\processed\\site-zip.RDa')
 ```
 
 ```{r - AQS Sites Information}
@@ -67,7 +68,7 @@ aqs.sites <- read.csv(unz(temp,"aqs_sites.csv")) %>%
                                         "URBAN",
                                         as.character(Location.Setting)))
     ) %>% 
-  merge(state.region[, c("State", "Region.IV")])
+  merge(dt.state.region[, c("State", "Region.IV")])
 
 save(aqs.sites, file = here('data', 'processed', 'aqs-sites.RDa'))
 
@@ -333,3 +334,42 @@ site.comp %>%
 #SUBURBAN	         69			
 #URBAN	           73	
 ```
+
+```{r Zipcodes in x-mile bufferzone of Monitoring Sites}
+load(here('data', 'processed', 'comp-1yr.RDa'))
+
+dt.comp <- dt.comp.1yr %>% 
+  select(Site.ID, Year, Month) %>% 
+  mutate(psuedo = 100)
+
+dt.comp <- dt.comp %>% 
+  inner_join(dt.site.zip, by = c("Site.ID", "Year")) %>% 
+  arrange(Zip.Code, Year, Dist)
+
+# pick the site with shorter distance
+site.dist.shorter <- dt.comp %>% 
+  group_by(Zip.Code, Year) %>% 
+  filter(Dist == min (Dist)) %>% 
+  arrange(Zip.Code, Year)
+
+dt.comp.site.zip.bz6 <- dt.comp %>% 
+  filter(Dist <= 6)
+dt.comp.site.zip.bz6 %>% distinct(Zip.Code) %>% nrow() #4351
+dt.comp.site.zip.bz6 %>% distinct(Site.ID) %>% nrow() #286
+
+dt.comp.site.zip.bz12  <- dt.comp %>% 
+  filter(Dist <= 12)
+dt.comp.site.zip.bz12 %>% distinct(Zip.Code) %>% nrow() #8454
+dt.comp.site.zip.bz12 %>% distinct(Site.ID) %>% nrow() #331
+
+dt.comp.site.zip.bz24  <- dt.comp %>% 
+  filter(Dist <= 24)
+dt.comp.site.zip.bz24 %>% distinct(Zip.Code) %>% nrow() #15856
+dt.comp.site.zip.bz24 %>% distinct(Site.ID) %>% nrow() #344
+```
+
+```{r}
+save(dt.comp.cms, file = here('data', 'processed', 'comp-cms.RDa'))
+
+```
+
