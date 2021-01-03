@@ -1,0 +1,47 @@
+---
+title: "Air Quality Data from EPA AQS"
+author: "Fatemeh Kazemi"
+date: "01-01-2021"
+output:
+  html_document:
+    df_print: paged
+---
+
+### Last Edit: 12-31-2020
+
+### This program:
+  (1) Run factor anlaysis
+
+```{r load packages}
+library(tidyverse)
+library(here)
+library(psych) # for factor analysis
+
+```
+
+```{r Load datasets}
+load(here('data','processed', 'comp-sel.RDa'))
+```
+
+```{r - preliminary factor analysis}
+# All eligible monitors
+fit <- factanal(dt.comp.sel %>% select(AS:OC), 8, rotation="varimax")
+factor.loadings <- rbind(fit$loadings)
+save(factor.loadings, file = here('output','table','factor-loadings.RDa'))
+
+factor.scores <- factor.scores(dt.comp.sel %>% select(AS:OC), fit)
+dt.comp.fac <- cbind(dt.comp.sel, factor.scores$scores)
+save(dt.comp.fac, file = here('data', 'processed', 'comp-fac.RDa'))
+
+# Removing EC from factor analysis
+fit <- factanal(dt.comp.sel %>% select(AS:ZN, OC), 8, rotation="varimax")
+factor.loadings.ex.ec <- rbind(fit$loadings)
+save(factor.loadings.ex.ec, file = here('output','table','factor-loadings-ex-ec.RDa'))
+
+factor.scores <- factor.scores(dt.comp.sel %>% select(AS:ZN, OC), fit)
+dt.comp.fac.ex.ec <- cbind(dt.comp.sel, factor.scores$scores)
+save(dt.comp.fac.ex.ec, file = here('data', 'processed', 'comp-fac-ex-ec.RDa'))
+```
+
+
+

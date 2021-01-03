@@ -1,0 +1,335 @@
+---
+title: "Air Quality Data - PM2.5 Components"
+author: "Fatemeh Kazemi"
+date: "12-27-2020"
+output:
+  html_document:
+    df_print: paged
+---
+
+### This program:
+  (1) Downloads and cleans EPA AQS Sites Description Files
+  (2) Downloads and cleans PM2.5 Speciation data measured by EPA 
+  (3) Cleans PM2.5 component data - Imrpove Network
+  (4) Cleans PM2.5 components data - CSN Network
+  (5) Combines all available PM2.5 Components data
+  (6) Choose a subset of monitors on the basis of data availability
+  (7) Smooth data with 4df per year to fill small gaps
+      i. Do not smooth over more than 90 days of missing data
+      ii. Divide data into coherent pieces instead
+  (8) Calculates yearly average of PM components by site and month
+      i. Require at least 350 values to compute yearly average from smoothed data
+
+```{r load packages}
+library(tidyverse)
+library(here)
+library(lubridate)
+library(naniar) # for replacing -999 with NA
+```
+
+```{r Call Functions}
+source(here('code','data-processors','epa-air-data-download-function.R'))
+source(here('code','data-processors','air-data-processor-function.R'))
+source(here('code','data-processors','air-data-smooth-mvavg-function.R'))
+```
+
+```{r load data}
+load('C:\\Users\\fkazem01\\Box\\Projects\\USA Spatial\\data\\processed\\state-region.RDa')
+```
+
+```{r - AQS Sites Information}
+### AQS Sites - Extract Location setting, land use,
+### ... Latitude and Longitude for each site
+### https://aqs.epa.gov/aqsweb/airdata/FileFormats.html#_site_description_file
+
+temp <- tempfile()
+download.file("https://aqs.epa.gov/aqsweb/airdata/aqs_sites.zip", temp)
+
+aqs.sites <- read.csv(unz(temp,"aqs_sites.csv")) %>%
+  filter(
+    #remove monitors closed before 2000
+    year(as.Date(Site.Closed.Date)) >= 2000 | Site.Closed.Date == "",
+    !State.Name %in% c("Alaska","Hawaii","Puerto Rico","Virgin Islands",
+                       "Guam", "Country Of Mexico","Canada") #remove non-CONUS states
+    ) %>%  
+  transmute(
+    Site.ID = as.factor(sprintf("%02d-%03d-%04d", #unique ID for each Site: ss-ccc-nnnn
+                                as.numeric(as.character(State.Code)),
+                                County.Code, Site.Number)), 
+    State.Code = as.factor(sprintf("%02d", as.numeric(as.character(State.Code)))),
+    County.Code = as.factor(sprintf("%03d", County.Code)),
+    Latitude,
+    Longitude, 
+    State = state.abb[match(State.Name,state.name)],
+    State = as.factor(ifelse(State.Name == "District Of Columbia","DC", State)),
+    Land.Use,
+    Location.Setting = as.factor(ifelse(Location.Setting == "URBAN AND CENTER CITY",
+                                        "URBAN",
+                                        as.character(Location.Setting)))
+    ) %>% 
+  merge(state.region[, c("State", "Region.IV")])
+
+save(aqs.sites, file = here('data', 'processed', 'aqs-sites.RDa'))
+
+aqs.sites %>% 
+  group_by(Location.Setting) %>% 
+  summarise(n = n())
+```
+
+```{r - Parameters' Code and Symbol}
+Code.to.Sym <- tribble(
+  ~Parameter.Code, ~Parameter.Symbol,
+   88103, "AS",
+   88111, "CA",
+   88114, "CU",
+   88115, "CL",
+   88126, "FE",
+   88128, "PB",
+   88132, "MN",
+   88136, "NI",
+   88140, "MG",
+   88154, "SE",
+   88164, "V",
+   88165, "SI",
+   88167, "ZN",
+   88180, "K",
+   88184, "NA",
+   88306, "NO3",
+   88403, "SO4",
+   88305, "OC.TOT",
+   88307, "EC.TOT",
+   88320, "OC.TOR",
+   88321, "EC.TOR"
+   ) %>% 
+  mutate(Parameter.Symbol = as.factor(Parameter.Symbol))
+```
+
+```{r EPA AQS Data Download}
+dt.spec.raw <- EPA_AQS_download (period = "daily", Index = "SPEC",
+                        start = 2000, end = 2008, 
+                        Code.Sym = Code.to.Sym)
+save(dt.spec.raw, file = here('data', 'processed', 'spec-raw.RDa'))
+```
+
+```{r check carbon}
+### EC
+carbon.ec <- dt.spec.raw %>% 
+  select(Site.ID, POC, Monitor.ID, Parameter.Symbol, Date, Arithmetic.Mean) %>% 
+  pivot_wider(names_sort = T,
+              names_from = c(Parameter.Symbol),
+              values_from = c(Arithmetic.Mean)) %>% 
+  arrange(Site.ID, POC, Date) %>%
+  select(Site.ID, POC, Monitor.ID, EC.TOR, EC.TOT)
+
+ec.c<- carbon.ec[complete.cases(carbon.ec),] #405 simultaneous TOR & TOT
+ec.c %>% group_by(Site.ID) %>% 
+  summarise(n = n()) # 11 Sites ~40 each
+
+summary(lm(EC.TOR ~ EC.TOT, ec.c))
+# TOR = 1.182 * TOT + 0.087 Adj.R2 = 0.862
+
+### OC
+carbon.ec <- dt.spec.raw %>% 
+  select(Site.ID, POC, Monitor.ID, Parameter.Symbol, Date, Arithmetic.Mean) %>% 
+  pivot_wider(names_sort = T,
+              names_from = c(Parameter.Symbol),
+              values_from = c(Arithmetic.Mean)) %>% 
+  arrange(Site.ID, POC, Date.Local) %>%
+  select(Site.ID, POC, Monitor.ID, OC.TOR, OC.TOT)
+
+oc.c<- carbon.oc[complete.cases(carbon.oc),] #405 simultaneous TOR & TOT
+oc.c %>% group_by(Site.ID) %>% 
+  summarise(n = n())
+
+summary(lm(OC.TOR ~ OC.TOT, oc.c))
+# TOR = 0.917 * TOT + 0.579 Adj.R2 = 0.824
+```
+
+```{r change spec data to wide format - combine TOR & TOT carbons}
+dt.spec.w <- dt.spec.raw %>% 
+  select(-Parameter.Code) %>% 
+  pivot_wider(names_sort = T,
+              names_from = c(Parameter.Symbol),
+              values_from = c(Arithmetic.Mean)) %>% 
+  # for 405 cases with two methods use TOR for EC & OC
+  mutate(EC = ifelse(!is.na(EC.TOR), EC.TOR, EC.TOT), 
+         OC = ifelse(!is.na(OC.TOR), OC.TOR, OC.TOT)) %>% 
+  select(-EC.TOR, -EC.TOT, -OC.TOR, -OC.TOT) %>% 
+  arrange(Site.ID, POC, Date)
+
+save(dt.spec.w, file = here('data', 'processed', 'spec-wide.RDa'))
+```
+
+```{r Improve Data cleaning}
+# EC 88307 -> TOT
+# OC 88320 -> TOR
+dt.imprv.raw = data.frame()
+for (i in seq(2000,2008,1)){
+  dt0 <- read.delim(here('data','raw','improve',paste0('improve_',i,'.txt')), sep = ',')
+  dt.imprv.raw <- rbind(dt.imprv.raw, dt0)
+}
+colnames(dt.imprv.raw) <- colnames(dt.imprv.raw) %>% str_remove("f.Value")
+
+#replace -999 with NA
+dt.imprv.raw <- dt.imprv.raw %>% 
+  replace_with_na(replace = list("AS"= -999,
+                                 "CA"= -999,
+                                 "EC"= -999,
+                                 "OC"= -999,
+                                 "CL"= -999,
+                                 "CU"= -999,
+                                 "FE"= -999,
+                                 "PB"= -999,
+                                 "MG"= -999,
+                                 "MN"= -999,
+                                 "NI"= -999,
+                                 "NO3"= -999,
+                                 "K"= -999,
+                                 "SE"= -999,
+                                 "SI"= -999,
+                                 "NA"= -999,
+                                 "SO4"= -999,
+                                 "V"= -999,
+                                 "ZN"= -999)) %>% 
+  arrange(EPACode, POC, Date)
+
+# correct EPACode (Site.ID)
+dt.imprv.raw <- dt.imprv.raw %>% 
+  filter(!EPACode == '.') %>% 
+  mutate(EPACode = str_pad(EPACode, 9, pad = "0"))%>% 
+  filter(# remove non-CONUS States
+    !str_sub(EPACode,1,2) %in% c('02', '15') & str_sub(EPACode,1,2) < '60'
+    ) %>% 
+  mutate(Date = mdy(Date),
+         Site.ID = paste(str_sub(EPACode,1,2), str_sub(EPACode,3,5),
+                         str_sub(EPACode,6,9), sep = "-"),
+         Monitor.ID = as.factor(sprintf("%02d-%03d-%04d-%02d",
+                                     as.numeric(str_sub(EPACode,1,2)),
+                                     as.numeric(str_sub(EPACode,3,5)),
+                                     as.numeric(str_sub(EPACode,6,9)),
+                                     POC))) %>% 
+  select(Site.ID, POC, Monitor.ID, Date, everything(), -EPACode) %>% 
+  arrange(Site.ID, POC, Date)
+
+save(dt.imprv.raw, file = here('data', 'processed', 'improve-raw.RDa'))
+
+# find the diff bw spec & improve
+monitor.spec <- dt.spec.w %>% distinct(Monitor.ID)
+monitor.imprv <- dt.imprv.raw %>% distinct(Monitor.ID) 
+monitor.diff <- setdiff(monitor.imprv$Monitor.ID, monitor.spec$Monitor.ID) %>% 
+  as.data.frame() # imrove has 39 Monitor.ID that spec does not have
+colnames(monitor.diff) <- 'Monitor.ID'
+
+dt.new <- merge(dt.imprv.raw, monitor.diff)
+dt.comp.w <- rbind(dt.spec.w, dt.new) %>% 
+  arrange(Site.ID, POC, Date)
+
+save(dt.comp.w, file = here('data', 'processed', 'comp-wide.RDa'))
+monitor.comp <- dt.comp.w %>% distinct(Monitor.ID) #698
+site.comp <- dt.comp.w %>% distinct(Site.ID) #574
+```
+
+```{r CSN Data cleaning}
+# EC 88307 -> TOT
+# OC 88320 -> TOR
+dt.csn.raw = data.frame()
+for (i in seq(2000,2008,1)){
+  dt0 <- read.delim(here('data','raw','csn',paste0('csn_',i,'.txt')), sep = ',')
+  dt.csn.raw <- rbind(dt.csn.raw, dt0)
+}
+colnames(dt.csn.raw) <- colnames(dt.csn.raw) %>% str_remove("f.Value")
+
+dt.csn.raw <- dt.csn.raw %>% 
+  arrange(EPACode, POC, Date)
+
+# correct EPACode (Site.ID)
+dt.csn.raw <- dt.csn.raw %>% 
+  mutate(EPACode = str_pad(EPACode, 9, pad = "0"))%>% 
+  filter(# remove non-CONUS States
+    !str_sub(EPACode,1,2) %in% c('02', '15') & str_sub(EPACode,1,2) < '60'
+    ) %>% 
+  mutate(Date = mdy(Date),
+         Site.ID = paste(str_sub(EPACode,1,2), str_sub(EPACode,3,5),
+                         str_sub(EPACode,6,9), sep = "-"),
+         Monitor.ID = as.factor(sprintf("%02d-%03d-%04d-%02d",
+                                     as.numeric(str_sub(EPACode,1,2)),
+                                     as.numeric(str_sub(EPACode,3,5)),
+                                     as.numeric(str_sub(EPACode,6,9)),
+                                     POC))) %>% 
+  select(Site.ID, POC, Monitor.ID, Date, everything(), -EPACode) %>% 
+  arrange(Site.ID, POC, Date)
+
+save(dt.csn.raw, file = here('data', 'processed', 'csn-raw.RDa'))
+
+monitor.spec <- dt.spec.w %>% distinct(Monitor.ID)
+monitor.csn <- dt.csn.raw %>% distinct(Monitor.ID) 
+monitor.diff <- setdiff(monitor.csn$Monitor.ID, monitor.spec$Monitor.ID) %>% 
+  as.data.frame()
+# no difference between two dataset!
+# csn dataset is not adding any new information
+```
+
+```{r EPA AQS Process}
+dt.comp.c <- dt.comp.w[complete.cases(dt.comp.w),]
+monitor.comp <- dt.comp.c %>% distinct(Monitor.ID) # 698 -> 530
+site.comp <- dt.comp.c %>% distinct(Site.ID) #574 -> 486
+
+dt.comp.sel <- Air_Daily_Process(dt = dt.comp.c, d = 4, m = 9, y = 4)
+
+# pick the POC with larger number of measurement
+site.POC.larger <- dt.comp.sel %>% 
+  group_by(Site.ID, POC) %>% 
+  summarise(n = n()) %>% 
+  group_by(Site.ID) %>% 
+  filter(n == max (n)) %>% 
+  select(Site.ID, POC)
+
+dt.comp.sel <- merge(dt.comp.sel, site.POC.larger) 
+monitor.comp <- dt.comp.sel %>% distinct(Monitor.ID) # 698 -> 530 -> 346
+site.comp <- dt.comp.sel %>% distinct(Site.ID) #574 -> 486 -> 346
+dt.comp.sel$POC <- dt.comp.sel$Monitor.ID <- NULL
+save(dt.comp.sel, file = here('data', 'processed', 'comp-selected.RDa'))
+```
+
+```{r Smoothing Data & Caluculating 1-yr mvavg for each month}
+load(here('data', 'processed', 'comp-selected.RDa'))
+
+dt.air <- dt.comp.sel %>% 
+  pivot_longer(cols = AS:OC,
+               names_to = "Parameter.Symbol",
+               values_to = "Value") %>% 
+  arrange(Site.ID, Parameter.Symbol, Date)
+
+site.para <- dt.air %>% 
+  distinct(Site.ID, Parameter.Symbol)
+
+smooth.out <- mapply(smoothed.yr, site.para$Site.ID, site.para$Parameter.Symbol)
+para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
+                           Parameter.Symbol=unlist(smooth.out[2,]),
+                           Date=unlist(smooth.out[3,]), 
+                           para.1yr=unlist(smooth.out[4,]))
+
+dt.comp.1yr <- para.monthly %>% 
+  mutate(Year = floor(Date -0.01),
+         Month = (Date - Year)*12) %>% 
+  select(-Date) %>% 
+  pivot_wider(names_sort = T,
+              names_from = c(Parameter.Symbol),
+              values_from = c(para.1yr)) %>% 
+  arrange(Site.ID, Year, Month)
+
+save(dt.comp.1yr, file = here('data', 'processed', 'comp-1yr.RDa'))
+
+site.comp <- dt.comp.1yr %>% distinct(Site.ID) %>%  #574 -> 486 -> 346 -> 346
+  merge(aqs.sites)
+save(site.comp, file = here('data', 'processed', 'site-comp.RDa'))
+
+site.comp %>% 
+  group_by(Location.Setting) %>% 
+  summarise(n = n())
+#Location.Setting  n
+#                  2			
+#RURAL	           202			
+#SUBURBAN	         69			
+#URBAN	           73	
+```
