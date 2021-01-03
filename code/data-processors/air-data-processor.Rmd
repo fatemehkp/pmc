@@ -46,7 +46,7 @@ load('C:\\Users\\fkazem01\\Box\\Projects\\USA Spatial\\data\\processed\\site-zip
 temp <- tempfile()
 download.file("https://aqs.epa.gov/aqsweb/airdata/aqs_sites.zip", temp)
 
-aqs.sites <- read.csv(unz(temp,"aqs_sites.csv")) %>%
+dt.aqs.sites <- read.csv(unz(temp,"aqs_sites.csv")) %>%
   filter(
     #remove monitors closed before 2000
     year(as.Date(Site.Closed.Date)) >= 2000 | Site.Closed.Date == "",
@@ -70,9 +70,9 @@ aqs.sites <- read.csv(unz(temp,"aqs_sites.csv")) %>%
     ) %>% 
   merge(dt.state.region[, c("State", "Region.IV")])
 
-save(aqs.sites, file = here('data', 'processed', 'aqs-sites.RDa'))
+save(dt.aqs.sites, file = here('data', 'processed', 'aqs-sites.RDa'))
 
-aqs.sites %>% 
+dt.aqs.sites %>% 
   group_by(Location.Setting) %>% 
   summarise(n = n())
 ```
@@ -114,7 +114,7 @@ save(dt.spec.raw, file = here('data', 'processed', 'spec-raw.RDa'))
 
 ```{r check carbon}
 ### EC
-carbon.ec <- dt.spec.raw %>% 
+dt.carbon.ec <- dt.spec.raw %>% 
   select(Site.ID, POC, Monitor.ID, Parameter.Symbol, Date, Arithmetic.Mean) %>% 
   pivot_wider(names_sort = T,
               names_from = c(Parameter.Symbol),
@@ -122,7 +122,7 @@ carbon.ec <- dt.spec.raw %>%
   arrange(Site.ID, POC, Date) %>%
   select(Site.ID, POC, Monitor.ID, EC.TOR, EC.TOT)
 
-ec.c<- carbon.ec[complete.cases(carbon.ec),] #405 simultaneous TOR & TOT
+ec.c<- dt.carbon.ec[complete.cases(dt.carbon.ec),] #405 simultaneous TOR & TOT
 ec.c %>% group_by(Site.ID) %>% 
   summarise(n = n()) # 11 Sites ~40 each
 
@@ -130,7 +130,7 @@ summary(lm(EC.TOR ~ EC.TOT, ec.c))
 # TOR = 1.182 * TOT + 0.087 Adj.R2 = 0.862
 
 ### OC
-carbon.ec <- dt.spec.raw %>% 
+dt.carbon.oc <- dt.spec.raw %>% 
   select(Site.ID, POC, Monitor.ID, Parameter.Symbol, Date, Arithmetic.Mean) %>% 
   pivot_wider(names_sort = T,
               names_from = c(Parameter.Symbol),
@@ -138,7 +138,7 @@ carbon.ec <- dt.spec.raw %>%
   arrange(Site.ID, POC, Date.Local) %>%
   select(Site.ID, POC, Monitor.ID, OC.TOR, OC.TOT)
 
-oc.c<- carbon.oc[complete.cases(carbon.oc),] #405 simultaneous TOR & TOT
+oc.c<- dt.carbon.oc[complete.cases(dt.carbon.oc),] #405 simultaneous TOR & TOT
 oc.c %>% group_by(Site.ID) %>% 
   summarise(n = n())
 
@@ -321,11 +321,11 @@ dt.comp.1yr <- para.monthly %>%
 
 save(dt.comp.1yr, file = here('data', 'processed', 'comp-1yr.RDa'))
 
-site.comp <- dt.comp.1yr %>% distinct(Site.ID) %>%  #574 -> 486 -> 346 -> 346
-  merge(aqs.sites)
-save(site.comp, file = here('data', 'processed', 'site-comp.RDa'))
+dt.site.comp <- dt.comp.1yr %>% distinct(Site.ID) %>%  #574 -> 486 -> 346 -> 346
+  merge(dt.aqs.sites)
+save(dt.site.comp, file = here('data', 'processed', 'site-comp.RDa'))
 
-site.comp %>% 
+dt.site.comp %>% 
   group_by(Location.Setting) %>% 
   summarise(n = n())
 #Location.Setting  n
@@ -342,34 +342,53 @@ dt.comp <- dt.comp.1yr %>%
   select(Site.ID, Year, Month) %>% 
   mutate(psuedo = 100)
 
+# joining zipcodes to monitoring sites
 dt.comp <- dt.comp %>% 
   inner_join(dt.site.zip, by = c("Site.ID", "Year")) %>% 
   arrange(Zip.Code, Year, Dist)
 
-# pick the site with shorter distance
-site.dist.shorter <- dt.comp %>% 
+# pick the site with shorter distance to zipcode centroeid
+dt.site.dist.shorter <- dt.comp %>% 
   group_by(Zip.Code, Year) %>% 
   filter(Dist == min (Dist)) %>% 
-  arrange(Zip.Code, Year)
+  arrange(Zip.Code, Year) %>% 
+  as.data.frame()
 
-dt.comp.site.zip.bz6 <- dt.comp %>% 
-  filter(Dist <= 6)
+# 6-mile bufferzone around monitoring site
+dt.comp.site.zip.bz6 <- dt.site.dist.shorter %>% 
+  filter(Dist <= 6) %>% 
+  select(Zip.Code, Year, Month, Site.ID, psuedo)
+
+save(dt.comp.site.zip.bz6, file = here('data', 'processed', 'comp-site-zip-bz6.RDa'))
+write.csv(dt.comp.site.zip.bz6, file = here('data', 'processed', 'comp-site-zip-bz6.csv'))
+
+# Count number of zipcodes and sites
 dt.comp.site.zip.bz6 %>% distinct(Zip.Code) %>% nrow() #4351
-dt.comp.site.zip.bz6 %>% distinct(Site.ID) %>% nrow() #286
+dt.comp.site.zip.bz6 %>% distinct(Site.ID) %>% nrow() #277
 
-dt.comp.site.zip.bz12  <- dt.comp %>% 
-  filter(Dist <= 12)
+# 12-mile bufferzone around monitoring site
+dt.comp.site.zip.bz12  <- dt.site.dist.shorter %>% 
+  filter(Dist <= 12) %>% 
+  select(Zip.Code, Year, Month, Site.ID, psuedo)
+
+save(dt.comp.site.zip.bz12, file = here('data', 'processed', 'comp-site-zip-bz12.RDa'))
+write.csv(dt.comp.site.zip.bz12, file = here('data', 'processed', 'comp-site-zip-bz12.csv'))
+
+# Count number of zipcodes and sites
 dt.comp.site.zip.bz12 %>% distinct(Zip.Code) %>% nrow() #8454
-dt.comp.site.zip.bz12 %>% distinct(Site.ID) %>% nrow() #331
+dt.comp.site.zip.bz12 %>% distinct(Site.ID) %>% nrow() #328
 
-dt.comp.site.zip.bz24  <- dt.comp %>% 
-  filter(Dist <= 24)
+# 24-mile bufferzone around monitoring site
+dt.comp.site.zip.bz24  <- dt.site.dist.shorter %>% 
+  filter(Dist <= 24) %>% 
+  select(Zip.Code, Year, Month, Site.ID, psuedo)
+
+save(dt.comp.site.zip.bz24, file = here('data', 'processed', 'comp-site-zip-bz24.RDa'))
+write.csv(dt.comp.site.zip.bz24, file = here('data', 'processed', 'comp-site-zip-bz24.csv'))
+
+# Count number of zipcodes and sites
 dt.comp.site.zip.bz24 %>% distinct(Zip.Code) %>% nrow() #15856
-dt.comp.site.zip.bz24 %>% distinct(Site.ID) %>% nrow() #344
+dt.comp.site.zip.bz24 %>% distinct(Site.ID) %>% nrow() #341
 ```
 
-```{r}
-save(dt.comp.cms, file = here('data', 'processed', 'comp-cms.RDa'))
-
-```
 
