@@ -18,7 +18,7 @@ library(lubridate)
 # y : minimum numbers of years per period
 # Packages: tidyverse; data.table
 
-Air_Daily_Process <- function(dt, d, m, y) {
+Air.Daily.Process <- function(dt, d, m, y) {
   # identify qualified monitors and merged it with dt (daily dataset)
   dt.c <- dt %>%
     mutate(Year = year(Date),

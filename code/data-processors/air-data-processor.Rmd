@@ -9,22 +9,35 @@ output:
 
 ### This program:
   (1) Downloads and cleans EPA AQS Sites Description Files
-  (2) Downloads and cleans PM2.5 Speciation data measured by EPA 
-  (3) Cleans PM2.5 component data - Imrpove Network
-  (4) Cleans PM2.5 components data - CSN Network
+  (2) Downloads and cleans PM2.5 Speciation data measured by EPA
+      i. https://aqs.epa.gov/aqsweb/airdata/download_files.html#Daily
+  (3) Cleans PM2.5 Components data - IMPROVE Network
+      i. http://views.cira.colostate.edu/fed/QueryWizard/
+  (4) Cleans PM2.5 Components data - CSN Network
+      i. http://views.cira.colostate.edu/fed/QueryWizard/
   (5) Combines all available PM2.5 Components data
   (6) Choose a subset of monitors on the basis of data availability
-  (7) Smooth data with 4df per year to fill small gaps
-      i. Do not smooth over more than 90 days of missing data
-      ii. Divide data into coherent pieces instead
-  (8) Calculates yearly average of PM components by site and month
+      i. 4days - 9month- 4years
+  (7) Smooths data with 4df per year to fill small gaps
+      i.Does not smooth over more than 90 days of missing data
+      ii. Divides data into coherent pieces instead
+  (8) Calculates yearly average of PM2.5 Comonents by site and month
       i. Require at least 350 values to compute yearly average from smoothed data
+  (9) Uses cross-walk files bw Sites and Zipcodes to assign the measurements from
+      Sites to the Zipcodes in their x-mile bufferzone
+ (10) Merge it with CMS data (on NEU Cluster) to find the Sites which have
+      population living in their x-mile bufferzone
+ (11) Runs Factor Analysis (another Rm file) for the subset of Sites with population
+      living round them (Sites identified in Step10)
+      
+### Note:
+  1. In data merged with CMS, bufferzone is 12-mile unless specified
 
 ```{r load packages}
 library(tidyverse)
 library(here)
-#library(lubridate)
-#library(naniar) # for replacing -999 with NA
+library(lubridate)
+library(naniar) # for replacing -999 with NA
 ```
 
 ```{r Call Functions}
@@ -106,16 +119,17 @@ Code.to.Sym <- tribble(
 ```
 
 ```{r EPA AQS Data Download}
-dt.spec.raw <- EPA_AQS_download (period = "daily", Index = "SPEC",
+dt.spec.raw <- EPA.AQS.download (period = "daily", Index = "SPEC",
                         start = 2000, end = 2008, 
                         Code.Sym = Code.to.Sym)
 save(dt.spec.raw, file = here('data', 'processed', 'spec-raw.RDa'))
+#Monitor.ID: Site.ID-POC
 ```
 
 ```{r check carbon}
 ### EC
 dt.carbon.ec <- dt.spec.raw %>% 
-  select(Site.ID, POC, Monitor.ID, Parameter.Symbol, Date, Arithmetic.Mean) %>% 
+  select(-Parameter.Code) %>% 
   pivot_wider(names_sort = T,
               names_from = c(Parameter.Symbol),
               values_from = c(Arithmetic.Mean)) %>% 
@@ -124,26 +138,39 @@ dt.carbon.ec <- dt.spec.raw %>%
 
 ec.c<- dt.carbon.ec[complete.cases(dt.carbon.ec),] #405 simultaneous TOR & TOT
 ec.c %>% group_by(Site.ID) %>% 
-  summarise(n = n()) # 11 Sites ~40 each
+  summarise(n = n()) # 11 Sites ~ 33-40 each
 
-summary(lm(EC.TOR ~ EC.TOT, ec.c))
-# TOR = 1.182 * TOT + 0.087 Adj.R2 = 0.862
+summary(lm(EC.TOT ~ EC.TOR, ec.c))
+# TOT = 0.730 * TOR + 0.037 Adj.R2 = 0.862
+
+ec.c %>% merge(dt.aqs.sites) %>% 
+  distinct(Site.ID, Location.Setting) %>% 
+  group_by(Location.Setting) %>% 
+  summarise(n = n()) # > Urban and Suburban
 
 ### OC
 dt.carbon.oc <- dt.spec.raw %>% 
-  select(Site.ID, POC, Monitor.ID, Parameter.Symbol, Date, Arithmetic.Mean) %>% 
+  select(-Parameter.Code) %>% 
   pivot_wider(names_sort = T,
               names_from = c(Parameter.Symbol),
               values_from = c(Arithmetic.Mean)) %>% 
-  arrange(Site.ID, POC, Date.Local) %>%
+  arrange(Site.ID, POC, Date) %>%
   select(Site.ID, POC, Monitor.ID, OC.TOR, OC.TOT)
 
 oc.c<- dt.carbon.oc[complete.cases(dt.carbon.oc),] #405 simultaneous TOR & TOT
 oc.c %>% group_by(Site.ID) %>% 
-  summarise(n = n())
+  summarise(n = n()) # 11 Sites ~ 33-40 each
 
-summary(lm(OC.TOR ~ OC.TOT, oc.c))
-# TOR = 0.917 * TOT + 0.579 Adj.R2 = 0.824
+summary(lm(OC.TOT ~ OC.TOR, oc.c))
+# TOT = 0.899 * TOR + 0.167 Adj.R2 = 0.824
+
+oc.c %>% merge(dt.aqs.sites) %>% 
+  distinct(Site.ID, Location.Setting) %>% 
+  group_by(Location.Setting) %>% 
+  summarise(n = n()) # > Urban and Suburban
+
+# For both EC & OC the sites with both methods (TOR & TOT) are in Urban and Sub...
+# ...Urban area > We use the TOT since most of the Urbans use TOT
 ```
 
 ```{r change spec data to wide format - combine TOR & TOT carbons}
@@ -152,16 +179,16 @@ dt.spec.w <- dt.spec.raw %>%
   pivot_wider(names_sort = T,
               names_from = c(Parameter.Symbol),
               values_from = c(Arithmetic.Mean)) %>% 
-  # for 405 cases with two methods use TOR for EC & OC
-  mutate(EC = ifelse(!is.na(EC.TOR), EC.TOR, EC.TOT), 
-         OC = ifelse(!is.na(OC.TOR), OC.TOR, OC.TOT)) %>% 
+  # for 405 cases with two methods for EC and OC (TOR & TOT), use TOT 
+  mutate(EC = ifelse(!is.na(EC.TOT), EC.TOT, EC.TOR), 
+         OC = ifelse(!is.na(OC.TOT), OC.TOT, OC.TOR)) %>% 
   select(-EC.TOR, -EC.TOT, -OC.TOR, -OC.TOT) %>% 
   arrange(Site.ID, POC, Date)
 
 save(dt.spec.w, file = here('data', 'processed', 'spec-wide.RDa'))
 ```
 
-```{r Improve Data cleaning}
+```{r IMPROVE Data cleaning}
 # EC 88307 -> TOT
 # OC 88320 -> TOR
 dt.imprv.raw = data.frame()
@@ -194,16 +221,16 @@ dt.imprv.raw <- dt.imprv.raw %>%
                                  "ZN"= -999)) %>% 
   arrange(EPACode, POC, Date)
 
-# correct EPACode (Site.ID)
+
 dt.imprv.raw <- dt.imprv.raw %>% 
-  filter(!EPACode == '.') %>% 
+  filter(!EPACode == '.') %>% #correct EPACode (Site.ID)
   mutate(EPACode = str_pad(EPACode, 9, pad = "0"))%>% 
   filter(# remove non-CONUS States
     !str_sub(EPACode,1,2) %in% c('02', '15') & str_sub(EPACode,1,2) < '60'
     ) %>% 
   mutate(Date = mdy(Date),
-         Site.ID = paste(str_sub(EPACode,1,2), str_sub(EPACode,3,5),
-                         str_sub(EPACode,6,9), sep = "-"),
+         Site.ID = as.factor(paste(str_sub(EPACode,1,2), str_sub(EPACode,3,5),
+                         str_sub(EPACode,6,9), sep = "-")),
          Monitor.ID = as.factor(sprintf("%02d-%03d-%04d-%02d",
                                      as.numeric(str_sub(EPACode,1,2)),
                                      as.numeric(str_sub(EPACode,3,5)),
@@ -212,22 +239,33 @@ dt.imprv.raw <- dt.imprv.raw %>%
   select(Site.ID, POC, Monitor.ID, Date, everything(), -EPACode) %>% 
   arrange(Site.ID, POC, Date)
 
+#remove rows with all components missing
+dt.imprv.raw <- dt.imprv.raw[rowSums(is.na(dt.imprv.raw)) != (ncol(dt.imprv.raw)-4), ]
+
 save(dt.imprv.raw, file = here('data', 'processed', 'improve-raw.RDa'))
 
 # find the diff bw spec & improve
 monitor.spec <- dt.spec.w %>% distinct(Monitor.ID)
 monitor.imprv <- dt.imprv.raw %>% distinct(Monitor.ID) 
 monitor.diff <- setdiff(monitor.imprv$Monitor.ID, monitor.spec$Monitor.ID) %>% 
-  as.data.frame() # imrove has 39 Monitor.ID that spec does not have
+  as.data.frame() 
 colnames(monitor.diff) <- 'Monitor.ID'
+# improve has 32 Monitor.ID that spec does not have
+
+site.spec <- dt.spec.w %>% distinct(Site.ID)
+site.imprv <- dt.imprv.raw %>% distinct(Site.ID) 
+site.diff <- setdiff(site.imprv$Site.ID, site.spec$Site.ID) %>% 
+  as.data.frame()
+colnames(site.diff) <- 'Site.ID'
+# improve has 28 Site.ID that spec does not have
 
 dt.new <- merge(dt.imprv.raw, monitor.diff)
-dt.comp.w <- rbind(dt.spec.w, dt.new) %>% 
+dt.pmc.w <- rbind(dt.spec.w, dt.new) %>% 
   arrange(Site.ID, POC, Date)
 
-save(dt.comp.w, file = here('data', 'processed', 'comp-wide.RDa'))
-monitor.comp <- dt.comp.w %>% distinct(Monitor.ID) #698
-site.comp <- dt.comp.w %>% distinct(Site.ID) #574
+save(dt.pmc.w, file = here('data', 'processed', 'pmc-wide.RDa'))
+monitor.pmc <- dt.pmc.w %>% distinct(Monitor.ID) #691
+site.pmc <- dt.pmc.w %>% distinct(Site.ID) #574
 ```
 
 ```{r CSN Data cleaning}
@@ -243,8 +281,9 @@ colnames(dt.csn.raw) <- colnames(dt.csn.raw) %>% str_remove("f.Value")
 dt.csn.raw <- dt.csn.raw %>% 
   arrange(EPACode, POC, Date)
 
-# correct EPACode (Site.ID)
+
 dt.csn.raw <- dt.csn.raw %>% 
+  #correct EPACode (eq. to Site.ID)
   mutate(EPACode = str_pad(EPACode, 9, pad = "0"))%>% 
   filter(# remove non-CONUS States
     !str_sub(EPACode,1,2) %in% c('02', '15') & str_sub(EPACode,1,2) < '60'
@@ -267,35 +306,64 @@ monitor.csn <- dt.csn.raw %>% distinct(Monitor.ID)
 monitor.diff <- setdiff(monitor.csn$Monitor.ID, monitor.spec$Monitor.ID) %>% 
   as.data.frame()
 # no difference between two dataset!
-# csn dataset is not adding any new information
+# csn is not adding any new information to spec
 ```
 
-```{r EPA AQS Process}
-dt.comp.c <- dt.comp.w[complete.cases(dt.comp.w),]
-monitor.comp <- dt.comp.c %>% distinct(Monitor.ID) # 698 -> 530
-site.comp <- dt.comp.c %>% distinct(Site.ID) #574 -> 486
+```{r label Sites based on the Carbon Method they used - TOR/TOT}
+#speciation sites
+dt.site.carbon.method <- dt.spec.raw %>% 
+  select(-Parameter.Code) %>% 
+  pivot_wider(names_from = c(Parameter.Symbol),
+              values_from = c(Arithmetic.Mean)) %>% 
+  filter(!is.na(EC.TOR) | !is.na(EC.TOT)) %>% 
+  mutate(Method = ifelse(!is.na(EC.TOR), "TOR", "TOT")) %>% 
+  select(Site.ID, Method) %>% 
+  arrange(Site.ID, desc(Method)) %>% #if site has both > keep TOT
+  distinct(Site.ID, .keep_all = T)
 
-dt.comp.sel <- Air_Daily_Process(dt = dt.comp.c, d = 4, m = 9, y = 4)
+#improve sites added to speciation sites
+dt.site.carbon.method <- site.diff %>% 
+  mutate(Method = "EC.TOT-OC.TOR") %>% 
+  add_row(dt.site.carbon.method) %>% 
+  arrange(as.character(Site.ID))
 
-# pick the POC with larger number of measurement
-site.POC.larger <- dt.comp.sel %>% 
+save(dt.site.carbon.method, file = here('data', 'processed', 'site-carbon-method.RDa'))
+
+dt.site.carbon.method %>% group_by(Method) %>% 
+  summarise(n = n())
+```
+
+```{r Air quality data Process}
+map(dt.pmc.w, ~sum(is.na(.)))
+
+#sites with measurements for all components - spec & improve
+dt.pmc.c <- dt.pmc.w[complete.cases(dt.pmc.w),] 
+monitor.pmc <- dt.pmc.c %>% distinct(Monitor.ID) # 698 -> 530 
+site.pmc <- dt.pmc.c %>% distinct(Site.ID) #574 -> 486
+
+# Find sites with at least 4day, 9month and 4 year
+# Using Air_Daily_Process function
+dt.pmc.sel <- Air.Daily.Process(dt = dt.pmc.c, d = 4, m = 9, y = 4)
+
+# POC: Parameter Occurrence Code ...
+# ... more than one instrument measured a component at one site
+# pick the POC(instrument) with larger number of measurements
+site.POC.larger <- dt.pmc.sel %>% 
   group_by(Site.ID, POC) %>% 
   summarise(n = n()) %>% 
   group_by(Site.ID) %>% 
   filter(n == max (n)) %>% 
   select(Site.ID, POC)
 
-dt.comp.sel <- merge(dt.comp.sel, site.POC.larger) 
-monitor.comp <- dt.comp.sel %>% distinct(Monitor.ID) # 698 -> 530 -> 346
-site.comp <- dt.comp.sel %>% distinct(Site.ID) #574 -> 486 -> 346
-dt.comp.sel$POC <- dt.comp.sel$Monitor.ID <- NULL
-save(dt.comp.sel, file = here('data', 'processed', 'comp-selected.RDa'))
+dt.pmc.sel <- merge(dt.pmc.sel, site.POC.larger) 
+monitor.pmc <- dt.pmc.sel %>% distinct(Monitor.ID) # 698 -> 530 -> 346
+site.pmc <- dt.pmc.sel %>% distinct(Site.ID) #574 -> 486 -> 346
+dt.pmc.sel$POC <- dt.pmc.sel$Monitor.ID <- NULL
+save(dt.pmc.sel, file = here('data', 'processed', 'pmc-selected.RDa'))
 ```
 
 ```{r Smoothing Data & Caluculating 1-yr mvavg for each month}
-load(here('data', 'processed', 'comp-selected.RDa'))
-
-dt.air <- dt.comp.sel %>% 
+dt.air <- dt.pmc.sel %>% 
   pivot_longer(cols = AS:OC,
                names_to = "Parameter.Symbol",
                values_to = "Value") %>% 
@@ -304,13 +372,14 @@ dt.air <- dt.comp.sel %>%
 site.para <- dt.air %>% 
   distinct(Site.ID, Parameter.Symbol)
 
-smooth.out <- mapply(smoothed.yr, site.para$Site.ID, site.para$Parameter.Symbol)
+#using smoothed.yr function
+smooth.out <- mapply(Smoothed.Year, site.para$Site.ID, site.para$Parameter.Symbol)
 para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
                            Parameter.Symbol=unlist(smooth.out[2,]),
                            Date=unlist(smooth.out[3,]), 
                            para.1yr=unlist(smooth.out[4,]))
 
-dt.comp.1yr <- para.monthly %>% 
+dt.pmc.1yr <- para.monthly %>% 
   mutate(Year = floor(Date -0.01),
          Month = (Date - Year)*12) %>% 
   select(-Date) %>% 
@@ -319,13 +388,14 @@ dt.comp.1yr <- para.monthly %>%
               values_from = c(para.1yr)) %>% 
   arrange(Site.ID, Year, Month)
 
-save(dt.comp.1yr, file = here('data', 'processed', 'comp-1yr.RDa'))
+save(dt.pmc.1yr, file = here('data', 'processed', 'pmc-1yr.RDa'))
+write.csv(dt.pmc.1yr, file = here('data', 'processed', 'pmc-1yr.csv'))
 
-dt.site.comp <- dt.comp.1yr %>% distinct(Site.ID) %>%  #574 -> 486 -> 346 -> 346
+dt.site.pmc <- dt.pmc.1yr %>% distinct(Site.ID) %>%  #574 -> 486 -> 346 -> 346
   merge(dt.aqs.sites)
-save(dt.site.comp, file = here('data', 'processed', 'site-comp.RDa'))
+save(dt.site.pmc, file = here('data', 'processed', 'site-pmc.RDa'))
 
-dt.site.comp %>% 
+dt.site.pmc %>% 
   group_by(Location.Setting) %>% 
   summarise(n = n())
 #Location.Setting  n
@@ -333,62 +403,99 @@ dt.site.comp %>%
 #RURAL	           202			
 #SUBURBAN	         69			
 #URBAN	           73	
+
+dt.pmc.1yr %>% 
+  distinct(Site.ID, Year) %>% 
+  group_by(Site.ID) %>% 
+  summarise(n = n()) %>% filter(n > 3) %>% 
+  nrow() #346: all  #339: with 4+ years
 ```
 
 ```{r Zipcodes in x-mile bufferzone of Monitoring Sites}
-load(here('data', 'processed', 'comp-1yr.RDa'))
-
-dt.comp <- dt.comp.1yr %>% 
+dt.pmc <- dt.pmc.1yr %>% 
   select(Site.ID, Year, Month) %>% 
   mutate(psuedo = 100)
 
 # joining zipcodes to monitoring sites
-dt.comp <- dt.comp %>% 
+dt.pmc <- dt.pmc %>% 
   inner_join(dt.site.zip, by = c("Site.ID", "Year")) %>% 
   arrange(Zip.Code, Year, Dist)
 
-# pick the site with shorter distance to zipcode centroeid
-dt.site.dist.shorter <- dt.comp %>% 
+# for each zipcode, pick the site with shorter distance to zipcode centroeid
+dt.site.dist.shorter <- dt.pmc %>% 
   group_by(Zip.Code, Year) %>% 
   filter(Dist == min (Dist)) %>% 
   arrange(Zip.Code, Year) %>% 
   as.data.frame()
 
 # 6-mile bufferzone around monitoring site
-dt.comp.site.zip.bz6 <- dt.site.dist.shorter %>% 
+dt.pmc.site.zip.bz6 <- dt.site.dist.shorter %>% 
   filter(Dist <= 6) %>% 
   select(Zip.Code, Year, Month, Site.ID, psuedo)
 
-save(dt.comp.site.zip.bz6, file = here('data', 'processed', 'comp-site-zip-bz6.RDa'))
-write.csv(dt.comp.site.zip.bz6, file = here('data', 'processed', 'comp-site-zip-bz6.csv'))
+save(dt.pmc.site.zip.bz6, file = here('data', 'processed', 'pmc-site-zip-bz6.RDa'))
+write.csv(dt.pmc.site.zip.bz6, file = here('data', 'processed', 'pmc-site-zip-bz6.csv'))
 
 # Count number of zipcodes and sites
-dt.comp.site.zip.bz6 %>% distinct(Zip.Code) %>% nrow() #4351
-dt.comp.site.zip.bz6 %>% distinct(Site.ID) %>% nrow() #277
+dt.pmc.site.zip.bz6 %>% distinct(Zip.Code) %>% nrow() #4351
+dt.pmc.site.zip.bz6 %>% distinct(Site.ID) %>% nrow() #346 > 277
 
 # 12-mile bufferzone around monitoring site
-dt.comp.site.zip.bz12  <- dt.site.dist.shorter %>% 
+dt.pmc.site.zip.bz12  <- dt.site.dist.shorter %>% 
   filter(Dist <= 12) %>% 
   select(Zip.Code, Year, Month, Site.ID, psuedo)
 
-save(dt.comp.site.zip.bz12, file = here('data', 'processed', 'comp-site-zip-bz12.RDa'))
-write.csv(dt.comp.site.zip.bz12, file = here('data', 'processed', 'comp-site-zip-bz12.csv'))
+save(dt.pmc.site.zip.bz12, file = here('data', 'processed', 'pmc-site-zip-bz12.RDa'))
+write.csv(dt.pmc.site.zip.bz12, file = here('data', 'processed', 'pmc-site-zip-bz12.csv'))
 
 # Count number of zipcodes and sites
-dt.comp.site.zip.bz12 %>% distinct(Zip.Code) %>% nrow() #8454
-dt.comp.site.zip.bz12 %>% distinct(Site.ID) %>% nrow() #328
+dt.pmc.site.zip.bz12 %>% distinct(Zip.Code) %>% nrow() #8454
+dt.pmc.site.zip.bz12 %>% distinct(Site.ID) %>% nrow() #346 > 328
 
 # 24-mile bufferzone around monitoring site
-dt.comp.site.zip.bz24  <- dt.site.dist.shorter %>% 
+dt.pmc.site.zip.bz24  <- dt.site.dist.shorter %>% 
   filter(Dist <= 24) %>% 
   select(Zip.Code, Year, Month, Site.ID, psuedo)
 
-save(dt.comp.site.zip.bz24, file = here('data', 'processed', 'comp-site-zip-bz24.RDa'))
-write.csv(dt.comp.site.zip.bz24, file = here('data', 'processed', 'comp-site-zip-bz24.csv'))
+save(dt.pmc.site.zip.bz24, file = here('data', 'processed', 'pmc-site-zip-bz24.RDa'))
+write.csv(dt.pmc.site.zip.bz24, file = here('data', 'processed', 'pmc-site-zip-bz24.csv'))
 
 # Count number of zipcodes and sites
-dt.comp.site.zip.bz24 %>% distinct(Zip.Code) %>% nrow() #15856
-dt.comp.site.zip.bz24 %>% distinct(Site.ID) %>% nrow() #341
+dt.pmc.site.zip.bz24 %>% distinct(Zip.Code) %>% nrow() #15856
+dt.pmc.site.zip.bz24 %>% distinct(Site.ID) %>% nrow() #346 > 341
+
+# pmc-site-zip-bz12.csv was uploaded on NEU Cluster to be merged with CMS data
+# It has 328 sites with 8454 zipcodes around them
 ```
 
+```{r Post mergeing with CMS Data}
+dt.site.ndi.bz12 <- read.csv(here('data', 'raw', 'site_pmc_ndi_bz12.csv')) %>% 
+  rename(Site.ID = Site_ID)
 
+# 325 out of 328 sites have population living in their 12-mile bufferzone
+dt.site.ndi.bz12 %>% 
+  group_by(Site.ID) %>% 
+  summarise(n = n()) %>% filter(n > 0) %>% 
+  nrow() # 325 > 317 > 316 > 308: with 4+ years
+
+# TOT/TOR Method in different location.set
+dt.site.ndi.bz12 %>% 
+  distinct(Site.ID) %>% 
+  left_join(dt.site.carbon.method) %>% 
+  left_join(dt.aqs.sites) %>% 
+  group_by(Location.Setting, Method) %>% 
+  summarise(n = n())
+
+# urban and suburban: TOT >> TOR
+# rural:              TOR >> TOT
+# improve sites only in rural
+
+dt.site.ndi.bz12 %>% 
+  distinct(Site.ID) %>% 
+  left_join(dt.aqs.sites) %>% 
+  group_by(Location.Setting) %>% 
+  summarise(n = n())
+# urban 72
+# suburban 69
+# rural 182
+```

@@ -13,7 +13,7 @@
 library(tidyverse)
 library(lubridate)
 
-EPA_AQS_download <- function(period, Index, start, end,
+EPA.AQS.download <- function(period, Index, start, end,
                              Code.Sym) {
   dt = data.frame()
   for (i in Index) {

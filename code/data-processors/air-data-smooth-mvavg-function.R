@@ -5,6 +5,10 @@ library(tidyverse)
 library(lubridate)
 library(mgcv)
 
+# Smoothed.Year Function
+# Smooths data with 4df per year to fill small gaps
+# Does not smooth over more than 90 days of missing data
+# Divides data into coherent pieces instead
 # Smooth
 # dt.air: contains air quality data by monitor site and day
 #    Site.ID:
@@ -12,14 +16,7 @@ library(mgcv)
 #    Value:
 #    Date:
 
-#dt <-  dt.air
-#si  <-  unique(sort(dt.air$Site.ID))
-#pr <-  unique(sort(dt.air$Parameter.Symbol))
-#si <- "01-073-0023"
-#pr <- "AS"
-#c <- 1
-
-smoothed.yr <- function(si, pr){ 
+Smoothed.Year <- function(si, pr){ 
 
     dt <- dt.air %>% 
     filter(Site.ID == si & Parameter.Symbol == pr) %>%
@@ -41,7 +38,7 @@ smoothed.yr <- function(si, pr){
     dt1 <- dt[(cuts[c]+1):cuts[c+1],]
     if (nrow(dt1)>10){ #only try smoothing with at least 11 values
       df <- ceiling((max(dt1$date2)- min(dt1$date2))/365*4) #4 df per year
-      if (df<6){print(paste("Site.ID: ",si,", Para: ",pr,", c: ",c,", df: ",df,sep=""))}
+      if (df<4){print(paste("Site.ID: ",si,", Para: ",pr,", c: ",c,", df: ",df,sep=""))}
       gres <- gam(Value~s(date2,fx=TRUE,k=df+1),data=dt1)
       
       pred.data <- as.data.frame(seq(min(dt1$date2),max(dt1$date2)))
