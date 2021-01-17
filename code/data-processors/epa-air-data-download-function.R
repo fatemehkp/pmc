@@ -1,8 +1,11 @@
 ### Author: Fatemeh Kazemi - 01-01-2021
 
+# Function that Downloads and cleans air quality data measured by EPA 
+# https://aqs.epa.gov/aqsweb/airdata/download_files.html
+
 # EPA_AQS_download Function
 # Function Arguments: 
-# period : hourly/daily
+# period : daily
 # Index : list of file index to download
 # start : start year 
 # end : end year
@@ -23,7 +26,9 @@ EPA.AQS.download <- function(period, Index, start, end,
                           ,".zip",sep = ""),temp)
       dt0 <- read.csv(unz(temp, paste(period,"_",i,"_",t,".csv", sep = ""))) %>% 
         filter(Parameter.Code %in% Code.Sym$Parameter.Code) %>% 
-        mutate(State.Code = as.factor(State.Code))
+        mutate(State.Code = as.factor(sprintf("%02d", 
+                                              as.numeric(as.character(State.Code))))
+               )
       dt <- rbind(dt, dt0)
     }
   }
