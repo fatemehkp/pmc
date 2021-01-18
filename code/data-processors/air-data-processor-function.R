@@ -23,15 +23,15 @@ Air.Daily.Process <- function(dt, d, m, y) {
   dt.c <- dt %>%
     mutate(Year = year(Date),
            Month = month(Date)) %>% 
-    group_by(Parameter.Symbol, Monitor.ID, Year, Month) %>%
+    group_by(Monitor.ID, Year, Month) %>%
     summarize(n_Day = length(unique(Date))) %>%
     filter(n_Day >= d
     ) %>% #monitors wt at least -d- days each month 
-    group_by(Parameter.Symbol, Monitor.ID, Year) %>%
+    group_by(Monitor.ID, Year) %>%
     summarize(n_Month = length(unique(Month))) %>%
     filter(n_Month >= m
     ) %>% #monitors wt at least -m- month each year
-    group_by(Parameter.Symbol, Monitor.ID) %>%
+    group_by(Monitor.ID) %>%
     summarize(n_Year = length(unique(Year))) %>%
     filter(n_Year >= y
     ) %>% #monitors wt at least -y- year in start-end period
