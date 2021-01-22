@@ -1,0 +1,184 @@
+---
+title: "Air Quality and CMS Data"
+author: "Fatemeh Kazemi"
+date: "1/18/2021"
+output: html_document
+---
+
+### This program:
+  (1) Merges CMS(ndi) data with pmc and ses data
+  
+### Note:
+  1. In data merged with CMS, bufferzone is 12-mile unless specified
+  2. Exposure window is one year unless specified
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load packages}
+library(tidyverse)
+library(here)
+```
+
+```{r load data}
+dirUSSpatial <- 'C:\\Users\\fkazem01\\Box\\Projects\\USA Spatial\\data\\processed\\'
+load(paste0(dirUSSpatial,'ses-site-bz12.RDa'))
+load(here('data','processed','pmc-1yr.RDa'))
+load(here('data','processed','fac-1yr.RDa'))
+load(here('data','processed','fac-ex-ec-1yr.RDa'))
+load(here('data','processed','master-ndi-pmc.RDa'))
+load(here('data','processed','pmc-site-ndi.RDa'))
+```
+
+```{r Import and save CMS(/ndi) data}
+dt.master.ndi.pmc <- read.csv(here('data', 'processed','master_ndi_pmc.csv')) %>% 
+  rename(Site.ID = Site_ID,
+         Year = year,
+         Month = MONTH,
+         age = ENROLLEE_AGE)
+save(dt.master.ndi.pmc, file = here('data', 'processed', 'master-ndi-pmc.RDa'))
+
+dt.master.ndi.pmc.race <- read.csv(here('data', 'processed','master_ndi_pmc_race.csv')) %>%
+  rename(Site.ID = Site_ID,
+         Year = year,
+         Month = MONTH,
+         age = ENROLLEE_AGE)
+save(dt.master.ndi.pmc.race, file = here('data', 'processed', 'master-ndi-pmc-race.RDa'))
+```
+
+```{r PMC}
+dt.pmc <- dt.pmc.1yr %>% 
+  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
+
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.ndi.pmc <- dt.master.ndi.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
+  inner_join(dt.pmc) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID)
+
+write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc.csv'),
+          row.names = F)
+
+dt.ndi.pmc.race <- dt.master.ndi.pmc.race %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>% 
+  inner_join(dt.pmc) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID)
+
+write.csv(dt.ndi.pmc.race, file = here('data', 'processed', 'ndi-pmc-race.csv'),
+          row.names = F)
+```
+
+```{r Factors}
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.ndi.fac <- dt.master.ndi.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
+  inner_join(dt.fac.1yr) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID)
+
+write.csv(dt.ndi.fac, file = here('data', 'processed', 'ndi-fac.csv'),
+          row.names = F)
+
+dt.ndi.fac.race <- dt.master.ndi.fac.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>% 
+  inner_join(dt.fac.1yr) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID)
+
+write.csv(dt.ndi.fac.race, file = here('data', 'processed', 'ndi-fac-race.csv'),
+          row.names = F)
+```
+
+```{r Factors Excluding EC}
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.ndi.fac.ex.ec <- dt.master.ndi.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
+  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID)
+
+write.csv(dt.ndi.fac.ex.ec, file = here('data', 'processed', 'ndi-fac-ex-ec.csv'),
+          row.names = F)
+
+dt.ndi.fac.ex.ec.race <- dt.master.ndi.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>% 
+  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID)
+
+write.csv(dt.ndi.fac.race, file = here('data', 'processed', 'ndi-fac-ex-ec-race.csv'),
+          row.names = F)
+```
+
+```{r Carbons}
+dt.carbon <- dt.pmc.1yr %>% 
+  select(Site.ID, Year, Month, EC, OC) %>% 
+  rename_at(vars(EC, OC), ~paste("Yr", .x, sep = "_"))
+
+dt.site <- dt.pmc.site.ndi %>% 
+  filter(!Method == "EC.TOT-OC.TOR") %>% 
+  select(Site.ID, Method)
+
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.ndi.carbon <- dt.master.ndi.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_lungc,
+         -no_death_uri, -no_death_ards) %>%  
+  inner_join(dt.carbon) %>% 
+  inner_join(dt.site) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(-Method)
+
+write.csv(dt.ndi.carbon, file = here('data', 'processed', 'ndi-carbon.csv'),
+          row.names = F)
+
+dt.ndi.carbon.tot <- dt.master.ndi.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_lungc,
+         -no_death_uri, -no_death_ards) %>%  
+  inner_join(dt.carbon) %>% 
+  inner_join(dt.site) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID) %>% 
+  filter(Method == "TOT") %>% 
+  select(-Method)
+
+write.csv(dt.ndi.carbon.tot, file = here('data', 'processed', 'ndi-carbon-tot.csv'),
+          row.names = F)
+
+dt.ndi.carbon.tor <- dt.master.ndi.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_lungc,
+         -no_death_uri, -no_death_ards) %>%  
+  inner_join(dt.carbon) %>% 
+  inner_join(dt.site) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID) %>% 
+  filter(Method == "TOR") %>% 
+  select(-Method)
+
+write.csv(dt.ndi.carbon.tor, file = here('data', 'processed', 'ndi-carbon-tor.csv'),
+          row.names = F)
+``` 

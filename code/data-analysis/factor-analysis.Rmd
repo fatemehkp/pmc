@@ -10,38 +10,101 @@ output:
 ### Last Edit: 12-31-2020
 
 ### This program:
-  (1) Run factor anlaysis
+  (1) Run factor analysis
 
 ```{r load packages}
 library(tidyverse)
 library(here)
 library(psych) # for factor analysis
-
 ```
 
 ```{r Load datasets}
-load(here('data','processed', 'pmc-selected.RDa'))
+load(here('data','processed', 'pmc-daily.RDa'))
+```
+
+```{r Call functions}
+source(here('code','data-processors','air-data-smooth-mvavg-function.R'))
 ```
 
 ```{r - preliminary factor analysis}
 # All eligible monitors
-fit <- factanal(dt.pmc.sel %>% select(AS:OC), 8, rotation="varimax")
+fit <- factanal(dt.pmc.daily %>% select(AS:OC), 8, rotation="varimax")
 factor.loadings <- rbind(fit$loadings)
 save(factor.loadings, file = here('output','table','factor-loadings.RDa'))
+#Traffic Soil Metals Biomass Salt Oil Coal Steel
 
-factor.scores <- factor.scores(dt.pmc.sel %>% select(AS:OC), fit)
-dt.pmc.fac <- cbind(dt.pmc.sel, factor.scores$scores)
-save(dt.pmc.fac, file = here('data', 'processed', 'pmc-fac.RDa'))
-
-# Removing EC from factor analysis
-fit <- factanal(dt.pmc.sel %>% select(AS:ZN, OC), 8, rotation="varimax")
-factor.loadings.ex.ec <- rbind(fit$loadings)
-save(factor.loadings.ex.ec, file = here('output','table','factor-loadings-ex-ec.RDa'))
-
-factor.scores <- factor.scores(dt.pmc.sel %>% select(AS:ZN, OC), fit)
-dt.pmc.fac.ex.ec <- cbind(dt.pmc.sel, factor.scores$scores)
-save(dt.pmc.fac.ex.ec, file = here('data', 'processed', 'pmc-fac-ex-ec.RDa'))
+factor.scores <- factor.scores(dt.pmc.daily %>% select(AS:OC), fit)
+dt.fac.daily <- cbind(dt.pmc.daily %>% select(Site.ID, Date), factor.scores$scores) 
+save(dt.fac.daily, file = here('data', 'processed', 'fac-daily.RDa'))
 ```
 
+```{r Removing EC from factor analysis}
+fit <- factanal(dt.pmc.daily %>% select(AS:ZN, OC), 8, rotation="varimax")
+factor.loadings.ex.ec <- rbind(fit$loadings)
+save(factor.loadings.ex.ec, file = here('output','table','factor-loadings-ex-ec.RDa'))
+# Soil Metals Traffic Biomass Coal Salt Oil Steel
 
+factor.scores <- factor.scores(dt.pmc.daily %>% select(AS:ZN, OC), fit)
+dt.fac.daily.ex.ec <- cbind(dt.pmc.daily %>% select(Site.ID, Date), factor.scores$scores)
+save(dt.fac.daily.ex.ec, file = here('data', 'processed', 'fac-daily-ex-ec.RDa'))
+```
 
+```{r Smoothing Data & Caluculating 1-yr mvavg for each month}
+dt.air <- dt.fac.daily %>% 
+  pivot_longer(cols = Factor1:Factor8,
+               names_to = "Parameter.Symbol",
+               values_to = "Value") %>% 
+  arrange(Site.ID, Parameter.Symbol, Date)
+
+site.para <- dt.air %>% 
+  distinct(Site.ID, Parameter.Symbol)
+
+#using smoothed.yr function
+smooth.out <- mapply(Smoothed.Year, site.para$Site.ID, site.para$Parameter.Symbol)
+para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
+                           Parameter.Symbol=unlist(smooth.out[2,]),
+                           Date=unlist(smooth.out[3,]), 
+                           para.1yr=unlist(smooth.out[4,]))
+
+dt.fac.1yr <- para.monthly %>% 
+  mutate(Year = floor(Date -0.01),
+         Month = round((Date - Year)*12)) %>% 
+  select(-Date) %>% 
+  pivot_wider(names_sort = T,
+              names_from = c(Parameter.Symbol),
+              values_from = c(para.1yr)) %>% 
+  arrange(Site.ID, Year, Month)
+
+save(dt.fac.1yr, file = here('data', 'processed', 'fac-1yr.RDa'))
+write.csv(dt.fac.1yr, file = here('data', 'processed', 'fac-1yr.csv'), row.names = F)
+```
+
+```{r Smoothing Data & Caluculating 1-yr mvavg for each month}
+dt.air <- dt.fac.daily.ex.ec %>% 
+  pivot_longer(cols = Factor1:Factor8,
+               names_to = "Parameter.Symbol",
+               values_to = "Value") %>% 
+  arrange(Site.ID, Parameter.Symbol, Date)
+
+site.para <- dt.air %>% 
+  distinct(Site.ID, Parameter.Symbol)
+
+#using smoothed.yr function
+smooth.out <- mapply(Smoothed.Year, site.para$Site.ID, site.para$Parameter.Symbol)
+para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
+                           Parameter.Symbol=unlist(smooth.out[2,]),
+                           Date=unlist(smooth.out[3,]), 
+                           para.1yr=unlist(smooth.out[4,]))
+
+dt.fac.ex.ec.1yr <- para.monthly %>% 
+  mutate(Year = floor(Date -0.01),
+         Month = round((Date - Year)*12)) %>% 
+  select(-Date) %>% 
+  pivot_wider(names_sort = T,
+              names_from = c(Parameter.Symbol),
+              values_from = c(para.1yr)) %>% 
+  arrange(Site.ID, Year, Month)
+
+save(dt.fac.ex.ec.1yr, file = here('data', 'processed', 'fac-ex-ec-1yr.RDa'))
+write.csv(dt.fac.ex.ec.1yr, file = here('data', 'processed', 'fac-ex-ec-1yr.csv'), row.names = F)
+```

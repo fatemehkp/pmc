@@ -1,0 +1,1623 @@
+---
+title: "PM Component Paper Plots"
+author: "Fatemeh Kazemi"
+date: "01-19-2021"
+---
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r}
+### load packages
+  library(tidyverse)
+  library(here)
+  library(gridExtra)
+```
+
+```{r Load data}
+load(here('output','analysis','out-pmc-base.RDa'))
+load(here('output','analysis','out-pmc-ses.RDa'))
+load(here('output','analysis','out-fac-base.RDa'))
+load(here('output','analysis','out-fac-ses.RDa'))
+
+```
+
+```{r - Components Base}
+data <- out.pmc.base
+
+cmp <- c("OC", "NO3", "V", "Ni", "SO4", "Se",
+         "Zn", "Pb", "Ca", "Si", "PM2.5")
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia",
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% cmp,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp),
+         sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos'))
+         )
+# #610038
+plot_cols <- c("red")
+
+ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Index, yend = Index),
+              color =plot_cols, size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Index, shape = as.factor(sig)), 
+             color =plot_cols, size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  
+facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25, 'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
+  ) +
+ggsave(here('output', 'plot','pmc-base.png'), width = 9.5, height = 5.5)
+```
+
+```{r - Components SES-Adj}
+data <- out.pmc.ses
+
+cmp <- c("OC", "NO3", "V", "Ni", "SO4", "Se",
+         "Zn", "Pb", "Ca", "Si", "PM2.5")
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia",
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% cmp,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp),
+         sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos'))
+         )
+# #610038
+plot_cols <- c("red")
+
+ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Index, yend = Index),
+              color =plot_cols, size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Index, shape = as.factor(sig)), 
+             color =plot_cols, size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  
+facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25, 'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
+  ) +
+ggsave(here('output', 'plot','pmc-ses.png'), width = 9.5, height = 5.5)
+```
+
+```{r - Factor Base}
+data <- out.fac.base
+
+So <- c("Steel", "Coal", "Oil", "Salt", 
+         "Biomass", "Metals", "Soil", "Traffic")
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia",
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% So,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So),
+         sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos'))
+         )
+# #610038
+plot_cols <- c("red")
+
+ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  geom_vline(xintercept = 1.2, linetype = 2, alpha = 0) +
+  xlab("") +
+  ylab("") +
+  #scale_x_continuous(breaks=c(1, 1.1, 1.2)) + 
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Index, yend = Index),
+               color =plot_cols, size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Index, shape = as.factor(sig)), 
+             color =plot_cols, size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  
+facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
+  ) +
+ggsave(here('output', 'plot','fac-base.png'), width = 9.5, height = 5.5)
+```
+
+```{r - Factor SES-Adj}
+data <- out.fac.ses
+
+So <- c("Steel", "Coal", "Oil", "Salt", 
+         "Biomass", "Metals", "Soil", "Traffic")
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia",
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% So,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So),
+         sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos'))
+         )
+# #610038
+plot_cols <- c("red")
+
+ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  geom_vline(xintercept = 1.2, linetype = 2, alpha = 0) +
+  xlab("") +
+  ylab("") +
+  #scale_x_continuous(breaks=c(1, 1.1, 1.2)) + 
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Index, yend = Index),
+               color =plot_cols, size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Index, shape = as.factor(sig)), 
+             color =plot_cols, size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  
+facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
+  ) +
+ggsave(here('output', 'plot','fac-ses.png'), width = 9.5, height = 5.5)
+```
+
+```{r - Factor Ex. EC Base}
+data <- out.fac.ex.ec.base
+
+So <- c("Steel", "Oil", "Salt", "Coal", 
+         "Biomass","Traffic", "Metals", "Soil")
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia",
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% So,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So),
+         sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos'))
+         )
+# #610038
+plot_cols <- c("red")
+
+ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  geom_vline(xintercept = 1.2, linetype = 2, alpha = 0) +
+  xlab("") +
+  ylab("") +
+  #scale_x_continuous(breaks=c(1, 1.1, 1.2)) + 
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Index, yend = Index),
+               color =plot_cols, size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Index, shape = as.factor(sig)), 
+             color =plot_cols, size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  
+facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
+  ) +
+ggsave(here('output', 'plot','fac-ex-ec-base.png'), width = 9.5, height = 5.5)
+```
+
+```{r - Factor EX. EC SES-Adj}
+data <- out.fac.ex.ec.ses
+
+So <- c("Steel", "Oil", "Salt", "Coal", 
+         "Biomass","Traffic", "Metals", "Soil")
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia",
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% So,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So),
+         sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos'))
+         )
+# #610038
+plot_cols <- c("red")
+
+ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  geom_vline(xintercept = 1.2, linetype = 2, alpha = 0) +
+  xlab("") +
+  ylab("") +
+  #scale_x_continuous(breaks=c(1, 1.1, 1.2)) + 
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Index, yend = Index),
+               color =plot_cols, size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Index, shape = as.factor(sig)), 
+             color =plot_cols, size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  
+facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
+  ) +
+ggsave(here('output', 'plot','fac-ex-ec-ses.png'), width = 9.5, height = 5.5)
+```
+
+
+```{r - Components - PM Residual}
+data <- read_excel('Comp_PMResi.xlsx')
+
+cmp <- c("-OC", "-NO3", "-V", "-Ni", "-SO4", "-Se",
+         "-Zn", "-Pb", "-Ca", "-Si", "PM2.5")
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", 
+         "Respiratory", "Pneumonia",
+         "Cancer","Lung Cancer") # "CHF", "COPD", 
+
+data <- data %>% 
+  filter(Index %in% cmp,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp),
+         sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos'))
+         )
+
+plot_cols <- c("red")
+
+ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Index, yend = Index),
+               color =plot_cols, size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Index, shape = as.factor(sig)), 
+             color =plot_cols, size = 1.5, show.legend = F) +
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+
+facet_wrap( ~ Cause, ncol = 4, scales = "fixed") +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
+  ) +
+ggsave("CMP_PMResi_1114.jpeg", width = 9.5, height = 5.5)
+```
+
+```{r - Components PM Residual - Region}
+data <- read_excel('Comp_PMResi_Region.xlsx')
+
+cmp <- c("PM2.5",  "-Si", "-Ca", "-Pb", "-Zn",
+         "-Se", "-SO4", "-Ni", "-V", "-NO3", "-OC"
+         )
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", 
+         "Respiratory", "Pneumonia",
+         "Cancer","Lung Cancer") # "CHF", "COPD", 
+
+data <- data %>% 
+  filter(Index %in% cmp,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp),
+         Tag = as.factor(Tag)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_labs <- c("NE", "S", "MW", "W")
+plot_cols <- c("#07f900", "#0433ff", "#ffa501", "#a034f0")
+
+p <- grid.arrange(
+ggplot(data = filter(data, Cause %in% c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs,
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")), 
+
+ggplot(data = filter(data, Cause %in% c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10,face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
+nrow = 2) 
+
+ggsave("CMP_PMResi_Region_1113.jpeg", p, width = 9.5, height = 12)
+```
+
+
+```{r - Factor - PM Residual}
+data <- read_excel('Fac_PMResi.xlsx')
+
+So <- c("-Traffic", "-Oil", "-Coal", 
+         "-Metals","-Soil", "PM2.5") # "-Steel", "-Salt", "-Biomass", 
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", 
+         "Respiratory", "Pneumonia",
+         "Cancer","Lung Cancer") # "CHF", "COPD",
+
+data <- data %>% 
+  filter(Index %in% So,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_cols <- c("red")
+
+ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Index, yend = Index),
+              color =plot_cols, size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Index, shape = as.factor(sig)), 
+             color =plot_cols, size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  
+facet_wrap( ~ Cause, ncol = 4, scales = "fixed") +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
+  ) +
+ggsave("Fac_PMResi_1114.jpeg", width = 9.5, height = 4.5)
+```
+
+
+```{r - Components Region}
+data <- read_excel('Comp_Region.xlsx')
+
+
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "Se", "SO4", 
+          "Ni", "V", "NO3", "OC") 
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia", 
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% cmp,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp),
+         Tag = as.factor(Tag)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_labs <- c("NE", "S", "MW", "W")
+plot_cols <- c("#07f900", "#0433ff", "#ffa501", "#a034f0")
+
+p <- grid.arrange(
+ggplot(data = filter(data, Cause %in% c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")), 
+
+ggplot(data = filter(data, Cause %in% c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10,face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
+nrow = 2) 
+
+ggsave("CMP_Region_1113.jpeg", p, width = 9.5, height = 12)
+```
+
+```{r Factors Region}
+data <- read_excel('Fac_Region.xlsx')
+
+
+So <- c("Soil", "Metals",  
+        "Coal", "Oil", "Traffic") # "-Steel", "-Salt", "-Biomass", 
+
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia", 
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% So,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_labs <- c("NE", "S", "MW", "W")
+plot_cols <- c("#07f900", "#0433ff", "#ffa501", "#a034f0")
+
+p <- grid.arrange(
+ggplot(data = filter(data, Cause %in% c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")), 
+
+ggplot(data = filter(data, Cause %in% c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
+nrow = 2) 
+
+ggsave("Fac_Region_1113.jpeg", p, width = 9.5, height = 7)
+```
+
+```{r - Components Race}
+data <- read_excel('Comp_Race.xlsx')
+
+
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "Se", "SO4", 
+          "Ni", "V", "NO3", "OC") 
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia", 
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% cmp,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp),
+         Tag = as.factor(Tag)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_labs <- c("White", "Hispanic", "Black", "Asian")
+plot_cols <- c("red", "orange", "blue", "seagreen")
+
+p <- grid.arrange(
+ggplot(data = filter(data, Cause %in% c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")), 
+
+ggplot(data = filter(data, Cause %in% c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
+nrow = 2)
+
+ggsave("CMP_Race_1113.jpeg", p, width = 9.5, height = 12)
+```
+
+```{r Factors Race}
+data <- read_excel('Fac_Race.xlsx')
+
+
+So <- c("Soil", "Metals",  
+        "Coal", "Oil", "Traffic") # "-Steel", "-Salt", "-Biomass", 
+
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia", 
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% So,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_labs <- c("White", "Hispanic", "Black", "Asian")
+plot_cols <- c("red", "orange", "blue", "seagreen")
+
+p <- grid.arrange(
+ggplot(data = filter(data, Cause %in% c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)),
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")), 
+
+ggplot(data = filter(data, Cause %in% c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units ='in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
+nrow = 2) 
+
+ggsave("Fac_Race_1113.jpeg", p, width = 9.5, height = 7)
+```
+
+```{r Components Urban}
+data <- read_excel('Comp_Urban.xlsx')
+
+
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "Se", "SO4", 
+          "Ni", "V", "NO3", "OC") 
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia", 
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% cmp,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp),
+         Tag = as.factor(Tag)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_labs <- c("Non-urban", "Urban")
+plot_cols <- c("red", "blue")
+
+p <- grid.arrange(
+ggplot(data = filter(data, Cause %in% c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25, 0, 0.25, 0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")), 
+
+ggplot(data = filter(data, Cause %in% c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "fixed", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25, 0, 0.25, 0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
+nrow = 2) 
+
+ggsave("CMP_Urban_1113.jpeg", p, width = 9.5, height = 10)
+```
+
+
+```{r Factors Urban}
+data <- read_excel('Fac_Urban.xlsx')
+
+
+So <- c("Soil", "Metals",  
+        "Coal", "Oil", "Traffic") # "-Steel", "-Salt", "-Biomass", 
+
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia", 
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% So,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_labs <- c("Non-urban", "Urban")
+plot_cols <- c("red", "blue")
+
+p <- grid.arrange(
+ggplot(data = filter(data, Cause %in% c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")), 
+
+ggplot(data = filter(data, Cause %in% c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units ='in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
+nrow = 2) 
+
+ggsave("Fac_Urban_1113.jpeg", p, width = 9.5, height = 6)
+```
+
+```{r Components SES-Urban}
+data <- read_excel('Comp_SESUrban.xlsx')
+
+
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "Se", "SO4", 
+          "Ni", "V", "NO3", "OC") 
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia", 
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% cmp,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp),
+         Tag = as.factor(Tag)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_labs <- c("High", "Middle", "Low")
+plot_cols <-  c("seagreen", "blue", "red")
+
+p <- grid.arrange(
+ggplot(data = filter(data, Cause %in% c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25, 0, 0.25, 0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")), 
+
+ggplot(data = filter(data, Cause %in% c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25, 0, 0.25, 0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
+nrow = 2) 
+
+ggsave("CMP_SESUrban_1113.jpeg", p, width = 9.5, height = 11)
+```
+
+
+
+```{r Factors SES-Urban}
+data <- read_excel('Fac_SESUrban.xlsx')
+
+
+So <- c("Soil", "Metals",  
+        "Coal", "Oil", "Traffic") # "-Steel", "-Salt", "-Biomass", 
+
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia", 
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% So,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_labs <- c("High", "Middle", "Low")
+plot_cols <-  c("seagreen", "blue", "red")
+
+p <- grid.arrange(
+ggplot(data = filter(data, Cause %in% c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")), 
+
+ggplot(data = filter(data, Cause %in% c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units ='in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
+nrow = 2) 
+
+ggsave("Fac_SESUrban_1113.jpeg", p, width = 9.5, height = 7)
+```
+
+
+```{r - Components BRFSS}
+data <- read_excel('Comp_BRFSS.xlsx')
+
+
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "Se", "SO4", 
+          "Ni", "V", "NO3", "OC") 
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia", 
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% cmp,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp),
+         Tag = as.factor(Tag)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_labs <- c("BRFSS-Adjusted", "Base")
+plot_cols <- c("red", "blue")
+  
+p <- grid.arrange(
+ggplot(data = filter(data, Cause %in% c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)),
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")), 
+
+ggplot(data = filter(data, Cause %in% c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
+nrow = 2) 
+  
+ggsave("CMP_BRFSS_1113.jpeg", p, width = 9.5, height = 10)
+```
+
+
+```{r Factors BRFSS}
+data <- read_excel('Fac_BRFSS.xlsx')
+
+
+So <- c("Soil", "Metals",  
+        "Coal", "Oil", "Traffic") # "-Steel", "-Salt", "-Biomass", 
+
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia", 
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% So,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_labs <- c("BRFSS-Adjusted", "Base")
+plot_cols <- c("red", "blue")
+
+p <- grid.arrange(
+ggplot(data = filter(data, Cause %in% c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")), 
+
+ggplot(data = filter(data, Cause %in% c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units ='in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
+nrow = 2) 
+
+ggsave("Fac_BRFSS_1113.jpeg", p, width = 9.5, height = 7)
+```
+
+```{r Components Buffer}
+data <- read_excel('Comp_Buffer.xlsx')
+
+
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "Se", "SO4", 
+          "Ni", "V", "NO3", "OC") 
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia", 
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% cmp,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp),
+         Tag = as.factor(Tag)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_labs <- c("24-miles", "12-miles", "6-miles") 
+plot_cols <- c("red", "blue", "seagreen")
+
+p <- grid.arrange(
+ggplot(data = filter(data, Cause %in% c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25, 0, 0.25, 0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")), 
+
+ggplot(data = filter(data, Cause %in% c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25, 0, 0.25, 0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
+nrow = 2) 
+
+ggsave("CMP_Buffer_1113.jpeg", p, width = 9.5, height = 10)
+```
+
+
+```{r Components Mvavg}
+data <- read_excel('Comp_Mvavg.xlsx')
+
+
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "Se", "SO4", 
+          "Ni", "V", "NO3", "OC") 
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia", 
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% cmp,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp),
+         Tag = as.factor(Tag)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_labs <- c("5-yr", "4-yr","3-yr","2-yr","1-yr")
+plot_cols <- c("red","orange","purple","blue","seagreen")
+
+p <- grid.arrange(
+ggplot(data = filter(data, Cause %in% c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25, 0, 0.25, 0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")), 
+
+ggplot(data = filter(data, Cause %in% c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)),
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
+nrow = 2) 
+
+ggsave("CMP_Mvavg_1113.jpeg", p, width = 9.5, height = 10)
+```
+

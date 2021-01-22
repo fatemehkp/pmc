@@ -1,0 +1,311 @@
+---
+title: "Config File Generator"
+output: html_notebook
+---
+
+### This program:
+  (1) Generates configuration files for Java for different combinations of 
+      i. pollutant
+      ii. cause of death
+      iii. model
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r List of PM Components}
+pmc <- c("Yr_AS","Yr_CA","Yr_CL","Yr_CU","Yr_EC","Yr_FE","Yr_K",
+       "Yr_MG","Yr_MN","Yr_NA","Yr_NI","Yr_NO3","Yr_OC","Yr_PB",
+       "Yr_PM","Yr_SE","Yr_SI","Yr_SO4","Yr_V","Yr_ZN")
+```
+
+```{r List of Factors}
+fac <- c("Factor1","Factor2","Factor3","Factor4",
+         "Factor5","Factor6","Factor7","Factor8")
+```
+
+```{r List of Carbons}
+carbon <- c("Yr_EC", "Yr_OC")
+```
+
+```{r List of Causes of Death}
+cuz <- c("allcuz","nacc","acc","cvd","ihd","chf","cbv","resp","copd","pneu","canc","lungc")
+```
+
+```{r Config file - Base Model}
+config.base <- c("# data path
+data_path=/scratch/fatemehkp/projects/data/analysis/dataset
+
+# loader settings
+# separated symbol for the given data
+sep=,
+# the predictors are included in the model
+predictors=exposure
+# stratas
+stratas=StrID, SiteID
+# death
+death=no_death_outcome
+# life
+life=no_enrollee
+
+# optimizer settings
+# whether considering ties for death, default false
+isTies=false
+# if given multiple cores, set isParallelism as true
+isParallelism=true
+# whether penalizing the weight
+l2=false
+# if penalizing the weight, set the strength, otherwise it is useless.
+l2Strength=1
+
+# the application class name
+survival.class=CoxPH
+")
+```
+
+```{r Config file - SES Adj. Model}
+config.ses <- c("# data path
+data_path=/scratch/fatemehkp/projects/data/analysis/dataset
+
+# loader settings
+# separated symbol for the given data
+sep=,
+# the predictors are included in the model
+predictors=exposure, ses
+# stratas
+stratas=StrID, SiteID
+# death
+death=no_death_outcome
+# life
+life=no_enrollee
+
+# optimizer settings
+# whether considering ties for death, default false
+isTies=false
+# if given multiple cores, set isParallelism as true
+isParallelism=true
+# whether penalizing the weight
+l2=false
+# if penalizing the weight, set the strength, otherwise it is useless.
+l2Strength=1
+
+# the application class name
+survival.class=CoxPH
+")
+```
+
+```{r base model for components}
+dataname <- "ndi-pmc.csv"
+expo <- pmc
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.base, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    for (j in seq(1,length(cuz),1)){
+      w <- gsub("outcome", cuz[j], z)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz)*(i-1)
+      writeLines(w, here('config-files','pmc-base', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for components}
+dataname <- "ndi-pmc.csv"
+expo <- pmc
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.ses, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    for (j in seq(1,length(cuz),1)){
+      w <- gsub("outcome", cuz[j], z)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz)*(i-1)
+      writeLines(w, here('config-files','pmc-ses', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r base model for factors}
+dataname <- "ndi-fac.csv"
+expo <- fac
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.base, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    for (j in seq(1,length(cuz),1)){
+      w <- gsub("outcome", cuz[j], z)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz)*(i-1)
+      writeLines(w, here('config-files','fac-base', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for factors}
+dataname <- "ndi-fac.csv"
+expo <- fac
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.ses, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    for (j in seq(1,length(cuz),1)){
+      w <- gsub("outcome", cuz[j], z)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz)*(i-1)
+      writeLines(w, here('config-files','fac-ses', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r base model for factors excluding EC}
+dataname <- "ndi-fac-ex-ec.csv"
+expo <- fac
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.base, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    for (j in seq(1,length(cuz),1)){
+      w <- gsub("outcome", cuz[j], z)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz)*(i-1)
+      writeLines(w, here('config-files','fac-ex-ec-base', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for factors excluding EC}
+dataname <- "ndi-fac-ex-ec.csv"
+expo <- fac
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.ses, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    for (j in seq(1,length(cuz),1)){
+      w <- gsub("outcome", cuz[j], z)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz)*(i-1)
+      writeLines(w, here('config-files','fac-ex-ec-ses', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for Carbons}
+dataname <- "ndi-carbon.csv"
+expo <- carbon
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.ses, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    for (j in seq(1,length(cuz),1)){
+      w <- gsub("outcome", cuz[j], z)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz)*(i-1)
+      writeLines(w, here('config-files','carbon-ses', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for TOT Carbons}
+dataname <- "ndi-carbon-tot.csv"
+expo <- carbon
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.ses, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    for (j in seq(1,length(cuz),1)){
+      w <- gsub("outcome", cuz[j], z)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz)*(i-1)
+      writeLines(w, here('config-files','tot-ses', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for TOR Carbons}
+dataname <- "ndi-carbon-tor.csv"
+expo <- carbon
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.ses, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    for (j in seq(1,length(cuz),1)){
+      w <- gsub("outcome", cuz[j], z)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz)*(i-1)
+      writeLines(w, here('config-files','tor-ses', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r under work - parse output}
+result = matrix(nrow=1,ncol=4,byrow = TRUE) 
+colnames(result) <- c("Expo","Outcome","Beta","SE")
+
+for (i in seq(1,240,1)){
+  test <- readLines(here('output','85.txt'))
+  important_line2 <- test[min(grep("^death", test))]
+  dt <- dt %>% 
+    mutate(cuz = gsub(".*death_", "", important_line2))
+  important_line <- test[min(grep("^Factor", test))]
+  Expo <- gsub("\t.*", "", important_line)
+  Coef <- sub(".*\t(.*)\t.*","\\1", important_line)
+  SE <- gsub(".*\t", "", important_line)
+}
+
+```
+

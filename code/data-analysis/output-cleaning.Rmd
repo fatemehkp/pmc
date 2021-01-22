@@ -1,0 +1,306 @@
+---
+title: "Analysis Output files"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r load packages}
+library(tidyverse)
+library(here)
+```
+
+```{r Load data}
+load(here('data','processed','pmc-1yr.RDa'))
+load(here('data','processed','fac-1yr.RDa'))
+load(here('data','processed','fac-ex-ec-1yr.RDa'))
+load(here('data','processed','pmc-site-ndi.RDa'))
+```
+
+```{r - Parameter/Factor to Index}
+### Components
+Para.to.Index <- tribble(
+  ~Index, ~Parameter,
+   "As", "AS",
+   "Ca", "CA",
+   "Cu", "CU",
+   "Cl", "CL",
+   "Fe", "FE",
+   "Pb", "PB",
+   "Mn", "MN",
+   "Ni", "NI",
+   "Mg", "MG",
+   "Se", "SE",
+   "V", "V",
+   "Si", "SI",
+   "Zn", "ZN",
+   "K", "K",
+   "Na", "NA",
+   "NO3", "NO3",
+   "SO4", "SO4",
+   "OC", "OC",
+   "EC", "EC",
+   "PM2.5", "PM"
+   ) %>% 
+  mutate(Index = as.factor(Index),
+         Parameter = as.factor(Parameter))
+
+### Factors
+Factor.to.Index <- tribble(
+  ~Index, ~Parameter,
+   "Traffic", "Factor1",
+   "Soil", "Factor2",
+   "Metals", "Factor3",
+   "Biomass", "Factor4",
+   "Salt", "Factor5",
+   "Oil", "Factor6",
+   "Coal", "Factor7",
+   "Steel", "Factor8"
+   ) %>% 
+  mutate(Index = as.factor(Index),
+         Parameter = as.factor(Parameter))
+
+### Factors excluding EC
+Factor.ex.ec.to.Index <- tribble(
+  ~Index, ~Parameter,
+   "Soil", "Factor1",
+   "Metals", "Factor2",
+   "Traffic", "Factor3",
+   "Biomass", "Factor4",
+   "Coal", "Factor5",
+   "Salt", "Factor6",
+   "Oil", "Factor7",
+   "Steel", "Factor8"
+   ) %>% 
+  mutate(Index = as.factor(Index),
+         Parameter = as.factor(Parameter))
+```
+
+```{r Outcome to Cause }
+Outcome.to.Cause <- tribble(
+  ~Cause, ~Outcome,
+  "All-Cause", "allcuz",
+  "Non-Accidental", "nacc",
+  "Accidental", "acc",
+  "Cardiovascular", "cvd",
+  "IHD", "ihd",
+  "CHF", "chf",
+  "CBV", "cbv",
+  "Respiratory", "resp",
+  "COPD", "copd",
+  "Pneumonia", "pneu",
+  "Cancer", "canc",
+  "Lung Cancer", "lungc"
+)
+```
+
+```{r calculating IQRS}
+### Components
+pmc.1yr.iqr <- dt.pmc.site.ndi %>% 
+  select(Site.ID) %>% 
+  inner_join(dt.pmc.1yr) %>% 
+  summarise_at(vars(AS:ZN), ~IQR(.x)) %>% 
+  pivot_longer(cols = AS:ZN,
+               names_to = "Parameter",
+               values_to = "IQR") %>% 
+  mutate(Parameter = as.factor(Parameter))
+
+save(pmc.1yr.iqr, file = here('data','processed','pmc-1yr-iqr.RDa'))
+
+### Factors
+fac.1yr.iqr <- dt.pmc.site.ndi %>% 
+  select(Site.ID) %>% 
+  inner_join(dt.fac.1yr) %>% 
+  summarise_at(vars(Factor1:Factor8), ~IQR(.x)) %>% 
+  pivot_longer(cols = Factor1:Factor8,
+               names_to = "Parameter",
+               values_to = "IQR")%>% 
+  mutate(Parameter = as.factor(Parameter))
+
+save(fac.1yr.iqr, file = here('data','processed','fac-1yr-iqr.RDa'))
+
+### Factors excluding EC
+fac.ex.ec.1yr.iqr <- dt.pmc.site.ndi %>% 
+  select(Site.ID) %>% 
+  inner_join(dt.fac.ex.ec.1yr) %>% 
+  summarise_at(vars(Factor1:Factor8), ~IQR(.x)) %>% 
+  pivot_longer(cols = Factor1:Factor8,
+               names_to = "Parameter",
+               values_to = "IQR")%>% 
+  mutate(Parameter = as.factor(Parameter))
+
+save(fac.ex.ec.1yr.iqr, file = here('data','processed','fac-ex-ec-1yr-iqr.RDa'))
+
+### Carbons
+dt.carbon <- dt.pmc.1yr %>% 
+  select(Site.ID, Year, Month, EC, OC)
+
+dt.site <- dt.pmc.site.ndi %>% 
+  filter(!Method == "EC.TOT-OC.TOR") %>% 
+  select(Site.ID, Method)
+
+carbon.1yr.iqr <- dt.site %>% 
+  select(Site.ID) %>% 
+  inner_join(dt.carbon) %>% 
+  summarise_at(vars(EC:OC), ~IQR(.x)) %>% 
+  pivot_longer(cols = EC:OC,
+               names_to = "Parameter",
+               values_to = "IQR") %>% 
+  mutate(Parameter = as.factor(Parameter))
+
+save(carbon.1yr.iqr, file = here('data','processed','carbon-1yr-iqr.RDa'))
+
+carbon.method.1yr.iqr <- dt.site %>% 
+  inner_join(dt.carbon) %>% 
+  group_by(Method) %>% 
+  summarise_at(vars(EC:OC), ~IQR(.x)) %>% 
+  pivot_longer(cols = EC:OC,
+               names_to = "Parameter",
+               values_to = "IQR") %>% 
+  mutate(Parameter = as.factor(Parameter)) %>% 
+  arrange(Parameter)
+
+save(carbon.method.1yr.iqr, file = here('data','processed','carbon-method-1yr-iqr.RDa'))
+```
+
+```{r Output PMC Base}
+out.pmc.base <- read.csv(here('output','analysis','pmc_base.csv')) %>% 
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge(pmc.1yr.iqr) %>% 
+  merge(Para.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, HR, HR.L, HR.U)
+
+save(out.pmc.base, file = here('output','analysis','out-pmc-base.RDa'))
+```
+
+```{r Output PMC SES-Adj}
+out.pmc.ses <- read.csv(here('output','analysis','pmc_ses.csv')) %>% 
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge(pmc.1yr.iqr) %>% 
+  merge(Para.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, HR, HR.L, HR.U)
+
+save(out.pmc.ses, file = here('output','analysis','out-pmc-ses.RDa'))
+```
+
+```{r Output Factors Base}
+out.fac.base <- read.csv(here('output','analysis','fac_base.csv')) %>% 
+  rename(Parameter = Predictor) %>% 
+  merge(fac.1yr.iqr) %>% 
+  merge(Factor.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, HR, HR.L, HR.U)
+
+save(out.fac.base, file = here('output','analysis','out-fac-base.RDa'))
+```
+
+```{r Output Factors SES-Adj}
+out.fac.ses <- read.csv(here('output','analysis','fac_ses.csv')) %>% 
+  rename(Parameter = Predictor) %>% 
+  merge(fac.1yr.iqr) %>% 
+  merge(Factor.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, HR, HR.L, HR.U)
+
+save(out.fac.ses, file = here('output','analysis','out-fac-ses.RDa'))
+```
+
+```{r Output Factors Ex. EC Base}
+out.fac.ex.ec.base <- read.csv(here('output','analysis','fac_ex_ec_base.csv')) %>% 
+  rename(Parameter = Predictor) %>% 
+  merge(fac.ex.ec.1yr.iqr) %>% 
+  merge(Factor.ex.ec.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, HR, HR.L, HR.U)
+
+save(out.fac.ex.ec.base, file = here('output','analysis','out-fac-ex-ec-base.RDa'))
+```
+
+```{r Output Factors Ex. EC SES-Adj}
+out.fac.ex.ec.ses <- read.csv(here('output','analysis','fac_ex_ec_ses.csv')) %>% 
+  rename(Parameter = Predictor) %>% 
+  merge(fac.ex.ec.1yr.iqr) %>% 
+  merge(Factor.ex.ec.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, HR, HR.L, HR.U)
+
+save(out.fac.ex.ec.ses, file = here('output','analysis','out-fac-ex-ec-ses.RDa'))
+```
+
+```{r Output Carbon SES-Adj}
+out.carbon.ses <- read.csv(here('output','analysis','carbon_ses.csv')) %>% 
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge(carbon.1yr.iqr) %>% 
+  merge(Para.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, HR, HR.L, HR.U)
+
+save(out.carbon.ses, file = here('output','analysis','out-carbon-ses.RDa'))
+```
+
+```{r Output Carbon TOT SES-Adj}
+out.carbon.tot.ses <- read.csv(here('output','analysis','tot_ses.csv')) %>% 
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge((carbon.method.1yr.iqr %>% filter(Method == "TOT"))) %>% 
+  merge(Para.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, HR, HR.L, HR.U)
+
+save(out.carbon.tot.ses, file = here('output','analysis','out-carbon-tot-ses.RDa'))
+```
+
+```{r Output Carbon TOR SES-Adj}
+out.carbon.tor.ses <- read.csv(here('output','analysis','tot_ses.csv')) %>% 
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge((carbon.method.1yr.iqr %>% filter(Method == "TOR"))) %>% 
+  merge(Para.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, HR, HR.L, HR.U)
+
+save(out.carbon.tor.ses, file = here('output','analysis','out-carbon-tor-ses.RDa'))
+```
