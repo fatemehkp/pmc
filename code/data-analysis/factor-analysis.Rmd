@@ -108,3 +108,56 @@ dt.fac.ex.ec.1yr <- para.monthly %>%
 save(dt.fac.ex.ec.1yr, file = here('data', 'processed', 'fac-ex-ec-1yr.RDa'))
 write.csv(dt.fac.ex.ec.1yr, file = here('data', 'processed', 'fac-ex-ec-1yr.csv'), row.names = F)
 ```
+
+```{r residuals of PM vs. Factors}
+dt.pm.daily <- dt.pmc.daily %>% 
+  select(Site.ID, Date, PM)
+
+dt.fac.ex.ec.residual <- dt.fac.daily.ex.ec %>% 
+  merge(dt.pm.daily) %>% 
+  group_by(Site.ID) %>% 
+  nest() %>% 
+  mutate(PM_Factor1 = map(map(data, ~lm(PM ~ Factor1, data = .)), residuals),
+         PM_Factor2 = map(map(data, ~lm(PM ~ Factor2, data = .)), residuals),
+         PM_Factor3 = map(map(data, ~lm(PM ~ Factor3, data = .)), residuals),
+         PM_Factor4 = map(map(data, ~lm(PM ~ Factor4, data = .)), residuals),
+         PM_Factor5 = map(map(data, ~lm(PM ~ Factor5, data = .)), residuals),
+         PM_Factor6  = map(map(data, ~lm(PM ~ Factor6,  data = .)), residuals),
+         PM_Factor7 = map(map(data, ~lm(PM ~ Factor7, data = .)), residuals),
+         PM_Factor8 = map(map(data, ~lm(PM ~ Factor8, data = .)), residuals)
+         ) %>% 
+  unnest(c(data, PM_Factor1:PM_Factor8)) %>% 
+  select(-(Factor1:Factor8), -PM)
+
+save(dt.fac.ex.ec.residual, file = here('data', 'processed', 'fac-ex-ec-residual.RDa'))
+```
+
+```{r Smoothing Data & Caluculating 1-yr mvavg for each month}
+dt.air <- dt.fac.ex.ec.residual %>% 
+  pivot_longer(cols = PM_Factor1:PM_Factor8,
+               names_to = "Parameter.Symbol",
+               values_to = "Value") %>% 
+  arrange(Site.ID, Parameter.Symbol, Date)
+
+site.para <- dt.air %>% 
+  distinct(Site.ID, Parameter.Symbol)
+
+#using smoothed.yr function
+smooth.out <- mapply(Smoothed.Year, site.para$Site.ID, site.para$Parameter.Symbol)
+para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
+                           Parameter.Symbol=unlist(smooth.out[2,]),
+                           Date=unlist(smooth.out[3,]), 
+                           para.1yr=unlist(smooth.out[4,]))
+
+dt.fac.ex.ec.residual.1yr <- para.monthly %>% 
+  mutate(Year = floor(Date -0.01),
+         Month = round((Date - Year)*12)) %>% 
+  select(-Date) %>% 
+  pivot_wider(names_sort = T,
+              names_from = c(Parameter.Symbol),
+              values_from = c(para.1yr)) %>% 
+  arrange(Site.ID, Year, Month)
+
+save(dt.fac.ex.ec.residual.1yr, file = here('data', 'processed', 'fac-ex-ec-residual-1yr.RDa'))
+
+```
