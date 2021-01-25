@@ -43,40 +43,55 @@ load(here('data','processed','pmc-sub-1yr-5yr.RDa'))
 ```
 
 ```{r Import and save CMS(/ndi) data}
-dt.master.ndi.pmc <- read.csv(here('data', 'processed','master_ndi_pmc.csv')) %>% 
+# bz = 12
+dt.master.ndi.pmc <- read.csv(
+  here('data', 'processed','master_ndi_pmc.csv')) %>% 
   rename(Site.ID = Site_ID,
          Year = year,
          Month = MONTH,
          age = ENROLLEE_AGE)
-save(dt.master.ndi.pmc, file = here('data', 'processed', 'master-ndi-pmc.RDa'))
+save(dt.master.ndi.pmc, 
+     file = here('data', 'processed', 'master-ndi-pmc.RDa'))
 
-dt.master.ndi.pmc.race <- read.csv(here('data', 'processed','master_ndi_pmc_race.csv')) %>%
+# bz =12 - race
+dt.master.ndi.pmc.race <- read.csv(
+  here('data', 'processed','master_ndi_pmc_race.csv')) %>%
   rename(Site.ID = Site_ID,
          Year = year,
          Month = MONTH,
          age = ENROLLEE_AGE)
-save(dt.master.ndi.pmc.race, file = here('data', 'processed', 'master-ndi-pmc-race.RDa'))
+save(dt.master.ndi.pmc.race, 
+     file = here('data', 'processed', 'master-ndi-pmc-race.RDa'))
 
-dt.master.ndi.pmc.bz6 <- read.csv(here('data', 'processed','master_ndi_pmc_bz6.csv')) %>% 
+# bz = 6
+dt.master.ndi.pmc.bz6 <- read.csv(
+  here('data', 'processed','master_ndi_pmc_bz6.csv')) %>% 
   rename(Site.ID = Site_ID,
          Year = year,
          Month = MONTH,
          age = ENROLLEE_AGE)
-save(dt.master.ndi.pmc.bz6, file = here('data', 'processed', 'master-ndi-pmc-bz6.RDa'))
+save(dt.master.ndi.pmc.bz6, 
+     file = here('data', 'processed', 'master-ndi-pmc-bz6.RDa'))
 
-dt.master.ndi.pmc.bz12 <- read.csv(here('data', 'processed','master_ndi_pmc_bz12.csv')) %>% 
+# bz = 12 of sites of bz =6
+dt.master.ndi.pmc.bz12 <- read.csv(
+  here('data', 'processed','master_ndi_pmc_bz12.csv')) %>% 
   rename(Site.ID = Site_ID,
          Year = year,
          Month = MONTH,
          age = ENROLLEE_AGE)
-save(dt.master.ndi.pmc.bz12, file = here('data', 'processed', 'master-ndi-pmc-bz12.RDa'))
+save(dt.master.ndi.pmc.bz12, 
+     file = here('data', 'processed', 'master-ndi-pmc-bz12.RDa'))
 
-dt.master.ndi.pmc.bz24 <- read.csv(here('data', 'processed','master_ndi_pmc_bz24.csv')) %>% 
+# bz = 24 of sites of bz =6
+dt.master.ndi.pmc.bz24 <- read.csv(
+  here('data', 'processed','master_ndi_pmc_bz24.csv')) %>% 
   rename(Site.ID = Site_ID,
          Year = year,
          Month = MONTH,
          age = ENROLLEE_AGE)
-save(dt.master.ndi.pmc.bz24, file = here('data', 'processed', 'master-ndi-pmc-bz24.RDa'))
+save(dt.master.ndi.pmc.bz24, 
+     file = here('data', 'processed', 'master-ndi-pmc-bz24.RDa'))
 ```
 
 ```{r PMC}
@@ -94,7 +109,8 @@ dt.ndi.pmc <- dt.master.ndi.pmc %>%
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc.csv'),
+write.csv(dt.ndi.pmc, 
+          file = here('data', 'processed', 'ndi-pmc.csv'),
           row.names = F)
 ```
 
@@ -110,7 +126,8 @@ dt.ndi.fac <- dt.master.ndi.pmc %>%
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.fac, file = here('data', 'processed', 'ndi-fac.csv'),
+write.csv(dt.ndi.fac, 
+          file = here('data', 'processed', 'ndi-fac.csv'),
           row.names = F)
 ```
 
@@ -126,7 +143,8 @@ dt.ndi.fac.ex.ec <- dt.master.ndi.pmc %>%
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.fac.ex.ec, file = here('data', 'processed', 'ndi-fac-ex-ec.csv'),
+write.csv(dt.ndi.fac.ex.ec, 
+          file = here('data', 'processed', 'ndi-fac-ex-ec.csv'),
           row.names = F)
 ```
 
@@ -153,7 +171,8 @@ dt.ndi.carbon <- dt.master.ndi.pmc %>%
   rename(SiteID = Site.ID) %>% 
   select(-Method)
 
-write.csv(dt.ndi.carbon, file = here('data', 'processed', 'ndi-carbon.csv'),
+write.csv(dt.ndi.carbon, 
+          file = here('data', 'processed', 'ndi-carbon.csv'), 
           row.names = F)
 
 dt.ndi.carbon.tot <- dt.master.ndi.pmc %>% 
@@ -167,7 +186,8 @@ dt.ndi.carbon.tot <- dt.master.ndi.pmc %>%
   filter(Method == "TOT") %>% 
   select(-Method)
 
-write.csv(dt.ndi.carbon.tot, file = here('data', 'processed', 'ndi-carbon-tot.csv'),
+write.csv(dt.ndi.carbon.tot, 
+          file = here('data', 'processed', 'ndi-carbon-tot.csv'), 
           row.names = F)
 
 dt.ndi.carbon.tor <- dt.master.ndi.pmc %>% 
@@ -181,7 +201,8 @@ dt.ndi.carbon.tor <- dt.master.ndi.pmc %>%
   filter(Method == "TOR") %>% 
   select(-Method)
 
-write.csv(dt.ndi.carbon.tor, file = here('data', 'processed', 'ndi-carbon-tor.csv'),
+write.csv(dt.ndi.carbon.tor, 
+          file = here('data', 'processed', 'ndi-carbon-tor.csv'),
           row.names = F)
 ``` 
 
@@ -204,7 +225,8 @@ dt.ndi.pmc.residual <- dt.master.ndi.pmc %>%
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc.residual, file = here('data', 'processed', 'ndi-pmc-residual.csv'),
+write.csv(dt.ndi.pmc.residual, 
+          file = here('data', 'processed', 'ndi-pmc-residual.csv'), 
           row.names = F)
 ```
 
@@ -263,7 +285,8 @@ dt.ndi.pmc.raceA <- dt.ndi.pmc.raceA %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rA, everything())
 
-write.csv(dt.ndi.pmc.raceA, file = here('data', 'processed', 'ndi-pmc-raceA.csv'),
+write.csv(dt.ndi.pmc.raceA, 
+          file = here('data', 'processed', 'ndi-pmc-raceA.csv'),
           row.names = F)
 
 ### Race Black
@@ -272,7 +295,8 @@ dt.raceB <- dt.master.ndi.pmc.race %>%
   select(Site.ID:no_death_lungc,
          -no_death_uri, -no_death_ards)
 
-dt.raceB <- aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.raceB, sum) %>%
+dt.raceB <- 
+  aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.raceB, sum) %>%
   arrange(Site.ID, Year, Month, age, sex, race)
 
 dt.ndi.pmc.raceB <- dt.raceB %>% 
@@ -292,7 +316,8 @@ dt.ndi.pmc.raceB <- dt.ndi.pmc.raceB %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rB, everything())
 
-write.csv(dt.ndi.pmc.raceB, file = here('data', 'processed', 'ndi-pmc-raceB.csv'),
+write.csv(dt.ndi.pmc.raceB, 
+          file = here('data', 'processed', 'ndi-pmc-raceB.csv'),
           row.names = F)
 
 ### Race Hispanic
@@ -301,7 +326,8 @@ dt.raceH <- dt.master.ndi.pmc.race %>%
   select(Site.ID:no_death_lungc,
          -no_death_uri, -no_death_ards)
 
-dt.raceH <- aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.raceH, sum) %>%
+dt.raceH <- 
+  aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.raceH, sum) %>%
   arrange(Site.ID, Year, Month, age, sex, race)
 
 dt.ndi.pmc.raceH <- dt.raceH %>% 
@@ -321,7 +347,8 @@ dt.ndi.pmc.raceH <- dt.ndi.pmc.raceH %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rH, everything())
 
-write.csv(dt.ndi.pmc.raceH, file = here('data', 'processed', 'ndi-pmc-raceH.csv'),
+write.csv(dt.ndi.pmc.raceH, 
+          file = here('data', 'processed', 'ndi-pmc-raceH.csv'),
           row.names = F)
 
 
@@ -331,7 +358,8 @@ dt.raceW <- dt.master.ndi.pmc.race %>%
   select(Site.ID:no_death_lungc,
          -no_death_uri, -no_death_ards)
 
-dt.raceW <- aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.raceW, sum) %>%
+dt.raceW <- 
+  aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.raceW, sum) %>%
   arrange(Site.ID, Year, Month, age, sex, race)
 
 dt.ndi.pmc.raceW <- dt.raceW %>% 
@@ -351,7 +379,8 @@ dt.ndi.pmc.raceW <- dt.ndi.pmc.raceW %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rW, everything())
 
-write.csv(dt.ndi.pmc.raceW, file = here('data', 'processed', 'ndi-pmc-raceW.csv'),
+write.csv(dt.ndi.pmc.raceW, 
+          file = here('data', 'processed', 'ndi-pmc-raceW.csv'),
           row.names = F)
 ```
 
@@ -369,7 +398,8 @@ dt.raceA <- dt.master.ndi.pmc.race %>%
   select(Site.ID:no_death_lungc,
          -no_death_uri, -no_death_ards)
 
-dt.raceA <- aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.raceA, sum) %>%
+dt.raceA <- 
+  aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.raceA, sum) %>%
   arrange(Site.ID, Year, Month, age, sex, race)
 
 dt.ndi.fac.raceA <- dt.raceA %>% 
@@ -388,7 +418,8 @@ dt.ndi.fac.raceA <- dt.ndi.fac.raceA %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rA, everything())
 
-write.csv(dt.ndi.fac.raceA, file = here('data', 'processed', 'ndi-fac-raceA.csv'),
+write.csv(dt.ndi.fac.raceA, 
+          file = here('data', 'processed', 'ndi-fac-raceA.csv'),
           row.names = F)
 
 ### Race Black
@@ -397,7 +428,8 @@ dt.raceB <- dt.master.ndi.fac.race %>%
   select(Site.ID:no_death_lungc,
          -no_death_uri, -no_death_ards)
 
-dt.raceB <- aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.raceB, sum) %>%
+dt.raceB <- 
+  aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.raceB, sum) %>%
   arrange(Site.ID, Year, Month, age, sex, race)
 
 dt.ndi.fac.raceB <- dt.raceB %>% 
@@ -416,7 +448,8 @@ dt.ndi.fac.raceB <- dt.ndi.fac.raceB %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rB, everything())
 
-write.csv(dt.ndi.fac.raceB, file = here('data', 'processed', 'ndi-fac-raceB.csv'),
+write.csv(dt.ndi.fac.raceB, 
+          file = here('data', 'processed', 'ndi-fac-raceB.csv'),
           row.names = F)
 
 ### Race Hispanic
@@ -425,7 +458,8 @@ dt.raceH <- dt.master.ndi.fac.race %>%
   select(Site.ID:no_death_lungc,
          -no_death_uri, -no_death_ards)
 
-dt.raceH <- aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.raceH, sum) %>%
+dt.raceH <- 
+  aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.raceH, sum) %>%
   arrange(Site.ID, Year, Month, age, sex, race)
 
 dt.ndi.fac.raceH <- dt.raceH %>% 
@@ -444,7 +478,8 @@ dt.ndi.fac.raceH <- dt.ndi.fac.raceH %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rH, everything())
 
-write.csv(dt.ndi.fac.raceH, file = here('data', 'processed', 'ndi-fac-raceH.csv'),
+write.csv(dt.ndi.fac.raceH, 
+          file = here('data', 'processed', 'ndi-fac-raceH.csv'),
           row.names = F)
 
 
@@ -454,7 +489,8 @@ dt.raceW <- dt.master.ndi.fac.race %>%
   select(Site.ID:no_death_lungc,
          -no_death_uri, -no_death_ards)
 
-dt.raceW <- aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.raceW, sum) %>%
+dt.raceW <- 
+  aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.raceW, sum) %>%
   arrange(Site.ID, Year, Month, age, sex, race)
 
 dt.ndi.fac.raceW <- dt.raceW %>% 
@@ -473,7 +509,8 @@ dt.ndi.fac.raceW <- dt.ndi.fac.raceW %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rW, everything())
 
-write.csv(dt.ndi.fac.raceW, file = here('data', 'processed', 'ndi-fac-raceW.csv'),
+write.csv(dt.ndi.fac.raceW, 
+          file = here('data', 'processed', 'ndi-fac-raceW.csv'),
           row.names = F)
 ```
 
@@ -512,7 +549,8 @@ dt.ndi.pmc.urban <- dt.ndi.pmc.urban %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, urb, everything())
 
-write.csv(dt.ndi.pmc.urban, file = here('data', 'processed', 'ndi-pmc-urban.csv'),
+write.csv(dt.ndi.pmc.urban, 
+          file = here('data', 'processed', 'ndi-pmc-urban.csv'),
           row.names = F)
 
 
@@ -537,7 +575,8 @@ dt.ndi.pmc.rural <- dt.ndi.pmc.rural %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rur, everything())
 
-write.csv(dt.ndi.pmc.rural, file = here('data', 'processed', 'ndi-pmc-rural.csv'),
+write.csv(dt.ndi.pmc.rural, 
+          file = here('data', 'processed', 'ndi-pmc-rural.csv'),
           row.names = F)
 ```
 
@@ -586,7 +625,8 @@ dt.ndi.pmc.urban.sesL <- dt.ndi.pmc.urban.ses %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, sesL, everything())
 
-write.csv(dt.ndi.pmc.urban.sesL, file = here('data', 'processed', 'ndi-pmc-urban-sesL.csv'),
+write.csv(dt.ndi.pmc.urban.sesL, 
+          file = here('data', 'processed', 'ndi-pmc-urban-sesL.csv'),
           row.names = F)
 
 ### Middle Income
@@ -609,7 +649,8 @@ dt.ndi.pmc.urban.sesM <- dt.ndi.pmc.urban.ses %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, sesM, everything())
 
-write.csv(dt.ndi.pmc.urban.sesM, file = here('data', 'processed', 'ndi-pmc-urban-sesM.csv'),
+write.csv(dt.ndi.pmc.urban.sesM, 
+          file = here('data', 'processed', 'ndi-pmc-urban-sesM.csv'),
           row.names = F)
 
 ### High Income
@@ -632,7 +673,8 @@ dt.ndi.pmc.urban.sesH <- dt.ndi.pmc.urban.ses %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, sesH, everything())
 
-write.csv(dt.ndi.pmc.urban.sesH, file = here('data', 'processed', 'ndi-pmc-urban-sesH.csv'),
+write.csv(dt.ndi.pmc.urban.sesH, 
+          file = here('data', 'processed', 'ndi-pmc-urban-sesH.csv'),
           row.names = F)
 ```
 
@@ -671,7 +713,8 @@ dt.ndi.pmc.west <- dt.ndi.pmc.west %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rW, everything())
 
-write.csv(dt.ndi.pmc.west, file = here('data', 'processed', 'ndi-pmc-west.csv'),
+write.csv(dt.ndi.pmc.west, 
+          file = here('data', 'processed', 'ndi-pmc-west.csv'),
           row.names = F)
 
 ### Midwest = 2
@@ -695,7 +738,8 @@ dt.ndi.pmc.midwest <- dt.ndi.pmc.midwest %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rMW, everything())
 
-write.csv(dt.ndi.pmc.midwest, file = here('data', 'processed', 'ndi-pmc-midwest.csv'),
+write.csv(dt.ndi.pmc.midwest, 
+          file = here('data', 'processed', 'ndi-pmc-midwest.csv'),
           row.names = F)
 
 ### South = 3
@@ -719,7 +763,8 @@ dt.ndi.pmc.south <- dt.ndi.pmc.south %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rS, everything())
 
-write.csv(dt.ndi.pmc.south, file = here('data', 'processed', 'ndi-pmc-south.csv'),
+write.csv(dt.ndi.pmc.south, 
+          file = here('data', 'processed', 'ndi-pmc-south.csv'),
           row.names = F)
 
 ### Northeast = 4
@@ -743,7 +788,8 @@ dt.ndi.pmc.northeast <- dt.ndi.pmc.northeast %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rNE, everything())
 
-write.csv(dt.ndi.pmc.northeast, file = here('data', 'processed', 'ndi-pmc-northeast.csv'),
+write.csv(dt.ndi.pmc.northeast, 
+          file = here('data', 'processed', 'ndi-pmc-northeast.csv'),
           row.names = F)
 ```
 
@@ -764,7 +810,8 @@ dt.age <- dt.master.ndi.pmc %>%
   select(Site.ID:no_death_lungc,
          -no_death_uri, -no_death_ards)
 
-dt.age <- aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.age, sum) %>%
+dt.age <- 
+  aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.age, sum) %>%
   arrange(Site.ID, Year, Month, age, sex, race)
 
 ### LE 75
@@ -785,7 +832,8 @@ dt.ndi.pmc.ageLE75 <- dt.ndi.pmc.ageLE75 %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, aLE75, everything())
 
-write.csv(dt.ndi.pmc.ageLE75, file = here('data', 'processed', 'ndi-pmc-ageLE75.csv'),
+write.csv(dt.ndi.pmc.ageLE75, 
+          file = here('data', 'processed', 'ndi-pmc-ageLE75.csv'),
           row.names = F)
 
 ### M 75
@@ -806,7 +854,8 @@ dt.ndi.pmc.ageM75 <- dt.ndi.pmc.ageM75 %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, aM75, everything())
 
-write.csv(dt.ndi.pmc.ageM75, file = here('data', 'processed', 'ndi-pmc-ageM75.csv'),
+write.csv(dt.ndi.pmc.ageM75, 
+          file = here('data', 'processed', 'ndi-pmc-ageM75.csv'),
           row.names = F)
 ```
 
@@ -845,7 +894,8 @@ dt.ndi.pmc.sexF <- dt.ndi.pmc.sexF %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, sexF, everything())
 
-write.csv(dt.ndi.pmc.sexF, file = here('data', 'processed', 'ndi-pmc-sexF.csv'),
+write.csv(dt.ndi.pmc.sexF, 
+          file = here('data', 'processed', 'ndi-pmc-sexF.csv'),
           row.names = F)
 
 ### Male
@@ -866,7 +916,8 @@ dt.ndi.pmc.sexM <- dt.ndi.pmc.sexM %>%
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, sexM, everything())
 
-write.csv(dt.ndi.pmc.sexM, file = here('data', 'processed', 'ndi-pmc-sexM.csv'),
+write.csv(dt.ndi.pmc.sexM, 
+          file = here('data', 'processed', 'ndi-pmc-sexM.csv'),
           row.names = F)
 ```
 
@@ -886,7 +937,8 @@ dt.ndi.pmc.brfss <- dt.master.ndi.pmc %>%
   inner_join(dt.brfss.site) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc.brfss, file = here('data', 'processed', 'ndi-pmc-brfss.csv'),
+write.csv(dt.ndi.pmc.brfss, 
+          file = here('data', 'processed', 'ndi-pmc-brfss.csv'),
           row.names = F)
 ```
 
@@ -910,7 +962,8 @@ dt.ndi.pmc <- dt.master.ndi.pmc.bz6 %>%
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc-bz6.csv'),
+write.csv(dt.ndi.pmc, 
+          file = here('data', 'processed', 'ndi-pmc-bz6.csv'),
           row.names = F)
 ```
 
@@ -934,7 +987,8 @@ dt.ndi.pmc <- dt.master.ndi.pmc.bz12 %>%
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc-bz12.csv'),
+write.csv(dt.ndi.pmc, 
+          file = here('data', 'processed', 'ndi-pmc-bz12.csv'),
           row.names = F)
 ```
 
@@ -958,7 +1012,8 @@ dt.ndi.pmc <- dt.master.ndi.pmc.bz24 %>%
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc-bz24.csv'),
+write.csv(dt.ndi.pmc, 
+          file = here('data', 'processed', 'ndi-pmc-bz24.csv'),
           row.names = F)
 ```
 
@@ -977,11 +1032,12 @@ dt.ndi.pmc <- dt.master.ndi.pmc %>%
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc-5yr.csv'),
+write.csv(dt.ndi.pmc, 
+          file = here('data', 'processed', 'ndi-pmc-5yr.csv'),
           row.names = F)
 ```
 
-```{r PMC - 4yr}
+```{r PMC - 4yr - 5yr}
 dt.pmc <- dt.pmc.4yr.5yr %>% 
   rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
 
@@ -996,11 +1052,12 @@ dt.ndi.pmc <- dt.master.ndi.pmc %>%
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc-4yr-5yr.csv'),
+write.csv(dt.ndi.pmc, 
+          file = here('data', 'processed', 'ndi-pmc-4yr-5yr.csv'),
           row.names = F)
 ```
 
-```{r PMC - 3yr}
+```{r PMC - 3yr - 5yr}
 dt.pmc <- dt.pmc.3yr.5yr %>% 
   rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
 
@@ -1015,11 +1072,12 @@ dt.ndi.pmc <- dt.master.ndi.pmc %>%
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc-3yr-5yr.csv'),
+write.csv(dt.ndi.pmc, 
+          file = here('data', 'processed', 'ndi-pmc-3yr-5yr.csv'),
           row.names = F)
 ```
 
-```{r PMC - 2yr}
+```{r PMC - 2yr - 5yr}
 dt.pmc <- dt.pmc.2yr.5yr %>% 
   rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
 
@@ -1034,11 +1092,12 @@ dt.ndi.pmc <- dt.master.ndi.pmc %>%
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc-2yr-5yr.csv'),
+write.csv(dt.ndi.pmc, 
+          file = here('data', 'processed', 'ndi-pmc-2yr-5yr.csv'),
           row.names = F)
 ```
 
-```{r PMC - 1yr}
+```{r PMC - 1yr - 5yr}
 dt.pmc <- dt.pmc.1yr.5yr %>% 
   rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
 
@@ -1053,6 +1112,7 @@ dt.ndi.pmc <- dt.master.ndi.pmc %>%
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc-1yr-5yr.csv'),
+write.csv(dt.ndi.pmc, 
+          file = here('data', 'processed', 'ndi-pmc-1yr-5yr.csv'),
           row.names = F)
 ```

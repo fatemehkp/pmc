@@ -27,7 +27,8 @@ Smoothed.Year <- function(si, pr, s, n){
     arrange(date2)
   
   gaps <- dt$date2[2:nrow(dt)]-dt$date2[1:(nrow(dt)-1)]
-  cuts <- c(0,which(gaps>90),nrow(dt))  #cut data into coherent bits with gaps <=90 days
+  #cut data into coherent bits with gaps <=90 days
+  cuts <- c(0,which(gaps>90),nrow(dt))  
   n.bits <- length(cuts)-1
   rows <- max(dt$year+dt$month/12)*12-12*min(dt$year+dt$month/12)+1
   results <- data.frame(Site.ID=rep(si,rows), Parameter.Symbol=rep(pr,rows), 
@@ -38,7 +39,8 @@ Smoothed.Year <- function(si, pr, s, n){
     dt1 <- dt[(cuts[c]+1):cuts[c+1],]
     if (nrow(dt1)>10){ #only try smoothing with at least 11 values
       df <- ceiling((max(dt1$date2)- min(dt1$date2))/365*4) #4 df per year
-      if (df<4){print(paste("Site.ID: ",si,", Para: ",pr,", c: ",c,", df: ",df,sep=""))}
+      if (df<4){print(
+        paste("Site.ID: ",si,", Para: ",pr,", c: ",c,", df: ",df,sep=""))}
       gres <- gam(Value~s(date2,fx=TRUE,k=df+1),data=dt1)
       
       pred.data <- as.data.frame(seq(min(dt1$date2),max(dt1$date2)))

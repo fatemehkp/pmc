@@ -52,7 +52,8 @@ source(here('code','data-processors','air-data-smooth-mvavg-function.R'))
 ```
 
 ```{r load data}
-dirUSSpatial <- 'C:\\Users\\fkazem01\\Box\\Projects\\USA Spatial\\data\\processed\\'
+dirUSSpatial <- 
+  'C:\\Users\\fkazem01\\Box\\Projects\\USA Spatial\\data\\processed\\'
 load(paste0(dirUSSpatial,'state-region.RDa'))
 load(paste0(dirUSSpatial,'site-zip.RDa'))
 load(here('data','processed','aqs-sites.RDa'))
@@ -71,10 +72,12 @@ dt.aqs.sites <- read.csv(unz(temp,"aqs_sites.csv")) %>%
     #remove monitors closed before 2000
     year(as.Date(Site.Closed.Date)) >= 2000 | Site.Closed.Date == "",
     !State.Name %in% c("Alaska","Hawaii","Puerto Rico","Virgin Islands",
-                       "Guam", "Country Of Mexico","Canada") #remove non-CONUS states
+                       "Guam", "Country Of Mexico","Canada") 
+    #remove non-CONUS states
     ) %>%  
   transmute(
-    Site.ID = as.factor(sprintf("%02d-%03d-%04d", #unique ID for each Site: ss-ccc-nnnn
+    Site.ID = as.factor(sprintf(
+      "%02d-%03d-%04d", #unique ID for each Site: ss-ccc-nnnn
                                 as.numeric(as.character(State.Code)),
                                 County.Code, Site.Number)), 
     State.Code = as.factor(sprintf("%02d", as.numeric(as.character(State.Code)))),
@@ -84,9 +87,9 @@ dt.aqs.sites <- read.csv(unz(temp,"aqs_sites.csv")) %>%
     State = state.abb[match(State.Name,state.name)],
     State = as.factor(ifelse(State.Name == "District Of Columbia","DC", State)),
     Land.Use,
-    Location.Setting = as.factor(ifelse(Location.Setting == "URBAN AND CENTER CITY",
-                                        "URBAN",
-                                        as.character(Location.Setting)))
+    Location.Setting = as.factor(
+      ifelse(Location.Setting == "URBAN AND CENTER CITY", "URBAN",
+             as.character(Location.Setting)))
     ) %>% 
   merge(dt.state.region[, c("State", "Region.IV")]) %>% 
   arrange(Site.ID)
@@ -224,7 +227,8 @@ dt.spec.w %>% distinct(Site.ID) %>% nrow() #546
 # OC 88320 -> TOR
 dt.imprv.raw = data.frame()
 for (i in seq(2000,2008,1)){
-  dt0 <- read.delim(here('data','raw','improve',paste0('improve_',i,'.txt')), sep = ',')
+  dt0 <- read.delim(
+    here('data','raw','improve',paste0('improve_',i,'.txt')), sep = ',')
   dt.imprv.raw <- rbind(dt.imprv.raw, dt0)
 }
 colnames(dt.imprv.raw) <- colnames(dt.imprv.raw) %>% str_remove("f.Value")
@@ -277,7 +281,8 @@ save(dt.imprv.raw, file = here('data', 'raw', 'improve-raw.RDa'))
 # find the diff bw spec & improve
 monitor.spec <- dt.spec.w %>% distinct(Monitor.ID) #659
 monitor.imprv <- dt.imprv.raw %>% distinct(Monitor.ID) #189
-monitor.diff.imprv <- setdiff(monitor.imprv$Monitor.ID, monitor.spec$Monitor.ID) %>% 
+monitor.diff.imprv <- setdiff(monitor.imprv$Monitor.ID, monitor.spec$Monitor.ID
+                              ) %>% 
   as.data.frame() #32
 colnames(monitor.diff.imprv) <- 'Monitor.ID'
 # improve has 32 Monitor.ID that spec does not have
@@ -362,7 +367,8 @@ dt.site.carbon.method <- site.diff.imprv %>%
   add_row(dt.site.carbon.method) %>% 
   arrange(as.character(Site.ID))
 
-save(dt.site.carbon.method, file = here('data', 'processed', 'site-carbon-method.RDa'))
+save(dt.site.carbon.method, 
+     file = here('data', 'processed', 'site-carbon-method.RDa'))
 
 dt.site.carbon.method %>% group_by(Method) %>% 
   summarise(n = n())
@@ -384,14 +390,17 @@ dt.pmc.site.all.zip.bz12  <- site.yr.pmc %>%
   filter(Dist <=12) %>% 
   select(-Zip.Type, -Dist)
 
-save(dt.pmc.site.all.zip.bz12, file = here('data', 'processed', 'pmc-site-all-zip-bz12.RDa'))
-write.csv(dt.pmc.site.all.zip.bz12, file = here('data', 'processed', 'pmc-site-all-zip-bz12.csv'), row.names = F)
+save(dt.pmc.site.all.zip.bz12, 
+     file = here('data', 'processed', 'pmc-site-all-zip-bz12.RDa'))
+write.csv(dt.pmc.site.all.zip.bz12, 
+          file = here('data', 'processed', 'pmc-site-all-zip-bz12.csv'), 
+          row.names = F)
 
 dt.pmc.site.all.zip.bz12 %>% distinct(Site.ID) %>% nrow() #574 > 558
 # 558 out of 574 sites have zipcodes in their 12-mile buffer
 
-# site-close-zip-pmc.csv was uploaded on NEU Cluster to be merged with daily zipcode level
-# ... PM data.
+# site-close-zip-pmc.csv was uploaded on NEU Cluster to be merged with ...
+# ... daily zipcode level PM data.
 
 # daily PM value for each site based on zipcodes in 12-mile value
 dt.pm.daily <- read.csv(here('data','processed','pm_pmc_daily.csv')) %>% 
@@ -522,8 +531,10 @@ dt.pmc.site.zip.bz6 <- dt.site.dist.shorter %>%
   filter(Dist <= 6) %>% 
   select(Zip.Code, Year, Month, Site.ID, psuedo)
 
-save(dt.pmc.site.zip.bz6, file = here('data', 'processed', 'pmc-site-zip-bz6.RDa'))
-write.csv(dt.pmc.site.zip.bz6, file = here('data', 'processed', 'pmc-site-zip-bz6.csv'),
+save(dt.pmc.site.zip.bz6, 
+     file = here('data', 'processed', 'pmc-site-zip-bz6.RDa'))
+write.csv(dt.pmc.site.zip.bz6, 
+          file = here('data', 'processed', 'pmc-site-zip-bz6.csv'),
           row.names = F)
 
 # Count number of zipcodes and sites
@@ -535,8 +546,10 @@ dt.pmc.site.zip.bz12  <- dt.site.dist.shorter %>%
   filter(Dist <= 12) %>% 
   select(Zip.Code, Year, Month, Site.ID, psuedo)
 
-save(dt.pmc.site.zip.bz12, file = here('data', 'processed', 'pmc-site-zip-bz12.RDa'))
-write.csv(dt.pmc.site.zip.bz12, file = here('data', 'processed', 'pmc-site-zip-bz12.csv'),
+save(dt.pmc.site.zip.bz12, 
+     file = here('data', 'processed', 'pmc-site-zip-bz12.RDa'))
+write.csv(dt.pmc.site.zip.bz12, 
+          file = here('data', 'processed', 'pmc-site-zip-bz12.csv'),
           row.names = F)
 
 # Count number of zipcodes and sites
@@ -548,8 +561,10 @@ dt.pmc.site.zip.bz24  <- dt.site.dist.shorter %>%
   filter(Dist <= 24) %>% 
   select(Zip.Code, Year, Month, Site.ID, psuedo)
 
-save(dt.pmc.site.zip.bz24, file = here('data', 'processed', 'pmc-site-zip-bz24.RDa'))
-write.csv(dt.pmc.site.zip.bz24, file = here('data', 'processed', 'pmc-site-zip-bz24.csv'),
+save(dt.pmc.site.zip.bz24, 
+     file = here('data', 'processed', 'pmc-site-zip-bz24.RDa'))
+write.csv(dt.pmc.site.zip.bz24, 
+          file = here('data', 'processed', 'pmc-site-zip-bz24.csv'),
           row.names = F)
 
 # Count number of zipcodes and sites
@@ -576,7 +591,8 @@ summary(dt.pmc.site.ndi$Location.Setting)
 fix(dt.pmc.site.ndi) # changed blanks to 'RURAL'
 
 save(dt.pmc.site.ndi, file = here('data', 'processed', 'pmc-site-ndi.RDa'))
-write.csv(dt.pmc.site.ndi, file = here('data', 'processed', 'pmc-site-ndi.csv'),
+write.csv(dt.pmc.site.ndi, 
+          file = here('data', 'processed', 'pmc-site-ndi.csv'),
           row.names = F)
 
 # TOT/TOR Method in different location.set
@@ -662,7 +678,8 @@ dt.pmc.residual.1yr <- para.monthly %>%
               values_from = c(para.1yr)) %>% 
   arrange(Site.ID, Year, Month)
 
-save(dt.pmc.residual.1yr, file = here('data', 'processed', 'pmc-residual-1yr.RDa'))
+save(dt.pmc.residual.1yr, 
+     file = here('data', 'processed', 'pmc-residual-1yr.RDa'))
 ```
 
 ```{r Smoothing Data & Caluculating 1 to 5-yr mvavg for each month}

@@ -1,6 +1,6 @@
 ---
 title: "Config File Generator"
-output: html_notebook
+output: 
 ---
 
 ### This program:
