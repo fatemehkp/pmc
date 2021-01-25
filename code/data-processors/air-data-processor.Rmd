@@ -454,7 +454,8 @@ site.para <- dt.air %>%
   distinct(Site.ID, Parameter.Symbol)
 
 #using smoothed.yr function
-smooth.out <- mapply(Smoothed.Year, site.para$Site.ID, site.para$Parameter.Symbol)
+smooth.out <- mapply(Smoothed.Year, 
+                     site.para$Site.ID, site.para$Parameter.Symbol, 0.99, 350)
 para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
                            Parameter.Symbol=unlist(smooth.out[2,]),
                            Date=unlist(smooth.out[3,]), 
@@ -557,6 +558,11 @@ dt.pmc.site.zip.bz24 %>% distinct(Site.ID) %>% nrow() #322 > 321
 
 # pmc-site-zip-bz12.csv was uploaded on NEU Cluster to be merged with CMS data
 # It has 320 sites with 8446 zipcodes around them
+# 317 out of 320 sites have population living in their 12-mile bufferzone
+
+# pmc-site-zip-bz6.csv was uploaded on NEU Cluster to be merged with CMS data
+# 271 out of 274 sites have population living in their 6-mile bufferzone
+# We extended the bufferzone around these 271 sites to 12- and 24- miles too
 ```
 
 ```{r Post mergeing with CMS Data}
@@ -640,7 +646,8 @@ site.para <- dt.air %>%
   distinct(Site.ID, Parameter.Symbol)
 
 #using smoothed.yr function
-smooth.out <- mapply(Smoothed.Year, site.para$Site.ID, site.para$Parameter.Symbol)
+smooth.out <- mapply(Smoothed.Year, 
+                     site.para$Site.ID, site.para$Parameter.Symbol, 0.99, 350)
 para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
                            Parameter.Symbol=unlist(smooth.out[2,]),
                            Date=unlist(smooth.out[3,]), 
@@ -656,4 +663,145 @@ dt.pmc.residual.1yr <- para.monthly %>%
   arrange(Site.ID, Year, Month)
 
 save(dt.pmc.residual.1yr, file = here('data', 'processed', 'pmc-residual-1yr.RDa'))
+```
+
+```{r Smoothing Data & Caluculating 1 to 5-yr mvavg for each month}
+cmp.sub <- c("AS", "CA", "CL", "NA", "NI", "NO3", "OC", 
+             "PB", "PM", "SI", "SO4", "V", "ZN")
+dt.air <- dt.pmc.daily %>% 
+  select(Site.ID, Date, cmp.sub) %>% 
+  pivot_longer(cols = AS:ZN,
+               names_to = "Parameter.Symbol",
+               values_to = "Value") %>% 
+  arrange(Site.ID, Parameter.Symbol, Date)
+
+site.para <- dt.air %>% 
+  distinct(Site.ID, Parameter.Symbol)
+
+#using smoothed.yr function
+# 5 years
+smooth.out <- mapply(Smoothed.Year, 
+                     site.para$Site.ID, site.para$Parameter.Symbol, 4.99, 1750)
+para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
+                           Parameter.Symbol=unlist(smooth.out[2,]),
+                           Date=unlist(smooth.out[3,]), 
+                           para.yr=unlist(smooth.out[4,]))
+
+dt.pmc.5yr <- para.monthly %>% 
+  mutate(Year = floor(Date -0.01),
+         Month = round((Date - Year)*12)) %>% 
+  select(-Date) %>% 
+  pivot_wider(names_sort = T,
+              names_from = c(Parameter.Symbol),
+              values_from = c(para.yr)) %>% 
+  arrange(Site.ID, Year, Month)
+
+save(dt.pmc.5yr, file = here('data', 'processed', 'pmc-sub-5yr.RDa'))
+
+
+# 4 years
+smooth.out <- mapply(Smoothed.Year, 
+                     site.para$Site.ID, site.para$Parameter.Symbol, 3.99, 1400)
+para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
+                           Parameter.Symbol=unlist(smooth.out[2,]),
+                           Date=unlist(smooth.out[3,]), 
+                           para.yr=unlist(smooth.out[4,]))
+
+dt.pmc.4yr <- para.monthly %>% 
+  mutate(Year = floor(Date -0.01),
+         Month = round((Date - Year)*12)) %>% 
+  select(-Date) %>% 
+  pivot_wider(names_sort = T,
+              names_from = c(Parameter.Symbol),
+              values_from = c(para.yr)) %>% 
+  arrange(Site.ID, Year, Month)
+
+save(dt.pmc.4yr, file = here('data', 'processed', 'pmc-sub-4yr.RDa'))
+
+dt.pmc.4yr.5yr <- dt.pmc.5yr %>% 
+  select(Site.ID, Year, Month) %>% 
+  inner_join(dt.pmc.4yr)
+
+save(dt.pmc.4yr.5yr, file = here('data', 'processed', 'pmc-sub-4yr-5yr.RDa'))
+
+# 3 years
+smooth.out <- mapply(Smoothed.Year, 
+                     site.para$Site.ID, site.para$Parameter.Symbol, 2.99, 1050)
+para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
+                           Parameter.Symbol=unlist(smooth.out[2,]),
+                           Date=unlist(smooth.out[3,]), 
+                           para.yr=unlist(smooth.out[4,]))
+
+dt.pmc.3yr <- para.monthly %>% 
+  mutate(Year = floor(Date -0.01),
+         Month = round((Date - Year)*12)) %>% 
+  select(-Date) %>% 
+  pivot_wider(names_sort = T,
+              names_from = c(Parameter.Symbol),
+              values_from = c(para.yr)) %>% 
+  arrange(Site.ID, Year, Month)
+
+save(dt.pmc.3yr, file = here('data', 'processed', 'pmc-sub-3yr.RDa'))
+
+dt.pmc.3yr.5yr <- dt.pmc.5yr %>% 
+  select(Site.ID, Year, Month) %>% 
+  inner_join(dt.pmc.3yr)
+
+save(dt.pmc.3yr.5yr, file = here('data', 'processed', 'pmc-sub-3yr-5yr.RDa'))
+
+# 2 years
+smooth.out <- mapply(Smoothed.Year, 
+                     site.para$Site.ID, site.para$Parameter.Symbol, 1.99, 700)
+para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
+                           Parameter.Symbol=unlist(smooth.out[2,]),
+                           Date=unlist(smooth.out[3,]), 
+                           para.yr=unlist(smooth.out[4,]))
+
+dt.pmc.2yr <- para.monthly %>% 
+  mutate(Year = floor(Date -0.01),
+         Month = round((Date - Year)*12)) %>% 
+  select(-Date) %>% 
+  pivot_wider(names_sort = T,
+              names_from = c(Parameter.Symbol),
+              values_from = c(para.yr)) %>% 
+  arrange(Site.ID, Year, Month)
+
+save(dt.pmc.2yr, file = here('data', 'processed', 'pmc-sub-2yr.RDa'))
+
+dt.pmc.2yr.5yr <- dt.pmc.5yr %>% 
+  select(Site.ID, Year, Month) %>% 
+  inner_join(dt.pmc.2yr)
+
+save(dt.pmc.2yr.5yr, file = here('data', 'processed', 'pmc-sub-2yr-5yr.RDa'))
+
+# 1 year
+smooth.out <- mapply(Smoothed.Year, 
+                     site.para$Site.ID, site.para$Parameter.Symbol, 0.99, 350)
+para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
+                           Parameter.Symbol=unlist(smooth.out[2,]),
+                           Date=unlist(smooth.out[3,]), 
+                           para.yr=unlist(smooth.out[4,]))
+
+dt.pmc.1yr <- para.monthly %>% 
+  mutate(Year = floor(Date -0.01),
+         Month = round((Date - Year)*12)) %>% 
+  select(-Date) %>% 
+  pivot_wider(names_sort = T,
+              names_from = c(Parameter.Symbol),
+              values_from = c(para.yr)) %>% 
+  arrange(Site.ID, Year, Month)
+
+save(dt.pmc.1yr, file = here('data', 'processed', 'pmc-sub-1yr.RDa'))
+
+dt.pmc.1yr.5yr <- dt.pmc.5yr %>% 
+  select(Site.ID, Year, Month) %>% 
+  inner_join(dt.pmc.1yr)
+
+save(dt.pmc.1yr.5yr, file = here('data', 'processed', 'pmc-sub-1yr-5yr.RDa'))
+
+dt.pmc.5yr %>% distinct(Site.ID, Year) %>% nrow() #263 -  820
+dt.pmc.4yr %>% distinct(Site.ID, Year) %>% nrow() #303 - 1128
+dt.pmc.3yr %>% distinct(Site.ID, Year) %>% nrow() #314 - 1442
+dt.pmc.2yr %>% distinct(Site.ID, Year) %>% nrow() #317 - 1745
+dt.pmc.1yr %>% distinct(Site.ID, Year) %>% nrow() #317 - 2074
 ```

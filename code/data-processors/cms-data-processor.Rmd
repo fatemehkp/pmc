@@ -35,6 +35,11 @@ load(here('data','processed','fac-1yr.RDa'))
 load(here('data','processed','fac-ex-ec-1yr.RDa'))
 load(here('data','processed','pmc-residual-1yr.RDa'))
 load(here('data','processed','fac-ex-ec-residual-1yr.RDa'))
+load(here('data','processed','pmc-sub-5yr.RDa'))
+load(here('data','processed','pmc-sub-4yr-5yr.RDa'))
+load(here('data','processed','pmc-sub-3yr-5yr.RDa'))
+load(here('data','processed','pmc-sub-2yr-5yr.RDa'))
+load(here('data','processed','pmc-sub-1yr-5yr.RDa'))
 ```
 
 ```{r Import and save CMS(/ndi) data}
@@ -954,5 +959,100 @@ dt.ndi.pmc <- dt.master.ndi.pmc.bz24 %>%
   rename(SiteID = Site.ID)
 
 write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc-bz24.csv'),
+          row.names = F)
+```
+
+```{r PMC - 5yr}
+dt.pmc <- dt.pmc.5yr %>% 
+  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
+
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.ndi.pmc <- dt.master.ndi.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
+  inner_join(dt.pmc) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID)
+
+write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc-5yr.csv'),
+          row.names = F)
+```
+
+```{r PMC - 4yr}
+dt.pmc <- dt.pmc.4yr.5yr %>% 
+  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
+
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.ndi.pmc <- dt.master.ndi.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
+  inner_join(dt.pmc) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID)
+
+write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc-4yr-5yr.csv'),
+          row.names = F)
+```
+
+```{r PMC - 3yr}
+dt.pmc <- dt.pmc.3yr.5yr %>% 
+  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
+
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.ndi.pmc <- dt.master.ndi.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
+  inner_join(dt.pmc) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID)
+
+write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc-3yr-5yr.csv'),
+          row.names = F)
+```
+
+```{r PMC - 2yr}
+dt.pmc <- dt.pmc.2yr.5yr %>% 
+  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
+
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.ndi.pmc <- dt.master.ndi.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
+  inner_join(dt.pmc) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID)
+
+write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc-2yr-5yr.csv'),
+          row.names = F)
+```
+
+```{r PMC - 1yr}
+dt.pmc <- dt.pmc.1yr.5yr %>% 
+  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
+
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.ndi.pmc <- dt.master.ndi.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
+  inner_join(dt.pmc) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID)
+
+write.csv(dt.ndi.pmc, file = here('data', 'processed', 'ndi-pmc-1yr-5yr.csv'),
           row.names = F)
 ```

@@ -16,7 +16,7 @@ library(mgcv)
 #    Value:
 #    Date:
 
-Smoothed.Year <- function(si, pr){ 
+Smoothed.Year <- function(si, pr, s, n){ 
 
     dt <- dt.air %>% 
     filter(Site.ID == si & Parameter.Symbol == pr) %>%
@@ -31,7 +31,7 @@ Smoothed.Year <- function(si, pr){
   n.bits <- length(cuts)-1
   rows <- max(dt$year+dt$month/12)*12-12*min(dt$year+dt$month/12)+1
   results <- data.frame(Site.ID=rep(si,rows), Parameter.Symbol=rep(pr,rows), 
-                        Date=rep(NA,rows),mvavg.1yr=rep(NA,rows))
+                        Date=rep(NA,rows),mvavg.yr=rep(NA,rows))
   rows <- 0
 
   for (c in 1:n.bits){
@@ -51,16 +51,16 @@ Smoothed.Year <- function(si, pr){
       dtdate <- unique(pred.data$date)
       
       average1 <- function(dat){
-        av <- subset(pred.data,pred.data$date<=dat+0.01 & pred.data$date >dat-0.99)
-        if (nrow(av)>=350){mean.value <- mean(av$smooth)}else{mean.value <- NA}
+        av <- subset(pred.data,pred.data$date<=dat+0.01 & pred.data$date >dat-s)
+        if (nrow(av)>=n){mean.value <- mean(av$smooth)}else{mean.value <- NA}
         return(mean.value)
       }
       smoothed.yr <- sapply(dtdate,average1)
       
       results[(rows+1):(rows+length(dtdate)),"Date"] <- dtdate
-      results[(rows+1):(rows+length(dtdate)),"mvavg.1yr"] <- smoothed.yr
+      results[(rows+1):(rows+length(dtdate)),"mvavg.yr"] <- smoothed.yr
       rows <- rows + length(dtdate)
     }}
-  results <- results[!is.na(results$mvavg.1yr),]
+  results <- results[!is.na(results$mvavg.yr),]
   return(results)
 }
