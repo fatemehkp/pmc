@@ -26,7 +26,7 @@ load(here('output','analysis','out-fac-ses.RDa'))
 ```{r - Components Base}
 data <- out.pmc.base
 
-cmp <- c("OC", "NO3", "V", "Ni", "SO4", "Se",
+cmp <- c("Mn","Fe","V", "Ni","Cl", "Na", "SO4", "Se","Cu", "K", "OC", "NO3", 
          "Zn", "Pb", "Ca", "Si", "PM2.5")
 cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
          "Respiratory", "COPD", "Pneumonia",
@@ -62,13 +62,13 @@ facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
         axis.text.x = element_text(size = 8, color = 'black'),
         axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
   ) +
-ggsave(here('output', 'plot','pmc-base.png'), width = 9.5, height = 5.5)
+ggsave(here('output', 'plot','pmc-base.png'), width = 9.5, height = 7.5)
 ```
 
 ```{r - Components SES-Adj}
 data <- out.pmc.ses
 
-cmp <- c("OC", "NO3", "V", "Ni", "SO4", "Se",
+cmp <- c("Mn","Fe","V", "Ni","Cl", "Na", "SO4", "Se","Cu", "K", "OC", "NO3", 
          "Zn", "Pb", "Ca", "Si", "PM2.5")
 cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
          "Respiratory", "COPD", "Pneumonia",
@@ -104,7 +104,7 @@ facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
         axis.text.x = element_text(size = 8, color = 'black'),
         axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
   ) +
-ggsave(here('output', 'plot','pmc-ses.png'), width = 9.5, height = 5.5)
+ggsave(here('output', 'plot','pmc-ses.png'), width = 9.5, height = 7.5)
 ```
 
 ```{r - Factor Base}

@@ -29,6 +29,9 @@ load(paste0(dirUSSpatial,'ses-site-bz24.RDa'))
 load(paste0(dirUSSpatial,'brfss-site.RDa'))
 load(here('data','processed','master-ndi-pmc.RDa'))
 load(here('data','processed','master-ndi-pmc-race.RDa'))
+load(here('data','processed','master-ndi-pmc-bz6.RDa'))
+load(here('data','processed','master-ndi-pmc-bz12.RDa'))
+load(here('data','processed','master-ndi-pmc-bz24.RDa'))
 load(here('data','processed','pmc-site-ndi.RDa'))
 load(here('data','processed','pmc-1yr.RDa'))
 load(here('data','processed','fac-1yr.RDa'))
@@ -954,15 +957,14 @@ dt.ses <- dt.ses.site.bz6 %>%
   mutate(ses = SES.Zip.Norm) %>% 
   select(Site.ID, Year, ses)
 
-dt.ndi.pmc <- dt.master.ndi.pmc.bz6 %>% 
+dt.ndi.pmc.bz6 <- dt.master.ndi.pmc.bz6 %>% 
   mutate(StrID = paste(age, sex, race)) %>% 
-  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_lungc,
-         -no_death_uri, -no_death_ards) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_lungc) %>% 
   inner_join(dt.pmc) %>% 
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, 
+write.csv(dt.ndi.pmc.bz6, 
           file = here('data', 'processed', 'ndi-pmc-bz6.csv'),
           row.names = F)
 ```
@@ -979,15 +981,14 @@ dt.ses <- dt.ses.site.bz12 %>%
   mutate(ses = SES.Zip.Norm) %>% 
   select(Site.ID, Year, ses)
 
-dt.ndi.pmc <- dt.master.ndi.pmc.bz12 %>% 
+dt.ndi.pmc.bz12 <- dt.master.ndi.pmc.bz12 %>% 
   mutate(StrID = paste(age, sex, race)) %>% 
-  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_lungc,
-         -no_death_uri, -no_death_ards) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_lungc) %>% 
   inner_join(dt.pmc) %>% 
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, 
+write.csv(dt.ndi.pmc.bz12, 
           file = here('data', 'processed', 'ndi-pmc-bz12.csv'),
           row.names = F)
 ```
@@ -1004,15 +1005,14 @@ dt.ses <- dt.ses.site.bz24 %>%
   mutate(ses = SES.Zip.Norm) %>% 
   select(Site.ID, Year, ses)
 
-dt.ndi.pmc <- dt.master.ndi.pmc.bz24 %>% 
+dt.ndi.pmc.bz24 <- dt.master.ndi.pmc.bz24 %>% 
   mutate(StrID = paste(age, sex, race)) %>% 
-  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_lungc,
-         -no_death_uri, -no_death_ards) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_lungc) %>% 
   inner_join(dt.pmc) %>% 
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, 
+write.csv(dt.ndi.pmc.bz24, 
           file = here('data', 'processed', 'ndi-pmc-bz24.csv'),
           row.names = F)
 ```
