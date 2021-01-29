@@ -683,11 +683,11 @@ save(dt.pmc.residual.1yr,
 ```
 
 ```{r Smoothing Data & Caluculating 1 to 5-yr mvavg for each month}
-cmp.sub <- c("AS", "CA", "CL", "NA", "NI", "NO3", "OC", 
-             "PB", "PM", "SI", "SO4", "V", "ZN")
+cmp.sub <- c("CA", "CL", "NA", "NI", "NO3", "OC", 
+             "PB", "PM", "SE", "SI", "SO4", "V", "ZN")
 dt.air <- dt.pmc.daily %>% 
   select(Site.ID, Date, cmp.sub) %>% 
-  pivot_longer(cols = AS:ZN,
+  pivot_longer(cols = cmp.sub,
                names_to = "Parameter.Symbol",
                values_to = "Value") %>% 
   arrange(Site.ID, Parameter.Symbol, Date)

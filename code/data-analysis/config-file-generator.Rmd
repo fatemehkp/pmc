@@ -30,7 +30,7 @@ fac <- c("Factor1","Factor2","Factor3","Factor4",
 ```
 
 ```{r List of PM Components Residuals}
-pmcres <- c("PM_AS","PM_CA","PM_CL","PM_NA","PM_NI","PM_NO3",
+pmcres <- c("PM_SE","PM_CA","PM_CL","PM_NA","PM_NI","PM_NO3",
             "PM_OC","PM_PB","PM_SI","PM_SO4","PM_V","PM_ZN")
 ```
 
@@ -44,17 +44,21 @@ carbon <- c("Yr_EC", "Yr_OC")
 ```
 
 ```{r List of PM Components Sub}
-pmc.sub <- c("AS","CA","CL","NA","NI","NO3","OC",
+pmc.sub <- c("SE","CA","CL","NA","NI","NO3","OC",
              "PB","PM","SI","SO4","V","ZN")
 ```
 
 ```{r List of PM Components Yr Sub}
-pmc.sub.yr <- c("Yr_AS","Yr_CA","Yr_CL","Yr_NA","Yr_NI","Yr_NO3","Yr_OC",
+pmc.sub.yr <- c("Yr_SE","Yr_CA","Yr_CL","Yr_NA","Yr_NI","Yr_NO3","Yr_OC",
              "Yr_PB","Yr_PM","Yr_SI","Yr_SO4","Yr_V","Yr_ZN")
 ```
 
 ```{r List of Causes of Death}
 cuz <- c("allcuz","nacc","acc","cvd","ihd","chf","cbv","resp","copd","pneu","canc","lungc")
+```
+
+```{r List of Causes of Death}
+cuz.sub <- c("allcuz","cvd","ihd","chf","cbv","resp","copd","pneu","canc","lungc")
 ```
 
 ```{r Config file - Base Model}
@@ -150,15 +154,15 @@ survival.class=CoxPH
 ")
 ```
 
-```{r Config file - BRFSS Models}
-config.brfss <- c("# data path
+```{r Config file - EM Models 2}
+config.em.2 <- c("# data path
 data_path=/scratch/fatemehkp/projects/data/analysis/dataset
 
 # loader settings
 # separated symbol for the given data
 sep=,
 # the predictors are included in the model
-predictors=Yr_exposure, ses, BMI, Race, Smoke, Diabt, Asthma, Drink
+predictors=exposure, subg, subg_exposure, ses
 # stratas
 stratas=StrID, SiteID
 # death
@@ -180,6 +184,38 @@ l2Strength=1
 survival.class=CoxPH
 ")
 ```
+
+```{r Config file - BRFSS Models}
+config.brfss <- c("# data path
+data_path=/scratch/fatemehkp/projects/data/analysis/dataset
+
+# loader settings
+# separated symbol for the given data
+sep=,
+# the predictors are included in the model
+predictors=exposure, ses, BMI, Race, Smoke, Diabt, Asthma, Drink
+# stratas
+stratas=StrID, SiteID
+# death
+death=no_death_outcome
+# life
+life=no_enrollee
+
+# optimizer settings
+# whether considering ties for death, default false
+isTies=false
+# if given multiple cores, set isParallelism as true
+isParallelism=true
+# whether penalizing the weight
+l2=false
+# if penalizing the weight, set the strength, otherwise it is useless.
+l2Strength=1
+
+# the application class name
+survival.class=CoxPH
+")
+```
+
 
 ```{r base model for components}
 dataname <- "ndi-pmc.csv"
@@ -505,7 +541,7 @@ subg <- "rA"
 for (i in seq(1,length(expo),1)){
   filenames <- c( tempfile())
   for( f in  filenames ){
-    cat(config.em, file=f)
+    cat(config.em.2, file=f)
     x <- readLines(f)
     y <- gsub("dataset", dataname, x)
     z <- gsub("exposure", expo[i], y)
@@ -529,7 +565,7 @@ subg <- "rB"
 for (i in seq(1,length(expo),1)){
   filenames <- c( tempfile())
   for( f in  filenames ){
-    cat(config.em, file=f)
+    cat(config.em.2, file=f)
     x <- readLines(f)
     y <- gsub("dataset", dataname, x)
     z <- gsub("exposure", expo[i], y)
@@ -553,7 +589,7 @@ subg <- "rH"
 for (i in seq(1,length(expo),1)){
   filenames <- c( tempfile())
   for( f in  filenames ){
-    cat(config.em, file=f)
+    cat(config.em.2, file=f)
     x <- readLines(f)
     y <- gsub("dataset", dataname, x)
     z <- gsub("exposure", expo[i], y)
@@ -577,7 +613,7 @@ subg <- "rW"
 for (i in seq(1,length(expo),1)){
   filenames <- c( tempfile())
   for( f in  filenames ){
-    cat(config.em, file=f)
+    cat(config.em.2, file=f)
     x <- readLines(f)
     y <- gsub("dataset", dataname, x)
     z <- gsub("exposure", expo[i], y)
@@ -860,6 +896,54 @@ for (i in seq(1,length(expo),1)){
   }
 ```
 
+```{r ses adj. model for factors - age LE75}
+dataname <- "ndi-fac-ageLE75.csv"
+expo <- fac
+subg <- "aLE75"
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.em.2, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    s <- gsub("subg", subg, z)
+    for (j in seq(1,length(cuz),1)){
+      w <- gsub("outcome", cuz[j], s)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz)*(i-1)
+      writeLines(w, here('config-files','fac-ageLE75', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for factors - age M75}
+dataname <- "ndi-fac-ageM75.csv"
+expo <- fac
+subg <- "aM75"
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.em.2, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    s <- gsub("subg", subg, z)
+    for (j in seq(1,length(cuz),1)){
+      w <- gsub("outcome", cuz[j], s)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz)*(i-1)
+      writeLines(w, here('config-files','fac-ageM75', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
 ```{r ses adj. model for components - Female}
 dataname <- "ndi-pmc-sexF.csv"
 expo <- pmc.sub
@@ -908,6 +992,54 @@ for (i in seq(1,length(expo),1)){
   }
 ```
 
+```{r ses adj. model for factors - sex F}
+dataname <- "ndi-fac-sexF.csv"
+expo <- fac
+subg <- "sexF"
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.em.2, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    s <- gsub("subg", subg, z)
+    for (j in seq(1,length(cuz),1)){
+      w <- gsub("outcome", cuz[j], s)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz)*(i-1)
+      writeLines(w, here('config-files','fac-sexF', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for factors - sex M}
+dataname <- "ndi-fac-sexM.csv"
+expo <- fac
+subg <- "sexM"
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.em.2, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    s <- gsub("subg", subg, z)
+    for (j in seq(1,length(cuz),1)){
+      w <- gsub("outcome", cuz[j], s)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz)*(i-1)
+      writeLines(w, here('config-files','fac-sexM', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
 ```{r ses adj. model for components - sites with BRFSS data}
 dataname <- "ndi-pmc-brfss.csv"
 expo <- pmc.sub.yr
@@ -932,7 +1064,7 @@ for (i in seq(1,length(expo),1)){
 
 ```{r ses adj. model for components - adj. BRFSS data}
 dataname <- "ndi-pmc-brfss.csv"
-expo <- pmc.sub
+expo <- pmc.sub.yr
 
 for (i in seq(1,length(expo),1)){
   filenames <- c( tempfile())
@@ -951,6 +1083,8 @@ for (i in seq(1,length(expo),1)){
   file.remove(f)
   }
 ```
+
+
 
 ```{r ses adj. model for components - 5yr}
 dataname <- "ndi-pmc-5yr.csv"
@@ -1122,6 +1256,102 @@ for (i in seq(1,length(expo),1)){
       cat(w, file=f, sep="\n")
       k=j+length(cuz)*(i-1)
       writeLines(w, here('config-files','pmc-bz24', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for components residuals - West}
+dataname <- "ndi-pmc-res-west.csv"
+expo <- pmcres
+subg <- "rW"
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.em.2, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    s <- gsub("subg", subg, z)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], s)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','pmc-resid-west', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for components residuals - Midwest}
+dataname <- "ndi-pmc-res-midwest.csv"
+expo <- pmcres
+subg <- "rMW"
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.em.2, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    s <- gsub("subg", subg, z)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], s)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','pmc-resid-midwest', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for components residuals - South}
+dataname <- "ndi-pmc-res-south.csv"
+expo <- pmcres
+subg <- "rS"
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.em.2, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    s <- gsub("subg", subg, z)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], s)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','pmc-resid-South', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for components residuals - Northeast}
+dataname <- "ndi-pmc-res-northeast.csv"
+expo <- pmcres
+subg <- "rNE"
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.em.2, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    s <- gsub("subg", subg, z)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], s)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','pmc-resid-northeast', paste(k,'.txt', sep = "")))
     }
   }
   file.remove(f)

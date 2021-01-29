@@ -210,7 +210,7 @@ write.csv(dt.ndi.carbon.tor,
 ``` 
 
 ```{r PMC Residual}
-cmp.sub <- c("PM_AS","PM_CA","PM_CL","PM_NA","PM_NI","PM_NO3",
+cmp.sub <- c("PM_SE","PM_CA","PM_CL","PM_NA","PM_NI","PM_NO3",
             "PM_OC","PM_PB","PM_SI","PM_SO4","PM_V","PM_ZN")
 
 dt.pmc <- dt.pmc.residual.1yr %>% 
@@ -252,7 +252,7 @@ write.csv(dt.ndi.fac.ex.ec.residual,
 ```
 
 ```{r PMC race}
-cmp.sub <- c("AS", "CA", "CL", "NA", "NI", "NO3", "OC", 
+cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
              "PB", "PM", "SI", "SO4", "V", "ZN")
 
 dt.pmc <- dt.pmc.1yr %>% 
@@ -284,7 +284,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.raceA <- dt.ndi.pmc.raceA %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rA, everything())
 
@@ -315,7 +315,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.raceB <- dt.ndi.pmc.raceB %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rB, everything())
 
@@ -346,7 +346,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.raceH <- dt.ndi.pmc.raceH %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rH, everything())
 
@@ -378,7 +378,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.raceW <- dt.ndi.pmc.raceW %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rW, everything())
 
@@ -518,7 +518,7 @@ write.csv(dt.ndi.fac.raceW,
 ```
 
 ```{r PMC urbanicity}
-cmp.sub <- c("AS", "CA", "CL", "NA", "NI", "NO3", "OC", 
+cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
              "PB", "PM", "SI", "SO4", "V", "ZN")
 
 dt.pmc <- dt.pmc.1yr %>% 
@@ -548,7 +548,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.urban <- dt.ndi.pmc.urban %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, urb, everything())
 
@@ -574,7 +574,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.rural <- dt.ndi.pmc.rural %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rur, everything())
 
@@ -602,7 +602,7 @@ dt.site.urban.ses.cat <- dt.site.urban.ses.cat %>%
   mutate(ses.cat = ifelse(ses < qtl[1,], "Low",
                           ifelse(ses >qtl[1,] & ses < qtl[2,], "Mid", "High")))
 
-cmp.sub <- c("AS", "CA", "CL", "NA", "NI", "NO3", "OC", 
+cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
              "PB", "PM", "SI", "SO4", "V", "ZN")
 
 dt.pmc <- dt.pmc.1yr %>% 
@@ -624,7 +624,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.urban.sesL <- dt.ndi.pmc.urban.ses %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, sesL, everything())
 
@@ -648,7 +648,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.urban.sesM <- dt.ndi.pmc.urban.ses %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, sesM, everything())
 
@@ -672,7 +672,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.urban.sesH <- dt.ndi.pmc.urban.ses %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, sesH, everything())
 
@@ -682,7 +682,7 @@ write.csv(dt.ndi.pmc.urban.sesH,
 ```
 
 ```{r PMC Region}
-cmp.sub <- c("AS", "CA", "CL", "NA", "NI", "NO3", "OC", 
+cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
              "PB", "PM", "SI", "SO4", "V", "ZN")
 
 dt.pmc <- dt.pmc.1yr %>% 
@@ -712,7 +712,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.west <- dt.ndi.pmc.west %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rW, everything())
 
@@ -737,7 +737,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.midwest <- dt.ndi.pmc.midwest %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rMW, everything())
 
@@ -762,7 +762,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.south <- dt.ndi.pmc.south %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rS, everything())
 
@@ -787,7 +787,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.northeast <- dt.ndi.pmc.northeast %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, rNE, everything())
 
@@ -796,8 +796,133 @@ write.csv(dt.ndi.pmc.northeast,
           row.names = F)
 ```
 
+
+```{r PMC Residual Region}
+cmp.sub <- c("PM_SE","PM_CA","PM_CL","PM_NA","PM_NI","PM_NO3",
+            "PM_OC","PM_PB","PM_SI","PM_SO4","PM_V","PM_ZN")
+
+dt.pmc <- dt.pmc.residual.1yr %>% 
+  select(Site.ID, Year, Month, cmp.sub)
+
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.site <- dt.pmc.site.ndi %>% 
+  select(Site.ID, Region.IV)
+
+
+### West = 1
+dt.ndi.pmc.west <- dt.master.ndi.pmc %>% 
+  select(Site.ID:no_death_lungc,
+         -no_death_nacc, -no_death_acc,
+         -no_death_uri, -no_death_ards) %>% 
+  inner_join(dt.pmc) %>% 
+  inner_join(dt.ses) %>% 
+  inner_join(dt.site) %>% 
+  mutate(rW = ifelse(Region.IV == 1, 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race, -Region.IV) 
+  
+for (cmp in cmp.sub){
+    dt.ndi.pmc.west[ ,paste0("rW_",cmp)] <- 
+      dt.ndi.pmc.west[ ,cmp] * dt.ndi.pmc.west$rW
+}
+
+dt.ndi.pmc.res.west <- dt.ndi.pmc.west %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, rW, everything())
+
+write.csv(dt.ndi.pmc.res.west, 
+          file = here('data', 'processed', 'ndi-pmc-res-west.csv'),
+          row.names = F)
+
+
+
+
+### Midwest = 2
+
+dt.ndi.pmc.midwest <- dt.master.ndi.pmc %>% 
+  select(Site.ID:no_death_lungc,
+         -no_death_nacc, -no_death_acc,
+         -no_death_uri, -no_death_ards) %>% 
+  inner_join(dt.pmc) %>% 
+  inner_join(dt.ses) %>% 
+  inner_join(dt.site) %>% 
+  mutate(rMW = ifelse(Region.IV == 2, 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race, -Region.IV) 
+  
+for (cmp in cmp.sub){
+    dt.ndi.pmc.midwest[ ,paste0("rMW_",cmp)] <- 
+      dt.ndi.pmc.midwest[ ,cmp] * dt.ndi.pmc.midwest$rMW
+}
+
+dt.ndi.pmc.res.midwest <- dt.ndi.pmc.midwest %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, rMW, everything())
+
+write.csv(dt.ndi.pmc.res.midwest, 
+          file = here('data', 'processed', 'ndi-pmc-res-midwest.csv'),
+          row.names = F)
+
+### South = 3
+
+dt.ndi.pmc.south <- dt.master.ndi.pmc %>% 
+  select(Site.ID:no_death_lungc,
+         -no_death_nacc, -no_death_acc,
+         -no_death_uri, -no_death_ards) %>% 
+  inner_join(dt.pmc) %>% 
+  inner_join(dt.ses) %>% 
+  inner_join(dt.site) %>% 
+  mutate(rS = ifelse(Region.IV == 3, 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race, -Region.IV) 
+  
+for (cmp in cmp.sub){
+    dt.ndi.pmc.south[ ,paste0("rS_",cmp)] <- 
+      dt.ndi.pmc.south[ ,cmp] * dt.ndi.pmc.south$rS
+}
+
+dt.ndi.pmc.res.south <- dt.ndi.pmc.south %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, rS, everything())
+
+write.csv(dt.ndi.pmc.res.south, 
+          file = here('data', 'processed', 'ndi-pmc-res-south.csv'),
+          row.names = F)
+
+### Northeast = 4
+
+dt.ndi.pmc.northeast <- dt.master.ndi.pmc %>% 
+  select(Site.ID:no_death_lungc,
+         -no_death_nacc, -no_death_acc,
+         -no_death_uri, -no_death_ards) %>% 
+  inner_join(dt.pmc) %>% 
+  inner_join(dt.ses) %>% 
+  inner_join(dt.site) %>% 
+  mutate(rNE = ifelse(Region.IV == 4, 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race, -Region.IV) 
+  
+for (cmp in cmp.sub){
+    dt.ndi.pmc.northeast[ ,paste0("rNE_",cmp)] <- 
+      dt.ndi.pmc.northeast[ ,cmp] * dt.ndi.pmc.northeast$rNE
+}
+
+dt.ndi.pmc.res.northeast <- dt.ndi.pmc.northeast %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, rNE, everything())
+
+write.csv(dt.ndi.pmc.res.northeast, 
+          file = here('data', 'processed', 'ndi-pmc-res-northeast.csv'),
+          row.names = F)
+
+```
+
+
 ```{r PMC Age}
-cmp.sub <- c("AS", "CA", "CL", "NA", "NI", "NO3", "OC", 
+cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
              "PB", "PM", "SI", "SO4", "V", "ZN")
 
 dt.pmc <- dt.pmc.1yr %>% 
@@ -831,7 +956,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.ageLE75 <- dt.ndi.pmc.ageLE75 %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, aLE75, everything())
 
@@ -853,7 +978,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.ageM75 <- dt.ndi.pmc.ageM75 %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, aM75, everything())
 
@@ -862,8 +987,70 @@ write.csv(dt.ndi.pmc.ageM75,
           row.names = F)
 ```
 
+```{r Factor Age}
+fac <- c("Factor1","Factor2","Factor3","Factor4",
+         "Factor5","Factor6","Factor7","Factor8")
+
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+### Age 
+dt.age <- dt.master.ndi.pmc %>%
+  mutate(age = ifelse(age <= 75, "LE", "M")) %>% 
+  select(Site.ID:no_death_lungc,
+         -no_death_nacc, -no_death_acc,
+         -no_death_uri, -no_death_ards)
+
+dt.age <- 
+  aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.age, sum) %>%
+  arrange(Site.ID, Year, Month, age, sex, race)
+
+### LE 75
+dt.ndi.fac.ageLE75 <- dt.age %>% 
+  inner_join(dt.fac.1yr) %>% 
+  inner_join(dt.ses) %>% 
+  mutate(aLE75 = ifelse(age == "LE", 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race) 
+  
+for (cmp in fac){
+    dt.ndi.fac.ageLE75[ ,paste0("aLE75_",cmp)] <- 
+      dt.ndi.fac.ageLE75[ ,cmp] * dt.ndi.fac.ageLE75$aLE75
+}
+
+dt.ndi.fac.ageLE75 <- dt.ndi.fac.ageLE75 %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, aLE75, everything())
+
+write.csv(dt.ndi.fac.ageLE75, 
+          file = here('data', 'processed', 'ndi-fac-ageLE75.csv'),
+          row.names = F)
+
+### M 75
+dt.ndi.fac.ageM75 <- dt.age %>% 
+  inner_join(dt.fac.1yr) %>% 
+  inner_join(dt.ses) %>% 
+  mutate(aM75 = ifelse(age == "M", 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race) 
+  
+for (cmp in fac){
+    dt.ndi.fac.ageM75[ ,paste0("aM75_",cmp)] <- 
+      dt.ndi.fac.ageM75[ ,cmp] * dt.ndi.fac.ageM75$aM75
+}
+
+dt.ndi.fac.ageM75 <- dt.ndi.fac.ageM75 %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, aM75, everything())
+
+write.csv(dt.ndi.fac.ageM75, 
+          file = here('data', 'processed', 'ndi-fac-ageM75.csv'),
+          row.names = F)
+```
+
 ```{r PMC Sex}
-cmp.sub <- c("AS", "CA", "CL", "NA", "NI", "NO3", "OC", 
+cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
              "PB", "PM", "SI", "SO4", "V", "ZN")
 
 dt.pmc <- dt.pmc.1yr %>% 
@@ -881,8 +1068,6 @@ dt.sex <- dt.master.ndi.pmc %>%
 
 ### Female
 dt.ndi.pmc.sexF <- dt.sex %>% 
-  inner_join(dt.pmc) %>% 
-  inner_join(dt.ses) %>% 
   mutate(sexF = ifelse(sex == "F", 0,1),
          StrID = paste(age, sex, race)) %>% 
   select(-age, -sex, -race) 
@@ -893,7 +1078,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.sexF <- dt.ndi.pmc.sexF %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, sexF, everything())
 
@@ -903,8 +1088,6 @@ write.csv(dt.ndi.pmc.sexF,
 
 ### Male
 dt.ndi.pmc.sexM <- dt.sex %>% 
-  inner_join(dt.pmc) %>% 
-  inner_join(dt.ses) %>% 
   mutate(sexM = ifelse(sex == "M", 0,1),
          StrID = paste(age, sex, race)) %>% 
   select(-age, -sex, -race) 
@@ -915,7 +1098,7 @@ for (cmp in cmp.sub){
 }
 
 dt.ndi.pmc.sexM <- dt.ndi.pmc.sexM %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_")) %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
   rename(SiteID = Site.ID) %>% 
   select(SiteID, Year, Month, StrID, sexM, everything())
 
@@ -924,9 +1107,63 @@ write.csv(dt.ndi.pmc.sexM,
           row.names = F)
 ```
 
+```{r Factor Sex}
+fac <- c("Factor1","Factor2","Factor3","Factor4",
+         "Factor5","Factor6","Factor7","Factor8")
+
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.sex <- dt.master.ndi.pmc %>% 
+    select(Site.ID:no_death_lungc,
+         -no_death_nacc, -no_death_acc,
+         -no_death_uri, -no_death_ards) %>%  
+  inner_join(dt.fac.1yr) %>% 
+  inner_join(dt.ses)
+
+### Female
+dt.ndi.fac.sexF <- dt.sex %>% 
+  mutate(sexF = ifelse(sex == "F", 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race) 
+  
+for (cmp in fac){
+    dt.ndi.fac.sexF[ ,paste0("sexF_",cmp)] <- 
+      dt.ndi.fac.sexF[ ,cmp] * dt.ndi.fac.sexF$sexF
+}
+
+dt.ndi.fac.sexF <- dt.ndi.fac.sexF %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, sexF, everything())
+
+write.csv(dt.ndi.fac.sexF, 
+          file = here('data', 'processed', 'ndi-fac-sexF.csv'),
+          row.names = F)
+
+### Male
+dt.ndi.fac.sexM <- dt.sex %>% 
+  mutate(sexM = ifelse(sex == "M", 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race) 
+  
+for (cmp in fac){
+    dt.ndi.fac.sexM[ ,paste0("sexM_",cmp)] <- 
+      dt.ndi.fac.sexM[ ,cmp] * dt.ndi.fac.sexM$sexM
+}
+
+dt.ndi.fac.sexM <- dt.ndi.fac.sexM %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, sexM, everything())
+
+write.csv(dt.ndi.fac.sexM, 
+          file = here('data', 'processed', 'ndi-fac-sexM.csv'),
+          row.names = F)
+```
+
 ```{r PMC BRFSS}
 dt.pmc <- dt.pmc.1yr %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_"))
 
 dt.ses <- dt.ses.site.bz12 %>% 
   mutate(ses = SES.Zip.Norm) %>% 
@@ -945,13 +1182,33 @@ write.csv(dt.ndi.pmc.brfss,
           row.names = F)
 ```
 
+```{r Factor BRFSS}
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.ndi.fac.brfss <- dt.master.ndi.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_lungc,
+         -no_death_nacc, -no_death_acc,
+         -no_death_uri, -no_death_ards) %>%  
+  inner_join(dt.fac.1yr) %>% 
+  inner_join(dt.ses) %>% 
+  inner_join(dt.brfss.site) %>% 
+  rename(SiteID = Site.ID)
+
+write.csv(dt.ndi.fac.brfss, 
+          file = here('data', 'processed', 'ndi-fac-brfss.csv'),
+          row.names = F)
+```
+
 ```{r PMC BZ 6}
-cmp.sub <- c("AS", "CA", "CL", "NA", "NI", "NO3", "OC", 
+cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
              "PB", "PM", "SI", "SO4", "V", "ZN")
 
 dt.pmc <- dt.pmc.1yr %>% 
   select(Site.ID, Year, Month, cmp.sub) %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_"))
 
 dt.ses <- dt.ses.site.bz6 %>% 
   mutate(ses = SES.Zip.Norm) %>% 
@@ -970,12 +1227,12 @@ write.csv(dt.ndi.pmc.bz6,
 ```
 
 ```{r PMC BZ 12}
-cmp.sub <- c("AS", "CA", "CL", "NA", "NI", "NO3", "OC", 
+cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
              "PB", "PM", "SI", "SO4", "V", "ZN")
 
 dt.pmc <- dt.pmc.1yr %>% 
   select(Site.ID, Year, Month, cmp.sub) %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_"))
 
 dt.ses <- dt.ses.site.bz12 %>% 
   mutate(ses = SES.Zip.Norm) %>% 
@@ -994,12 +1251,12 @@ write.csv(dt.ndi.pmc.bz12,
 ```
 
 ```{r PMC BZ 24}
-cmp.sub <- c("AS", "CA", "CL", "NA", "NI", "NO3", "OC", 
+cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
              "PB", "PM", "SI", "SO4", "V", "ZN")
 
 dt.pmc <- dt.pmc.1yr %>% 
   select(Site.ID, Year, Month, cmp.sub) %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_"))
 
 dt.ses <- dt.ses.site.bz24 %>% 
   mutate(ses = SES.Zip.Norm) %>% 
@@ -1019,100 +1276,100 @@ write.csv(dt.ndi.pmc.bz24,
 
 ```{r PMC - 5yr}
 dt.pmc <- dt.pmc.5yr %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_"))
 
 dt.ses <- dt.ses.site.bz12 %>% 
   mutate(ses = SES.Zip.Norm) %>% 
   select(Site.ID, Year, ses)
 
-dt.ndi.pmc <- dt.master.ndi.pmc %>% 
+dt.ndi.pmc.5 <- dt.master.ndi.pmc %>% 
   mutate(StrID = paste(age, sex, race)) %>% 
   select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
   inner_join(dt.pmc) %>% 
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, 
+write.csv(dt.ndi.pmc.5, 
           file = here('data', 'processed', 'ndi-pmc-5yr.csv'),
           row.names = F)
 ```
 
 ```{r PMC - 4yr - 5yr}
 dt.pmc <- dt.pmc.4yr.5yr %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_"))
 
 dt.ses <- dt.ses.site.bz12 %>% 
   mutate(ses = SES.Zip.Norm) %>% 
   select(Site.ID, Year, ses)
 
-dt.ndi.pmc <- dt.master.ndi.pmc %>% 
+dt.ndi.pmc.4 <- dt.master.ndi.pmc %>% 
   mutate(StrID = paste(age, sex, race)) %>% 
   select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
   inner_join(dt.pmc) %>% 
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, 
+write.csv(dt.ndi.pmc.4, 
           file = here('data', 'processed', 'ndi-pmc-4yr-5yr.csv'),
           row.names = F)
 ```
 
 ```{r PMC - 3yr - 5yr}
 dt.pmc <- dt.pmc.3yr.5yr %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_"))
 
 dt.ses <- dt.ses.site.bz12 %>% 
   mutate(ses = SES.Zip.Norm) %>% 
   select(Site.ID, Year, ses)
 
-dt.ndi.pmc <- dt.master.ndi.pmc %>% 
+dt.ndi.pmc.3 <- dt.master.ndi.pmc %>% 
   mutate(StrID = paste(age, sex, race)) %>% 
   select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
   inner_join(dt.pmc) %>% 
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, 
+write.csv(dt.ndi.pmc.3, 
           file = here('data', 'processed', 'ndi-pmc-3yr-5yr.csv'),
           row.names = F)
 ```
 
 ```{r PMC - 2yr - 5yr}
 dt.pmc <- dt.pmc.2yr.5yr %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_"))
 
 dt.ses <- dt.ses.site.bz12 %>% 
   mutate(ses = SES.Zip.Norm) %>% 
   select(Site.ID, Year, ses)
 
-dt.ndi.pmc <- dt.master.ndi.pmc %>% 
+dt.ndi.pmc.2 <- dt.master.ndi.pmc %>% 
   mutate(StrID = paste(age, sex, race)) %>% 
   select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
   inner_join(dt.pmc) %>% 
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, 
+write.csv(dt.ndi.pmc.2, 
           file = here('data', 'processed', 'ndi-pmc-2yr-5yr.csv'),
           row.names = F)
 ```
 
 ```{r PMC - 1yr - 5yr}
 dt.pmc <- dt.pmc.1yr.5yr %>% 
-  rename_at(vars(AS:ZN), ~paste("Yr", .x, sep = "_"))
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_"))
 
 dt.ses <- dt.ses.site.bz12 %>% 
   mutate(ses = SES.Zip.Norm) %>% 
   select(Site.ID, Year, ses)
 
-dt.ndi.pmc <- dt.master.ndi.pmc %>% 
+dt.ndi.pmc.1 <- dt.master.ndi.pmc %>% 
   mutate(StrID = paste(age, sex, race)) %>% 
   select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
   inner_join(dt.pmc) %>% 
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.pmc, 
+write.csv(dt.ndi.pmc.1, 
           file = here('data', 'processed', 'ndi-pmc-1yr-5yr.csv'),
           row.names = F)
 ```

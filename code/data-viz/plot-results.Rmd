@@ -20,7 +20,19 @@ load(here('output','analysis','out-pmc-base.RDa'))
 load(here('output','analysis','out-pmc-ses.RDa'))
 load(here('output','analysis','out-fac-base.RDa'))
 load(here('output','analysis','out-fac-ses.RDa'))
-
+load(here('output','analysis','out-fac-ex-ec-base.RDa'))
+load(here('output','analysis','out-fac-ex-ec-ses.RDa'))
+load(here('output','analysis','out-pmc-resid.RDa'))
+load(here('output','analysis','out-fac-resid.RDa'))
+load(here('output','analysis','out-pmc-region.RDa'))
+load(here('output','analysis','out-pmc-race.RDa'))
+load(here('output','analysis','out-pmc-urbanicity.RDa'))
+load(here('output','analysis','out-pmc-sescat.RDa'))
+load(here('output','analysis','out-pmc-brfss.RDa'))
+load(here('output','analysis','out-pmc-age.RDa'))
+load(here('output','analysis','out-pmc-sex.RDa'))
+load(here('output','analysis','out-pmc-buffer.RDa'))
+load(here('output','analysis','out-pmc-expo.RDa'))
 ```
 
 ```{r - Components Base}
@@ -40,8 +52,8 @@ data <- data %>%
          sig = ifelse(HR.U < 1 , '1-prtc',
                       ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos'))
          )
-# #610038
-plot_cols <- c("red")
+
+plot_cols <- c("#D71A21")
 
 ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
   geom_vline(xintercept = 1, linetype = 2, color = "black") +
@@ -62,7 +74,7 @@ facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
         axis.text.x = element_text(size = 8, color = 'black'),
         axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
   ) +
-ggsave(here('output', 'plot','pmc-base.png'), width = 9.5, height = 7.5)
+ggsave(here('output', 'plot','pmc-base.png'), width = 6.5, height = 8.5)
 ```
 
 ```{r - Components SES-Adj}
@@ -82,8 +94,8 @@ data <- data %>%
          sig = ifelse(HR.U < 1 , '1-prtc',
                       ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos'))
          )
-# #610038
-plot_cols <- c("red")
+
+plot_cols <- c("#D71A21")
 
 ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
   geom_vline(xintercept = 1, linetype = 2, color = "black") +
@@ -104,7 +116,7 @@ facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
         axis.text.x = element_text(size = 8, color = 'black'),
         axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
   ) +
-ggsave(here('output', 'plot','pmc-ses.png'), width = 9.5, height = 7.5)
+ggsave(here('output', 'plot','pmc-ses.png'), width = 6.5, height = 8.5)
 ```
 
 ```{r - Factor Base}
@@ -124,8 +136,8 @@ data <- data %>%
          sig = ifelse(HR.U < 1 , '1-prtc',
                       ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos'))
          )
-# #610038
-plot_cols <- c("red")
+
+plot_cols <- c("#D71A21")
 
 ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
   geom_vline(xintercept = 1, linetype = 2, color = "black") +
@@ -148,7 +160,7 @@ facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
         axis.text.x = element_text(size = 8, color = 'black'),
         axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
   ) +
-ggsave(here('output', 'plot','fac-base.png'), width = 9.5, height = 5.5)
+ggsave(here('output', 'plot','fac-base-ec.png'), width = 6.5, height = 8.5)
 ```
 
 ```{r - Factor SES-Adj}
@@ -168,8 +180,8 @@ data <- data %>%
          sig = ifelse(HR.U < 1 , '1-prtc',
                       ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos'))
          )
-# #610038
-plot_cols <- c("red")
+
+plot_cols <- c("#D71A21")
 
 ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
   geom_vline(xintercept = 1, linetype = 2, color = "black") +
@@ -192,7 +204,7 @@ facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
         axis.text.x = element_text(size = 8, color = 'black'),
         axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
   ) +
-ggsave(here('output', 'plot','fac-ses.png'), width = 9.5, height = 5.5)
+ggsave(here('output', 'plot','fac-ses-ec.png'), width = 6.5, height = 8.5)
 ```
 
 ```{r - Factor Ex. EC Base}
@@ -212,8 +224,8 @@ data <- data %>%
          sig = ifelse(HR.U < 1 , '1-prtc',
                       ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos'))
          )
-# #610038
-plot_cols <- c("red")
+
+plot_cols <- c("#D71A21")
 
 ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
   geom_vline(xintercept = 1, linetype = 2, color = "black") +
@@ -236,7 +248,7 @@ facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
         axis.text.x = element_text(size = 8, color = 'black'),
         axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
   ) +
-ggsave(here('output', 'plot','fac-ex-ec-base.png'), width = 9.5, height = 5.5)
+ggsave(here('output', 'plot','fac-base.png'), width = 6.5, height = 8.5)
 ```
 
 ```{r - Factor EX. EC SES-Adj}
@@ -256,8 +268,8 @@ data <- data %>%
          sig = ifelse(HR.U < 1 , '1-prtc',
                       ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos'))
          )
-# #610038
-plot_cols <- c("red")
+
+plot_cols <- c("#D71A21")
 
 ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
   geom_vline(xintercept = 1, linetype = 2, color = "black") +
@@ -280,18 +292,18 @@ facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
         axis.text.x = element_text(size = 8, color = 'black'),
         axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
   ) +
-ggsave(here('output', 'plot','fac-ex-ec-ses.png'), width = 9.5, height = 5.5)
+ggsave(here('output', 'plot','fac-ses.png'), width = 6.5, height = 8.5)
 ```
 
 
 ```{r - Components - PM Residual}
-data <- read_excel('Comp_PMResi.xlsx')
+data <- out.pmc.resid
 
-cmp <- c("-OC", "-NO3", "-V", "-Ni", "-SO4", "-Se",
+cmp <- c("-V", "-Ni","-Cl", "-Na", "-SO4", "-Se", "-OC", "-NO3", 
          "-Zn", "-Pb", "-Ca", "-Si", "PM2.5")
-cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", 
-         "Respiratory", "Pneumonia",
-         "Cancer","Lung Cancer") # "CHF", "COPD", 
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia",
+         "Cancer", "Lung Cancer") 
 
 data <- data %>% 
   filter(Index %in% cmp,
@@ -302,7 +314,7 @@ data <- data %>%
                       ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos'))
          )
 
-plot_cols <- c("red")
+plot_cols <- c("#D71A21")
 
 ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
   geom_vline(xintercept = 1, linetype = 2, color = "black") +
@@ -314,7 +326,7 @@ ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
              color =plot_cols, size = 1.5, show.legend = F) +
   scale_shape_manual(values = c(16, 1, 16), guide = F) +
 
-facet_wrap( ~ Cause, ncol = 4, scales = "fixed") +
+facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
@@ -323,7 +335,7 @@ facet_wrap( ~ Cause, ncol = 4, scales = "fixed") +
         axis.text.x = element_text(size = 8, color = 'black'),
         axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
   ) +
-ggsave("CMP_PMResi_1114.jpeg", width = 9.5, height = 5.5)
+ggsave(here('output', 'plot','pmc-resid.png'), width = 6.5, height = 8.5)
 ```
 
 ```{r - Components PM Residual - Region}
@@ -424,13 +436,13 @@ ggsave("CMP_PMResi_Region_1113.jpeg", p, width = 9.5, height = 12)
 
 
 ```{r - Factor - PM Residual}
-data <- read_excel('Fac_PMResi.xlsx')
+data <- out.fac.resid
 
-So <- c("-Traffic", "-Oil", "-Coal", 
-         "-Metals","-Soil", "PM2.5") # "-Steel", "-Salt", "-Biomass", 
-cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", 
-         "Respiratory", "Pneumonia",
-         "Cancer","Lung Cancer") # "CHF", "COPD",
+So <- c("-Oil", "-Salt", "-Coal", 
+         "-Traffic", "-Metals", "-Soil", "PM2.5")
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia",
+         "Cancer", "Lung Cancer")
 
 data <- data %>% 
   filter(Index %in% So,
@@ -443,7 +455,7 @@ data <- data %>%
   mutate(sig = ifelse(HR.U < 1 , '1-prtc',
                       ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
 
-plot_cols <- c("red")
+plot_cols <- c("#D71A21")
 
 ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
   geom_vline(xintercept = 1, linetype = 2, color = "black") +
@@ -455,7 +467,7 @@ ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
              color =plot_cols, size = 1.5, show.legend = F) + 
   scale_shape_manual(values = c(16, 1, 16), guide = F) +
   
-facet_wrap( ~ Cause, ncol = 4, scales = "fixed") +
+facet_wrap( ~ Cause, nrow = 2, scales = "fixed") +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
@@ -464,16 +476,15 @@ facet_wrap( ~ Cause, ncol = 4, scales = "fixed") +
         axis.text.x = element_text(size = 8, color = 'black'),
         axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
   ) +
-ggsave("Fac_PMResi_1114.jpeg", width = 9.5, height = 4.5)
+ggsave(here('output', 'plot','fac-resid.png'), width = 6.5, height = 8.5)
 ```
 
 
 ```{r - Components Region}
-data <- read_excel('Comp_Region.xlsx')
+data <- out.pmc.region
 
-
-cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "Se", "SO4", 
-          "Ni", "V", "NO3", "OC") 
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "NO3", "OC", "Se", "SO4", 
+         "Na", "Cl", "Ni", "V") 
 cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
          "Respiratory", "COPD", "Pneumonia", 
          "Cancer", "Lung Cancer")
@@ -483,6 +494,9 @@ data <- data %>%
          Cause %in% cuz) %>% 
   mutate(Cause = factor(Cause, levels = cuz),
          Index = factor(Index, levels = cmp),
+         Tag = ifelse(Region == "west", "d",
+                      ifelse(Region == "midwest", "c",
+                             ifelse(Region == "south", "b", "a"))),
          Tag = as.factor(Tag)
          )
 
@@ -512,7 +526,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
                shrink = T, space = 'fixed') +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
-        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
         strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
         strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
@@ -545,7 +559,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
                shrink = T, space = 'fixed') +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
-        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
         strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
         strip.text.y = element_text(size = 10,face = "bold", color = "black", angle = 180),
@@ -561,7 +575,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
   guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
 nrow = 2) 
 
-ggsave("CMP_Region_1113.jpeg", p, width = 9.5, height = 12)
+ggsave(here('output', 'plot','pmc-region.png'),p, width = 6.5, height = 8.5)
 ```
 
 ```{r Factors Region}
@@ -661,11 +675,10 @@ ggsave("Fac_Region_1113.jpeg", p, width = 9.5, height = 7)
 ```
 
 ```{r - Components Race}
-data <- read_excel('Comp_Race.xlsx')
+data <- out.pmc.race
 
-
-cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "Se", "SO4", 
-          "Ni", "V", "NO3", "OC") 
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "NO3", "OC", "Se", "SO4", 
+         "Na", "Cl", "Ni", "V") 
 cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
          "Respiratory", "COPD", "Pneumonia", 
          "Cancer", "Lung Cancer")
@@ -675,6 +688,9 @@ data <- data %>%
          Cause %in% cuz) %>% 
   mutate(Cause = factor(Cause, levels = cuz),
          Index = factor(Index, levels = cmp),
+         Tag = ifelse(Race == "A", "d",
+                      ifelse(Race == "B", "c",
+                             ifelse(Race == "H", "b", "a"))),
          Tag = as.factor(Tag)
          )
 
@@ -704,7 +720,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
                shrink = T, space = 'fixed') +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
-        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
         strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
         strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
@@ -737,7 +753,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
                shrink = T, space = 'fixed') +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
-        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
         strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
         strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
@@ -753,7 +769,199 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
   guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
 nrow = 2)
 
-ggsave("CMP_Race_1113.jpeg", p, width = 9.5, height = 12)
+ggsave(here('output', 'plot','pmc-race.png'),p, width = 6.5, height = 8.5)
+```
+
+```{r - Components Age}
+data <- out.pmc.age
+
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "NO3", "OC", "Se", "SO4", 
+         "Na", "Cl", "Ni", "V") 
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia", 
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% cmp,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp),
+         Tag = ifelse(Age == "LE75", "b", "a"),
+         Tag = as.factor(Tag)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_labs <- c("> 75 years", "<= 75 years")
+plot_cols <- c("red", "blue")
+
+p <- grid.arrange(
+ggplot(data = filter(data, Cause %in% c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")), 
+
+ggplot(data = filter(data, Cause %in% c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
+nrow = 2)
+
+ggsave(here('output', 'plot','pmc-age.png'),p, width = 6.5, height = 8.5)
+```
+
+```{r - Components Sex}
+data <- out.pmc.sex
+
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "NO3", "OC", "Se", "SO4", 
+         "Na", "Cl", "Ni", "V") 
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia", 
+         "Cancer", "Lung Cancer")
+
+data <- data %>% 
+  filter(Index %in% cmp,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp),
+         Tag = ifelse(Sex == "F", "b", "a"),
+         Tag = as.factor(Tag)
+         )
+
+data <- data %>% 
+  mutate(sig = ifelse(HR.U < 1 , '1-prtc',
+                      ifelse((HR.L<=1 & HR.U>=1), '2-null','3-sigpos')))
+
+plot_labs <- c("Male", "Female")
+plot_cols <- c("red", "blue")
+
+p <- grid.arrange(
+ggplot(data = filter(data, Cause %in% c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")), 
+
+ggplot(data = filter(data, Cause %in% c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")),
+       aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "black") +
+  xlab("") +
+  ylab("") +
+  geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                size = 0.25, show.legend = F) + 
+  geom_point(aes(x = HR, y = Tag, color = Tag, shape = as.factor(sig)), 
+             size = 1.5, show.legend = F) + 
+  scale_shape_manual(values = c(16, 1, 16), guide = F) +
+  scale_color_manual(
+    labels = plot_labs, 
+    values = plot_cols) +
+
+facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+  theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "slategray2"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')) +
+  guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
+nrow = 2)
+
+ggsave(here('output', 'plot','pmc-sex.png'),p, width = 6.5, height = 8.5)
 ```
 
 ```{r Factors Race}
@@ -853,11 +1061,10 @@ ggsave("Fac_Race_1113.jpeg", p, width = 9.5, height = 7)
 ```
 
 ```{r Components Urban}
-data <- read_excel('Comp_Urban.xlsx')
+data <- out.pmc.urbanicity
 
-
-cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "Se", "SO4", 
-          "Ni", "V", "NO3", "OC") 
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "NO3", "OC", "Se", "SO4", 
+         "Na", "Cl", "Ni", "V") 
 cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
          "Respiratory", "COPD", "Pneumonia", 
          "Cancer", "Lung Cancer")
@@ -867,6 +1074,7 @@ data <- data %>%
          Cause %in% cuz) %>% 
   mutate(Cause = factor(Cause, levels = cuz),
          Index = factor(Index, levels = cmp),
+         Tag = ifelse(Loc.Set == "urban", "b", "a"),
          Tag = as.factor(Tag)
          )
 
@@ -896,7 +1104,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
                shrink = T, space = 'fixed') +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
-        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25, 0, 0.25, 0),'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
         strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
         strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
@@ -929,7 +1137,7 @@ facet_grid(Index ~ Cause,  scales = "fixed", switch = 'y',
                shrink = T, space = 'fixed') +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
-        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25, 0, 0.25, 0),'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
         strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
         strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
@@ -945,7 +1153,7 @@ facet_grid(Index ~ Cause,  scales = "fixed", switch = 'y',
   guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
 nrow = 2) 
 
-ggsave("CMP_Urban_1113.jpeg", p, width = 9.5, height = 10)
+ggsave(here('output', 'plot','pmc-urbanicity.png'),p, width = 6.5, height = 8.5)
 ```
 
 
@@ -1046,11 +1254,10 @@ ggsave("Fac_Urban_1113.jpeg", p, width = 9.5, height = 6)
 ```
 
 ```{r Components SES-Urban}
-data <- read_excel('Comp_SESUrban.xlsx')
+data <- out.pmc.sescat
 
-
-cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "Se", "SO4", 
-          "Ni", "V", "NO3", "OC") 
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "NO3", "OC", "Se", "SO4", 
+         "Na", "Cl", "Ni", "V")
 cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
          "Respiratory", "COPD", "Pneumonia", 
          "Cancer", "Lung Cancer")
@@ -1060,6 +1267,8 @@ data <- data %>%
          Cause %in% cuz) %>% 
   mutate(Cause = factor(Cause, levels = cuz),
          Index = factor(Index, levels = cmp),
+         Tag = ifelse(SES.Cat == "L", "c",
+                      ifelse(SES.Cat == "M", "b", "a")),
          Tag = as.factor(Tag)
          )
 
@@ -1089,7 +1298,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
                shrink = T, space = 'fixed') +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
-        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25, 0, 0.25, 0),'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
         strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
         strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
@@ -1122,7 +1331,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
                shrink = T, space = 'fixed') +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
-        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25, 0, 0.25, 0),'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
         strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
         strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
@@ -1138,7 +1347,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
   guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
 nrow = 2) 
 
-ggsave("CMP_SESUrban_1113.jpeg", p, width = 9.5, height = 11)
+ggsave(here('output', 'plot','pmc-sescat.png'),p, width = 6.5, height = 8.5)
 ```
 
 
@@ -1239,11 +1448,10 @@ ggsave("Fac_SESUrban_1113.jpeg", p, width = 9.5, height = 7)
 
 
 ```{r - Components BRFSS}
-data <- read_excel('Comp_BRFSS.xlsx')
+data <- out.pmc.brfss
 
-
-cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "Se", "SO4", 
-          "Ni", "V", "NO3", "OC") 
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "NO3", "OC", "Se", "SO4", 
+         "Na", "Cl", "Ni", "V")
 cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
          "Respiratory", "COPD", "Pneumonia", 
          "Cancer", "Lung Cancer")
@@ -1253,6 +1461,7 @@ data <- data %>%
          Cause %in% cuz) %>% 
   mutate(Cause = factor(Cause, levels = cuz),
          Index = factor(Index, levels = cmp),
+         Tag = ifelse(BRFSS == "brfss0", "b", "a"),
          Tag = as.factor(Tag)
          )
 
@@ -1282,7 +1491,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
                shrink = T, space = 'fixed') +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
-        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
         strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
         strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
@@ -1315,7 +1524,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
                shrink = T, space = 'fixed') +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
-        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
         strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
         strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
@@ -1331,7 +1540,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
   guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
 nrow = 2) 
   
-ggsave("CMP_BRFSS_1113.jpeg", p, width = 9.5, height = 10)
+ggsave(here('output', 'plot','pmc-brfss.png'),p, width = 6.5, height = 8.5)
 ```
 
 
@@ -1430,11 +1639,10 @@ ggsave("Fac_BRFSS_1113.jpeg", p, width = 9.5, height = 7)
 ```
 
 ```{r Components Buffer}
-data <- read_excel('Comp_Buffer.xlsx')
+data <- out.pmc.buffer
 
-
-cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "Se", "SO4", 
-          "Ni", "V", "NO3", "OC") 
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "NO3", "OC", "Se", "SO4", 
+         "Na", "Cl", "Ni", "V")
 cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
          "Respiratory", "COPD", "Pneumonia", 
          "Cancer", "Lung Cancer")
@@ -1444,6 +1652,8 @@ data <- data %>%
          Cause %in% cuz) %>% 
   mutate(Cause = factor(Cause, levels = cuz),
          Index = factor(Index, levels = cmp),
+         Tag = ifelse(Buffer == 6, "c",
+                      ifelse(Buffer == 12, "b", "a")),
          Tag = as.factor(Tag)
          )
 
@@ -1472,7 +1682,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
                shrink = T, space = 'fixed') +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
-        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25, 0, 0.25, 0),'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
         strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
         strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
@@ -1505,7 +1715,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
                shrink = T, space = 'fixed') +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
-        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25, 0, 0.25, 0),'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
         strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
         strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
@@ -1521,16 +1731,15 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
   guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
 nrow = 2) 
 
-ggsave("CMP_Buffer_1113.jpeg", p, width = 9.5, height = 10)
+ggsave(here('output', 'plot','pmc-buffer.png'),p, width = 6.5, height = 8.5)
 ```
 
 
-```{r Components Mvavg}
-data <- read_excel('Comp_Mvavg.xlsx')
+```{r Components Exposure window}
+data <- out.pmc.expo
 
-
-cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "Se", "SO4", 
-          "Ni", "V", "NO3", "OC") 
+cmp <- c("PM2.5","Si", "Ca", "Pb", "Zn", "NO3", "OC", "Se", "SO4", 
+         "Na", "Cl", "Ni", "V")
 cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
          "Respiratory", "COPD", "Pneumonia", 
          "Cancer", "Lung Cancer")
@@ -1540,6 +1749,10 @@ data <- data %>%
          Cause %in% cuz) %>% 
   mutate(Cause = factor(Cause, levels = cuz),
          Index = factor(Index, levels = cmp),
+         Tag = ifelse(Window == 1, "e",
+                      ifelse(Window == 2, "d",
+                             ifelse(Window == 3, "c",
+                                    ifelse(Window == 4, "b", "a")))),
          Tag = as.factor(Tag)
          )
 
@@ -1569,7 +1782,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
                shrink = T, space = 'fixed') +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
-        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25, 0, 0.25, 0),'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
         strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
         strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
@@ -1602,7 +1815,7 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
                shrink = T, space = 'fixed') +
   theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
-        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0.25,0,0.25,0),'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
         strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
         strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
@@ -1618,6 +1831,6 @@ facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
   guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")),
 nrow = 2) 
 
-ggsave("CMP_Mvavg_1113.jpeg", p, width = 9.5, height = 10)
+ggsave(here('output', 'plot','pmc-expo.png'),p, width = 6.5, height = 8.5)
 ```
 

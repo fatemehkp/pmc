@@ -1,11 +1,7 @@
 ---
 title: "Analysis Output files"
-output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
 
 ```{r load packages}
 library(tidyverse)
@@ -17,6 +13,11 @@ load(here('data','processed','pmc-1yr.RDa'))
 load(here('data','processed','fac-1yr.RDa'))
 load(here('data','processed','fac-ex-ec-1yr.RDa'))
 load(here('data','processed','pmc-site-ndi.RDa'))
+load(here('data','processed','pmc-sub-1yr-5yr.RDa'))
+load(here('data','processed','pmc-sub-2yr-5yr.RDa'))
+load(here('data','processed','pmc-sub-3yr-5yr.RDa'))
+load(here('data','processed','pmc-sub-4yr-5yr.RDa'))
+load(here('data','processed','pmc-sub-5yr.RDa'))
 ```
 
 ```{r - Parameter/Factor to Index}
@@ -107,8 +108,6 @@ pmc.1yr.iqr <- dt.pmc.site.ndi %>%
                values_to = "IQR") %>% 
   mutate(Parameter = as.factor(Parameter))
 
-save(pmc.1yr.iqr, file = here('data','processed','pmc-1yr-iqr.RDa'))
-
 ### Factors
 fac.1yr.iqr <- dt.pmc.site.ndi %>% 
   select(Site.ID) %>% 
@@ -119,8 +118,6 @@ fac.1yr.iqr <- dt.pmc.site.ndi %>%
                values_to = "IQR")%>% 
   mutate(Parameter = as.factor(Parameter))
 
-save(fac.1yr.iqr, file = here('data','processed','fac-1yr-iqr.RDa'))
-
 ### Factors excluding EC
 fac.ex.ec.1yr.iqr <- dt.pmc.site.ndi %>% 
   select(Site.ID) %>% 
@@ -130,8 +127,6 @@ fac.ex.ec.1yr.iqr <- dt.pmc.site.ndi %>%
                names_to = "Parameter",
                values_to = "IQR")%>% 
   mutate(Parameter = as.factor(Parameter))
-
-save(fac.ex.ec.1yr.iqr, file = here('data','processed','fac-ex-ec-1yr-iqr.RDa'))
 
 ### Carbons
 dt.carbon <- dt.pmc.1yr %>% 
@@ -150,8 +145,6 @@ carbon.1yr.iqr <- dt.site %>%
                values_to = "IQR") %>% 
   mutate(Parameter = as.factor(Parameter))
 
-save(carbon.1yr.iqr, file = here('data','processed','carbon-1yr-iqr.RDa'))
-
 carbon.method.1yr.iqr <- dt.site %>% 
   inner_join(dt.carbon) %>% 
   group_by(Method) %>% 
@@ -162,7 +155,68 @@ carbon.method.1yr.iqr <- dt.site %>%
   mutate(Parameter = as.factor(Parameter)) %>% 
   arrange(Parameter)
 
-save(carbon.method.1yr.iqr, file = here('data','processed','carbon-method-1yr-iqr.RDa'))
+### Components - urbanicity
+pmc.1yr.locset.iqr <- dt.pmc.site.ndi %>% 
+   mutate(Loc.Set = ifelse(!Location.Setting == "RURAL", "urban","rural")) %>% 
+  select(Site.ID, Loc.Set) %>% 
+  inner_join(dt.pmc.1yr) %>% 
+  group_by(Loc.Set) %>% 
+  summarise_at(vars(AS:ZN), ~IQR(.x)) %>% 
+  pivot_longer(cols = AS:ZN,
+               names_to = "Parameter",
+               values_to = "IQR") %>% 
+  mutate(Parameter = as.factor(Parameter))
+
+### Components - region
+pmc.1yr.region.iqr <- dt.pmc.site.ndi %>% 
+  select(Site.ID, Region.IV) %>% 
+  inner_join(dt.pmc.1yr) %>% 
+  group_by(Region.IV) %>% 
+  summarise_at(vars(AS:ZN), ~IQR(.x)) %>% 
+  pivot_longer(cols = AS:ZN,
+               names_to = "Parameter",
+               values_to = "IQR") %>% 
+  mutate(Parameter = as.factor(Parameter))
+
+### Components - 5yr
+pmc.5yr.iqr <- dt.pmc.5yr %>% 
+  summarise_at(vars(AS:ZN), ~IQR(.x)) %>% 
+  pivot_longer(cols = AS:ZN,
+               names_to = "Parameter",
+               values_to = "IQR") %>% 
+  mutate(Parameter = as.factor(Parameter))
+
+### Components - 4yr
+pmc.4yr.5yr.iqr <- dt.pmc.4yr.5yr %>% 
+  summarise_at(vars(AS:ZN), ~IQR(.x)) %>% 
+  pivot_longer(cols = AS:ZN,
+               names_to = "Parameter",
+               values_to = "IQR") %>% 
+  mutate(Parameter = as.factor(Parameter))
+
+### Components - 3yr
+pmc.3yr.5yr.iqr <- dt.pmc.3yr.5yr %>% 
+  summarise_at(vars(AS:ZN), ~IQR(.x)) %>% 
+  pivot_longer(cols = AS:ZN,
+               names_to = "Parameter",
+               values_to = "IQR") %>% 
+  mutate(Parameter = as.factor(Parameter))
+
+### Components - 2yr
+pmc.2yr.5yr.iqr <- dt.pmc.2yr.5yr %>% 
+  summarise_at(vars(AS:ZN), ~IQR(.x)) %>% 
+  pivot_longer(cols = AS:ZN,
+               names_to = "Parameter",
+               values_to = "IQR") %>% 
+  mutate(Parameter = as.factor(Parameter))
+
+### Components - 1yr
+pmc.1yr.5yr.iqr <- dt.pmc.1yr.5yr %>% 
+  summarise_at(vars(AS:ZN), ~IQR(.x)) %>% 
+  pivot_longer(cols = AS:ZN,
+               names_to = "Parameter",
+               values_to = "IQR") %>% 
+  mutate(Parameter = as.factor(Parameter))
 ```
 
 ```{r Output PMC Base}
@@ -303,4 +357,255 @@ out.carbon.tor.ses <- read.csv(here('output','analysis','tot_ses.csv')) %>%
   select(Index, Cause, HR, HR.L, HR.U)
 
 save(out.carbon.tor.ses, file = here('output','analysis','out-carbon-tor-ses.RDa'))
+```
+
+```{r Output PMC Residuals}
+PM.IQR <- as.double(pmc.1yr.iqr[pmc.1yr.iqr$Parameter == 'PM', 'IQR'])
+load(here('output','analysis','out-pmc-ses.RDa'))
+PM <- out.pmc.ses %>% 
+  filter(Index == "PM2.5")
+
+out.pmc.resid <- read.csv(here('output','analysis','pmc_resid.csv')) %>% 
+  mutate(Parameter = gsub(".*PM_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge(Para.to.Index) %>% 
+  mutate(Index = paste0('-', Index)) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * PM.IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * PM.IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * PM.IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, HR, HR.L, HR.U) %>% 
+  add_row(PM)
+
+save(out.pmc.resid, file = here('output','analysis','out-pmc-resid.RDa'))
+```
+
+```{r Output Factors Residuals}
+PM.IQR <- as.double(pmc.1yr.iqr[pmc.1yr.iqr$Parameter == 'PM', 'IQR'])
+load(here('output','analysis','out-pmc-ses.RDa'))
+PM <- out.pmc.ses %>% 
+  filter(Index == "PM2.5")
+
+out.fac.resid <- read.csv(here('output','analysis','fac_resid.csv')) %>% 
+  mutate(Parameter = gsub(".*PM_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge(Factor.ex.ec.to.Index) %>% 
+  mutate(Index = paste0('-', Index)) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * PM.IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * PM.IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * PM.IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, HR, HR.L, HR.U) %>% 
+  add_row(PM)
+
+save(out.fac.resid, file = here('output','analysis','out-fac-resid.RDa'))
+```
+
+```{r Output PMC Race}
+out.pmc.race = data.frame()
+for (i in c("A", "B", "H", "W")){
+  dt <- read.csv(here('output','analysis',paste('pmc_race',i,'.csv', sep= ""))) %>% 
+    mutate(Race = i)
+  out.pmc.race  <-  rbind(out.pmc.race, dt)
+}
+
+out.pmc.race <- out.pmc.race %>% 
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge(pmc.1yr.iqr) %>% 
+  merge(Para.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, Race, HR, HR.L, HR.U) 
+
+save(out.pmc.race, file = here('output','analysis','out-pmc-race.RDa'))
+```
+
+```{r Output PMC Urbanicity}
+out.pmc.urbanicity = data.frame()
+for (i in c("urban", "rural")){
+  dt <- read.csv(here('output','analysis',paste('pmc_',i,'.csv', sep= ""))) %>% 
+    mutate(Loc.Set = i)
+  out.pmc.urbanicity  <-  rbind(out.pmc.urbanicity, dt)
+}
+
+out.pmc.urbanicity <- out.pmc.urbanicity %>% 
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge(pmc.1yr.iqr) %>% 
+  merge(Para.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, Loc.Set, HR, HR.L, HR.U) 
+
+save(out.pmc.urbanicity, file = here('output','analysis','out-pmc-urbanicity.RDa'))
+```
+
+```{r Output PMC Urban - SES}
+out.pmc.sescat = data.frame()
+for (i in c("L", "M", "H")){
+  dt <- read.csv(here('output','analysis',paste('pmc_urban_ses',i,'.csv', sep= ""))) %>% 
+    mutate(SES.Cat = i)
+  out.pmc.sescat  <-  rbind(out.pmc.sescat, dt)
+}
+
+out.pmc.sescat <- out.pmc.sescat %>% 
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge(pmc.1yr.iqr) %>% 
+  merge(Para.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, SES.Cat, HR, HR.L, HR.U) 
+
+save(out.pmc.sescat, file = here('output','analysis','out-pmc-sescat.RDa'))
+```
+
+```{r Output PMC Region}
+out.pmc.region = data.frame()
+for (i in c("west", "midwest", "south", "northeast")){
+  dt <- read.csv(here('output','analysis',paste('pmc_',i,'.csv', sep= ""))) %>% 
+    mutate(Region = i)
+  out.pmc.region  <-  rbind(out.pmc.region, dt)
+}
+
+out.pmc.region <- out.pmc.region %>% 
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge(pmc.1yr.iqr) %>% 
+  merge(Para.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, Region, HR, HR.L, HR.U) 
+
+save(out.pmc.region, file = here('output','analysis','out-pmc-region.RDa'))
+```
+
+```{r Output PMC Age}
+out.pmc.age = data.frame()
+for (i in c("LE75", "M75")){
+  dt <- read.csv(here('output','analysis',paste('pmc_age',i,'.csv', sep= ""))) %>% 
+    mutate(Age = i)
+  out.pmc.age  <-  rbind(out.pmc.age, dt)
+}
+
+out.pmc.age <- out.pmc.age %>% 
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge(pmc.1yr.iqr) %>% 
+  merge(Para.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, Age, HR, HR.L, HR.U) 
+
+save(out.pmc.age, file = here('output','analysis','out-pmc-age.RDa'))
+```
+
+```{r Output PMC Sex}
+out.pmc.sex = data.frame()
+for (i in c("F", "M")){
+  dt <- read.csv(here('output','analysis',paste('pmc_sex',i,'.csv', sep= ""))) %>% 
+    mutate(Sex = i)
+  out.pmc.sex  <-  rbind(out.pmc.sex, dt)
+}
+
+out.pmc.sex <- out.pmc.sex %>% 
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge(pmc.1yr.iqr) %>% 
+  merge(Para.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, Sex, HR, HR.L, HR.U) 
+
+save(out.pmc.sex, file = here('output','analysis','out-pmc-sex.RDa'))
+```
+
+```{r Output PMC BRFSS}
+out.pmc.brfss = data.frame()
+for (i in c("brfss0", "brfss")){
+  dt <- read.csv(here('output','analysis',paste('pmc_',i,'.csv', sep= ""))) %>% 
+    mutate(BRFSS = i)
+  out.pmc.brfss  <-  rbind(out.pmc.brfss, dt)
+}
+
+out.pmc.brfss <- out.pmc.brfss %>% 
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge(pmc.1yr.iqr) %>% 
+  merge(Para.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, BRFSS, HR, HR.L, HR.U) 
+
+save(out.pmc.brfss, file = here('output','analysis','out-pmc-brfss.RDa'))
+```
+
+```{r Output PMC bufferzone}
+out.pmc.buffer = data.frame()
+for (i in c("6", "12", "24")){
+  dt <- read.csv(here('output','analysis',paste('pmc_bz',i,'.csv', sep= ""))) %>% 
+    mutate(Buffer = i)
+  out.pmc.buffer  <-  rbind(out.pmc.buffer, dt)
+}
+
+out.pmc.buffer <- out.pmc.buffer %>% 
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge(pmc.1yr.iqr) %>% 
+  merge(Para.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, Buffer, HR, HR.L, HR.U) 
+
+save(out.pmc.buffer, file = here('output','analysis','out-pmc-buffer.RDa'))
+```
+
+```{r Output PMC Exposure window}
+out.pmc.expo = data.frame()
+for (i in c("1", "2", "3", "4", "5")){
+  dt <- read.csv(here('output','analysis',paste('pmc_',i,'yr','.csv', sep= ""))) %>% 
+    mutate(Window = i)
+  out.pmc.expo  <-  rbind(out.pmc.expo, dt)
+}
+
+out.pmc.expo <- out.pmc.expo %>% 
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge(pmc.1yr.iqr) %>% 
+  merge(Para.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, Window, HR, HR.L, HR.U) 
+
+save(out.pmc.expo, file = here('output','analysis','out-pmc-expo.RDa'))
 ```
