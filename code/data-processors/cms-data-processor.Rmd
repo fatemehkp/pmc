@@ -251,6 +251,246 @@ write.csv(dt.ndi.fac.ex.ec.residual,
           row.names = F)
 ```
 
+```{r PMC Age}
+cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
+             "PB", "PM", "SI", "SO4", "V", "ZN")
+
+dt.pmc <- dt.pmc.1yr %>% 
+  select(Site.ID, Year, Month, cmp.sub)
+
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+### Age 
+dt.age <- dt.master.ndi.pmc %>%
+  mutate(age = ifelse(age <= 75, "LE", "M")) %>% 
+  select(Site.ID:no_death_lungc,
+         -no_death_uri, -no_death_ards)
+
+dt.age <- 
+  aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.age, sum) %>%
+  arrange(Site.ID, Year, Month, age, sex, race)
+
+### LE 75
+dt.ndi.pmc.ageLE75 <- dt.age %>% 
+  inner_join(dt.pmc) %>% 
+  inner_join(dt.ses) %>% 
+  mutate(aLE75 = ifelse(age == "LE", 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race) 
+  
+for (cmp in cmp.sub){
+    dt.ndi.pmc.ageLE75[ ,paste0("aLE75_",cmp)] <- 
+      dt.ndi.pmc.ageLE75[ ,cmp] * dt.ndi.pmc.ageLE75$aLE75
+}
+
+dt.ndi.pmc.ageLE75 <- dt.ndi.pmc.ageLE75 %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, aLE75, everything())
+
+write.csv(dt.ndi.pmc.ageLE75, 
+          file = here('data', 'processed', 'ndi-pmc-ageLE75.csv'),
+          row.names = F)
+
+### M 75
+dt.ndi.pmc.ageM75 <- dt.age %>% 
+  inner_join(dt.pmc) %>% 
+  inner_join(dt.ses) %>% 
+  mutate(aM75 = ifelse(age == "M", 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race) 
+  
+for (cmp in cmp.sub){
+    dt.ndi.pmc.ageM75[ ,paste0("aM75_",cmp)] <- 
+      dt.ndi.pmc.ageM75[ ,cmp] * dt.ndi.pmc.ageM75$aM75
+}
+
+dt.ndi.pmc.ageM75 <- dt.ndi.pmc.ageM75 %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, aM75, everything())
+
+write.csv(dt.ndi.pmc.ageM75, 
+          file = here('data', 'processed', 'ndi-pmc-ageM75.csv'),
+          row.names = F)
+```
+
+```{r Factor Age}
+fac <- c("Factor1","Factor2","Factor3","Factor4",
+         "Factor5","Factor6","Factor7","Factor8")
+
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+### Age 
+dt.age <- dt.master.ndi.pmc %>%
+  mutate(age = ifelse(age <= 75, "LE", "M")) %>% 
+  select(Site.ID:no_death_lungc,
+         -no_death_nacc, -no_death_acc,
+         -no_death_uri, -no_death_ards)
+
+dt.age <- 
+  aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.age, sum) %>%
+  arrange(Site.ID, Year, Month, age, sex, race)
+
+### LE 75
+dt.ndi.fac.ageLE75 <- dt.age %>% 
+  inner_join(dt.fac.1yr) %>% 
+  inner_join(dt.ses) %>% 
+  mutate(aLE75 = ifelse(age == "LE", 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race) 
+  
+for (cmp in fac){
+    dt.ndi.fac.ageLE75[ ,paste0("aLE75_",cmp)] <- 
+      dt.ndi.fac.ageLE75[ ,cmp] * dt.ndi.fac.ageLE75$aLE75
+}
+
+dt.ndi.fac.ageLE75 <- dt.ndi.fac.ageLE75 %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, aLE75, everything())
+
+write.csv(dt.ndi.fac.ageLE75, 
+          file = here('data', 'processed', 'ndi-fac-ageLE75.csv'),
+          row.names = F)
+
+### M 75
+dt.ndi.fac.ageM75 <- dt.age %>% 
+  inner_join(dt.fac.1yr) %>% 
+  inner_join(dt.ses) %>% 
+  mutate(aM75 = ifelse(age == "M", 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race) 
+  
+for (cmp in fac){
+    dt.ndi.fac.ageM75[ ,paste0("aM75_",cmp)] <- 
+      dt.ndi.fac.ageM75[ ,cmp] * dt.ndi.fac.ageM75$aM75
+}
+
+dt.ndi.fac.ageM75 <- dt.ndi.fac.ageM75 %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, aM75, everything())
+
+write.csv(dt.ndi.fac.ageM75, 
+          file = here('data', 'processed', 'ndi-fac-ageM75.csv'),
+          row.names = F)
+```
+
+```{r PMC Sex}
+cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
+             "PB", "PM", "SI", "SO4", "V", "ZN")
+
+dt.pmc <- dt.pmc.1yr %>% 
+  select(Site.ID, Year, Month, cmp.sub)
+
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.sex <- dt.master.ndi.pmc %>% 
+    select(Site.ID:no_death_lungc,
+         -no_death_uri, -no_death_ards) %>%  
+  inner_join(dt.pmc) %>% 
+  inner_join(dt.ses)
+
+### Female
+dt.ndi.pmc.sexF <- dt.sex %>% 
+  mutate(sexF = ifelse(sex == "F", 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race) 
+  
+for (cmp in cmp.sub){
+    dt.ndi.pmc.sexF[ ,paste0("sexF_",cmp)] <- 
+      dt.ndi.pmc.sexF[ ,cmp] * dt.ndi.pmc.sexF$sexF
+}
+
+dt.ndi.pmc.sexF <- dt.ndi.pmc.sexF %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, sexF, everything())
+
+write.csv(dt.ndi.pmc.sexF, 
+          file = here('data', 'processed', 'ndi-pmc-sexF.csv'),
+          row.names = F)
+
+### Male
+dt.ndi.pmc.sexM <- dt.sex %>% 
+  mutate(sexM = ifelse(sex == "M", 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race) 
+  
+for (cmp in cmp.sub){
+    dt.ndi.pmc.sexM[ ,paste0("sexM_",cmp)] <- 
+      dt.ndi.pmc.sexM[ ,cmp] * dt.ndi.pmc.sexM$sexM
+}
+
+dt.ndi.pmc.sexM <- dt.ndi.pmc.sexM %>% 
+  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, sexM, everything())
+
+write.csv(dt.ndi.pmc.sexM, 
+          file = here('data', 'processed', 'ndi-pmc-sexM.csv'),
+          row.names = F)
+```
+
+```{r Factor Sex}
+fac <- c("Factor1","Factor2","Factor3","Factor4",
+         "Factor5","Factor6","Factor7","Factor8")
+
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.sex <- dt.master.ndi.pmc %>% 
+    select(Site.ID:no_death_lungc,
+         -no_death_nacc, -no_death_acc,
+         -no_death_uri, -no_death_ards) %>%  
+  inner_join(dt.fac.1yr) %>% 
+  inner_join(dt.ses)
+
+### Female
+dt.ndi.fac.sexF <- dt.sex %>% 
+  mutate(sexF = ifelse(sex == "F", 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race) 
+  
+for (cmp in fac){
+    dt.ndi.fac.sexF[ ,paste0("sexF_",cmp)] <- 
+      dt.ndi.fac.sexF[ ,cmp] * dt.ndi.fac.sexF$sexF
+}
+
+dt.ndi.fac.sexF <- dt.ndi.fac.sexF %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, sexF, everything())
+
+write.csv(dt.ndi.fac.sexF, 
+          file = here('data', 'processed', 'ndi-fac-sexF.csv'),
+          row.names = F)
+
+### Male
+dt.ndi.fac.sexM <- dt.sex %>% 
+  mutate(sexM = ifelse(sex == "M", 0,1),
+         StrID = paste(age, sex, race)) %>% 
+  select(-age, -sex, -race) 
+  
+for (cmp in fac){
+    dt.ndi.fac.sexM[ ,paste0("sexM_",cmp)] <- 
+      dt.ndi.fac.sexM[ ,cmp] * dt.ndi.fac.sexM$sexM
+}
+
+dt.ndi.fac.sexM <- dt.ndi.fac.sexM %>% 
+  rename(SiteID = Site.ID) %>% 
+  select(SiteID, Year, Month, StrID, sexM, everything())
+
+write.csv(dt.ndi.fac.sexM, 
+          file = here('data', 'processed', 'ndi-fac-sexM.csv'),
+          row.names = F)
+```
+
 ```{r PMC race}
 cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
              "PB", "PM", "SI", "SO4", "V", "ZN")
@@ -796,7 +1036,6 @@ write.csv(dt.ndi.pmc.northeast,
           row.names = F)
 ```
 
-
 ```{r PMC Residual Region}
 cmp.sub <- c("PM_SE","PM_CA","PM_CL","PM_NA","PM_NI","PM_NO3",
             "PM_OC","PM_PB","PM_SI","PM_SO4","PM_V","PM_ZN")
@@ -920,247 +1159,6 @@ write.csv(dt.ndi.pmc.res.northeast,
 
 ```
 
-
-```{r PMC Age}
-cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
-             "PB", "PM", "SI", "SO4", "V", "ZN")
-
-dt.pmc <- dt.pmc.1yr %>% 
-  select(Site.ID, Year, Month, cmp.sub)
-
-dt.ses <- dt.ses.site.bz12 %>% 
-  mutate(ses = SES.Zip.Norm) %>% 
-  select(Site.ID, Year, ses)
-
-### Age 
-dt.age <- dt.master.ndi.pmc %>%
-  mutate(age = ifelse(age <= 75, "LE", "M")) %>% 
-  select(Site.ID:no_death_lungc,
-         -no_death_uri, -no_death_ards)
-
-dt.age <- 
-  aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.age, sum) %>%
-  arrange(Site.ID, Year, Month, age, sex, race)
-
-### LE 75
-dt.ndi.pmc.ageLE75 <- dt.age %>% 
-  inner_join(dt.pmc) %>% 
-  inner_join(dt.ses) %>% 
-  mutate(aLE75 = ifelse(age == "LE", 0,1),
-         StrID = paste(age, sex, race)) %>% 
-  select(-age, -sex, -race) 
-  
-for (cmp in cmp.sub){
-    dt.ndi.pmc.ageLE75[ ,paste0("aLE75_",cmp)] <- 
-      dt.ndi.pmc.ageLE75[ ,cmp] * dt.ndi.pmc.ageLE75$aLE75
-}
-
-dt.ndi.pmc.ageLE75 <- dt.ndi.pmc.ageLE75 %>% 
-  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
-  rename(SiteID = Site.ID) %>% 
-  select(SiteID, Year, Month, StrID, aLE75, everything())
-
-write.csv(dt.ndi.pmc.ageLE75, 
-          file = here('data', 'processed', 'ndi-pmc-ageLE75.csv'),
-          row.names = F)
-
-### M 75
-dt.ndi.pmc.ageM75 <- dt.age %>% 
-  inner_join(dt.pmc) %>% 
-  inner_join(dt.ses) %>% 
-  mutate(aM75 = ifelse(age == "M", 0,1),
-         StrID = paste(age, sex, race)) %>% 
-  select(-age, -sex, -race) 
-  
-for (cmp in cmp.sub){
-    dt.ndi.pmc.ageM75[ ,paste0("aM75_",cmp)] <- 
-      dt.ndi.pmc.ageM75[ ,cmp] * dt.ndi.pmc.ageM75$aM75
-}
-
-dt.ndi.pmc.ageM75 <- dt.ndi.pmc.ageM75 %>% 
-  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
-  rename(SiteID = Site.ID) %>% 
-  select(SiteID, Year, Month, StrID, aM75, everything())
-
-write.csv(dt.ndi.pmc.ageM75, 
-          file = here('data', 'processed', 'ndi-pmc-ageM75.csv'),
-          row.names = F)
-```
-
-```{r Factor Age}
-fac <- c("Factor1","Factor2","Factor3","Factor4",
-         "Factor5","Factor6","Factor7","Factor8")
-
-dt.ses <- dt.ses.site.bz12 %>% 
-  mutate(ses = SES.Zip.Norm) %>% 
-  select(Site.ID, Year, ses)
-
-### Age 
-dt.age <- dt.master.ndi.pmc %>%
-  mutate(age = ifelse(age <= 75, "LE", "M")) %>% 
-  select(Site.ID:no_death_lungc,
-         -no_death_nacc, -no_death_acc,
-         -no_death_uri, -no_death_ards)
-
-dt.age <- 
-  aggregate(. ~ Site.ID + Year + Month + age + sex + race, dt.age, sum) %>%
-  arrange(Site.ID, Year, Month, age, sex, race)
-
-### LE 75
-dt.ndi.fac.ageLE75 <- dt.age %>% 
-  inner_join(dt.fac.1yr) %>% 
-  inner_join(dt.ses) %>% 
-  mutate(aLE75 = ifelse(age == "LE", 0,1),
-         StrID = paste(age, sex, race)) %>% 
-  select(-age, -sex, -race) 
-  
-for (cmp in fac){
-    dt.ndi.fac.ageLE75[ ,paste0("aLE75_",cmp)] <- 
-      dt.ndi.fac.ageLE75[ ,cmp] * dt.ndi.fac.ageLE75$aLE75
-}
-
-dt.ndi.fac.ageLE75 <- dt.ndi.fac.ageLE75 %>% 
-  rename(SiteID = Site.ID) %>% 
-  select(SiteID, Year, Month, StrID, aLE75, everything())
-
-write.csv(dt.ndi.fac.ageLE75, 
-          file = here('data', 'processed', 'ndi-fac-ageLE75.csv'),
-          row.names = F)
-
-### M 75
-dt.ndi.fac.ageM75 <- dt.age %>% 
-  inner_join(dt.fac.1yr) %>% 
-  inner_join(dt.ses) %>% 
-  mutate(aM75 = ifelse(age == "M", 0,1),
-         StrID = paste(age, sex, race)) %>% 
-  select(-age, -sex, -race) 
-  
-for (cmp in fac){
-    dt.ndi.fac.ageM75[ ,paste0("aM75_",cmp)] <- 
-      dt.ndi.fac.ageM75[ ,cmp] * dt.ndi.fac.ageM75$aM75
-}
-
-dt.ndi.fac.ageM75 <- dt.ndi.fac.ageM75 %>% 
-  rename(SiteID = Site.ID) %>% 
-  select(SiteID, Year, Month, StrID, aM75, everything())
-
-write.csv(dt.ndi.fac.ageM75, 
-          file = here('data', 'processed', 'ndi-fac-ageM75.csv'),
-          row.names = F)
-```
-
-```{r PMC Sex}
-cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
-             "PB", "PM", "SI", "SO4", "V", "ZN")
-
-dt.pmc <- dt.pmc.1yr %>% 
-  select(Site.ID, Year, Month, cmp.sub)
-
-dt.ses <- dt.ses.site.bz12 %>% 
-  mutate(ses = SES.Zip.Norm) %>% 
-  select(Site.ID, Year, ses)
-
-dt.sex <- dt.master.ndi.pmc %>% 
-    select(Site.ID:no_death_lungc,
-         -no_death_uri, -no_death_ards) %>%  
-  inner_join(dt.pmc) %>% 
-  inner_join(dt.ses)
-
-### Female
-dt.ndi.pmc.sexF <- dt.sex %>% 
-  mutate(sexF = ifelse(sex == "F", 0,1),
-         StrID = paste(age, sex, race)) %>% 
-  select(-age, -sex, -race) 
-  
-for (cmp in cmp.sub){
-    dt.ndi.pmc.sexF[ ,paste0("sexF_",cmp)] <- 
-      dt.ndi.pmc.sexF[ ,cmp] * dt.ndi.pmc.sexF$sexF
-}
-
-dt.ndi.pmc.sexF <- dt.ndi.pmc.sexF %>% 
-  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
-  rename(SiteID = Site.ID) %>% 
-  select(SiteID, Year, Month, StrID, sexF, everything())
-
-write.csv(dt.ndi.pmc.sexF, 
-          file = here('data', 'processed', 'ndi-pmc-sexF.csv'),
-          row.names = F)
-
-### Male
-dt.ndi.pmc.sexM <- dt.sex %>% 
-  mutate(sexM = ifelse(sex == "M", 0,1),
-         StrID = paste(age, sex, race)) %>% 
-  select(-age, -sex, -race) 
-  
-for (cmp in cmp.sub){
-    dt.ndi.pmc.sexM[ ,paste0("sexM_",cmp)] <- 
-      dt.ndi.pmc.sexM[ ,cmp] * dt.ndi.pmc.sexM$sexM
-}
-
-dt.ndi.pmc.sexM <- dt.ndi.pmc.sexM %>% 
-  rename_at(cmp.sub, ~paste("Yr", .x, sep = "_")) %>% 
-  rename(SiteID = Site.ID) %>% 
-  select(SiteID, Year, Month, StrID, sexM, everything())
-
-write.csv(dt.ndi.pmc.sexM, 
-          file = here('data', 'processed', 'ndi-pmc-sexM.csv'),
-          row.names = F)
-```
-
-```{r Factor Sex}
-fac <- c("Factor1","Factor2","Factor3","Factor4",
-         "Factor5","Factor6","Factor7","Factor8")
-
-dt.ses <- dt.ses.site.bz12 %>% 
-  mutate(ses = SES.Zip.Norm) %>% 
-  select(Site.ID, Year, ses)
-
-dt.sex <- dt.master.ndi.pmc %>% 
-    select(Site.ID:no_death_lungc,
-         -no_death_nacc, -no_death_acc,
-         -no_death_uri, -no_death_ards) %>%  
-  inner_join(dt.fac.1yr) %>% 
-  inner_join(dt.ses)
-
-### Female
-dt.ndi.fac.sexF <- dt.sex %>% 
-  mutate(sexF = ifelse(sex == "F", 0,1),
-         StrID = paste(age, sex, race)) %>% 
-  select(-age, -sex, -race) 
-  
-for (cmp in fac){
-    dt.ndi.fac.sexF[ ,paste0("sexF_",cmp)] <- 
-      dt.ndi.fac.sexF[ ,cmp] * dt.ndi.fac.sexF$sexF
-}
-
-dt.ndi.fac.sexF <- dt.ndi.fac.sexF %>% 
-  rename(SiteID = Site.ID) %>% 
-  select(SiteID, Year, Month, StrID, sexF, everything())
-
-write.csv(dt.ndi.fac.sexF, 
-          file = here('data', 'processed', 'ndi-fac-sexF.csv'),
-          row.names = F)
-
-### Male
-dt.ndi.fac.sexM <- dt.sex %>% 
-  mutate(sexM = ifelse(sex == "M", 0,1),
-         StrID = paste(age, sex, race)) %>% 
-  select(-age, -sex, -race) 
-  
-for (cmp in fac){
-    dt.ndi.fac.sexM[ ,paste0("sexM_",cmp)] <- 
-      dt.ndi.fac.sexM[ ,cmp] * dt.ndi.fac.sexM$sexM
-}
-
-dt.ndi.fac.sexM <- dt.ndi.fac.sexM %>% 
-  rename(SiteID = Site.ID) %>% 
-  select(SiteID, Year, Month, StrID, sexM, everything())
-
-write.csv(dt.ndi.fac.sexM, 
-          file = here('data', 'processed', 'ndi-fac-sexM.csv'),
-          row.names = F)
-```
-
 ```{r PMC BRFSS}
 dt.pmc <- dt.pmc.1yr %>% 
   rename_at(cmp.sub, ~paste("Yr", .x, sep = "_"))
@@ -1182,25 +1180,6 @@ write.csv(dt.ndi.pmc.brfss,
           row.names = F)
 ```
 
-```{r Factor BRFSS}
-dt.ses <- dt.ses.site.bz12 %>% 
-  mutate(ses = SES.Zip.Norm) %>% 
-  select(Site.ID, Year, ses)
-
-dt.ndi.fac.brfss <- dt.master.ndi.pmc %>% 
-  mutate(StrID = paste(age, sex, race)) %>% 
-  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_lungc,
-         -no_death_nacc, -no_death_acc,
-         -no_death_uri, -no_death_ards) %>%  
-  inner_join(dt.fac.1yr) %>% 
-  inner_join(dt.ses) %>% 
-  inner_join(dt.brfss.site) %>% 
-  rename(SiteID = Site.ID)
-
-write.csv(dt.ndi.fac.brfss, 
-          file = here('data', 'processed', 'ndi-fac-brfss.csv'),
-          row.names = F)
-```
 
 ```{r PMC BZ 6}
 cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 

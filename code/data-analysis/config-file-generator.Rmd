@@ -533,6 +533,30 @@ for (i in seq(1,length(expo),1)){
   }
 ```
 
+```{r ses adj. model for factors - age LE75}
+dataname <- "ndi-fac-ageLE75.csv"
+expo <- fac
+subg <- "aLE75"
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.em.2, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    s <- gsub("subg", subg, z)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], s)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','fac-ageLE75', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
 ```{r ses adj. model for factors - race Asian}
 dataname <- "ndi-fac-raceA.csv"
 expo <- fac
@@ -909,10 +933,10 @@ for (i in seq(1,length(expo),1)){
     y <- gsub("dataset", dataname, x)
     z <- gsub("exposure", expo[i], y)
     s <- gsub("subg", subg, z)
-    for (j in seq(1,length(cuz),1)){
-      w <- gsub("outcome", cuz[j], s)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], s)
       cat(w, file=f, sep="\n")
-      k=j+length(cuz)*(i-1)
+      k=j+length(cuz.sub)*(i-1)
       writeLines(w, here('config-files','fac-ageLE75', paste(k,'.txt', sep = "")))
     }
   }
@@ -933,10 +957,10 @@ for (i in seq(1,length(expo),1)){
     y <- gsub("dataset", dataname, x)
     z <- gsub("exposure", expo[i], y)
     s <- gsub("subg", subg, z)
-    for (j in seq(1,length(cuz),1)){
-      w <- gsub("outcome", cuz[j], s)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], s)
       cat(w, file=f, sep="\n")
-      k=j+length(cuz)*(i-1)
+      k=j+length(cuz.sub)*(i-1)
       writeLines(w, here('config-files','fac-ageM75', paste(k,'.txt', sep = "")))
     }
   }
@@ -1005,10 +1029,10 @@ for (i in seq(1,length(expo),1)){
     y <- gsub("dataset", dataname, x)
     z <- gsub("exposure", expo[i], y)
     s <- gsub("subg", subg, z)
-    for (j in seq(1,length(cuz),1)){
-      w <- gsub("outcome", cuz[j], s)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], s)
       cat(w, file=f, sep="\n")
-      k=j+length(cuz)*(i-1)
+      k=j+length(cuz.sub)*(i-1)
       writeLines(w, here('config-files','fac-sexF', paste(k,'.txt', sep = "")))
     }
   }
@@ -1029,10 +1053,10 @@ for (i in seq(1,length(expo),1)){
     y <- gsub("dataset", dataname, x)
     z <- gsub("exposure", expo[i], y)
     s <- gsub("subg", subg, z)
-    for (j in seq(1,length(cuz),1)){
-      w <- gsub("outcome", cuz[j], s)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], s)
       cat(w, file=f, sep="\n")
-      k=j+length(cuz)*(i-1)
+      k=j+length(cuz.sub)*(i-1)
       writeLines(w, here('config-files','fac-sexM', paste(k,'.txt', sep = "")))
     }
   }
