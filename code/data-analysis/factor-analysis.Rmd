@@ -12,6 +12,10 @@ output:
 ### This program:
   (1) Run factor analysis
 
+```{r}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
 ```{r load packages}
 library(tidyverse)
 library(here)
@@ -43,6 +47,8 @@ fit <- factanal(dt.pmc.daily %>% select(AS:ZN, OC), 8, rotation="varimax")
 factor.loadings.ex.ec <- rbind(fit$loadings)
 save(factor.loadings.ex.ec, file = here('output','table','factor-loadings-ex-ec.RDa'))
 # Soil Metals Traffic Biomass Coal Salt Oil Steel
+write.csv(factor.loadings.ex.ec,
+          file = here('output','table', 'factor-loadings.csv'))
 
 factor.scores <- factor.scores(dt.pmc.daily %>% select(AS:ZN, OC), fit)
 dt.fac.daily.ex.ec <- cbind(dt.pmc.daily %>% select(Site.ID, Date), factor.scores$scores)
@@ -124,7 +130,7 @@ dt.fac.ex.ec.residual <- dt.fac.daily.ex.ec %>%
          PM_Factor3 = map(map(data, ~lm(PM ~ Factor3, data = .)), residuals),
          PM_Factor4 = map(map(data, ~lm(PM ~ Factor4, data = .)), residuals),
          PM_Factor5 = map(map(data, ~lm(PM ~ Factor5, data = .)), residuals),
-         PM_Factor6  = map(map(data, ~lm(PM ~ Factor6,  data = .)), residuals),
+         PM_Factor6 = map(map(data, ~lm(PM ~ Factor6, data = .)), residuals),
          PM_Factor7 = map(map(data, ~lm(PM ~ Factor7, data = .)), residuals),
          PM_Factor8 = map(map(data, ~lm(PM ~ Factor8, data = .)), residuals)
          ) %>% 

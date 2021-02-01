@@ -1,0 +1,135 @@
+---
+title: "R Notebook"
+---
+
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r Load packages}
+  library(tidyverse)
+  library(here)
+  library(corrplot)
+  library(RColorBrewer)
+```
+
+```{r Load datasets}
+load(here('data','processed', 'pmc-daily.RDa'))
+load(here('data','processed', 'pmc-site-ndi.RDa'))
+```
+
+```{r}
+Para.to.Index <- tribble(
+  ~Index, ~Parameter,
+   "As", "AS",
+   "Ca", "CA",
+   "Cu", "CU",
+   "Cl", "CL",
+   "Fe", "FE",
+   "Pb", "PB",
+   "Mn", "MN",
+   "Ni", "NI",
+   "Mg", "MG",
+   "Se", "SE",
+   "V", "V",
+   "Si", "SI",
+   "Zn", "ZN",
+   "K", "K",
+   "Na", "NA",
+   "NO3", "NO3",
+   "SO4", "SO4",
+   "OC", "OC",
+   "EC", "EC",
+   "PM2.5", "PM"
+   ) %>% 
+  mutate(Index = as.factor(Index),
+         Parameter = as.factor(Parameter))
+```
+
+```{r}
+dt.pmc <- dt.pmc.daily %>% 
+  pivot_longer(cols = AS:PM,
+               names_to = "Parameter",
+               values_to = "Measurement") %>% 
+  merge(Para.to.Index) %>% 
+  select(-Parameter) %>% 
+  pivot_wider(names_from = "Index",
+              values_from = "Measurement",
+              names_sort = T)
+
+dt.pmc <- dt.pmc.site.ndi %>% 
+  mutate(Loc.Set = ifelse(Location.Setting == "RURAL", "Rural", "Urban"),
+         Region = ifelse(Region.IV == 1, "W",
+                         ifelse(Region.IV == 2, "MW",
+                                ifelse(Region.IV == 3, "S", "NE")))) %>% 
+    select(Site.ID, Region, Region.IV, Loc.Set) %>% 
+  merge(dt.pmc)
+```
+
+
+```{r}
+corr <- dt.pmc %>%
+  select(As,Ca,Cl,Cu,Fe,K,Mg,Mn,Na,Ni,NO3,OC,Pb,Se,Si,SO4,V,Zn,`PM2.5`) %>%
+  na.omit %>%
+  cor()
+
+jpeg(here('output','plot','corr-us.png'), width = 6.5, height = 6.5, units = 'in',
+     res = 300)
+corrplot(corr, type = "lower",  method = 'number',
+         tl.col = "black", tl.srt = 45, number.cex=0.65,
+         col = rev(brewer.pal(n = 10, name = "RdGy"))) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+                                   size = 14, hjust = 1, face='bold'),
+        axis.text.y = element_text(angle = 0, vjust = 1, 
+                                   size = 14, hjust = 1, face='bold'),
+        legend.title = element_blank())
+dev.off()
+```
+
+
+```{r - Region}
+dt.pmc<-dt.pmc[order(dt.pmc$Region.IV),]
+
+jpeg(here('output','plot','corr-region.png'), width = 6.5, height = 6.5, units = 'in',
+     res = 300)
+par(mfrow=c(2,2))
+for(i in unique(dt.pmc$Region)) {
+  data<- subset(dt.pmc, Region==i)
+  corr <- data %>%
+    select(As,Ca,Cl,Cu,Fe,K,Mg,Mn,Na,Ni,NO3,OC,Pb,Se,Si,SO4,V,Zn,`PM2.5`) %>%
+    na.omit %>%
+    cor()
+  corrplot(corr, type = "lower",
+           tl.col = "black", tl.srt = 45, number.cex=0.65,
+           col = rev(brewer.pal(n = 10, name = "RdGy")), title =i, mar=c(0,0,1,0)) +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+                                     size = 14, hjust = 1, face='bold'),
+          axis.text.y = element_text(angle = 0, vjust = 1, 
+                                     size = 14, hjust = 1, face='bold'),
+          legend.title = element_blank())
+}
+dev.off()
+```
+
+```{r - Urbanicity}
+jpeg(here('output','plot','corr-urbanicity.png'), width = 6.5, height = 6.5, units = 'in',
+     res = 300)
+par(mfrow=c(2,2))
+for(i in unique(dt.pmc$Loc.Set)) {
+  data<- subset(dt.pmc, Loc.Set==i)
+  corr <- data %>%
+    select(As,Ca,Cl,Cu,Fe,K,Mg,Mn,Na,Ni,NO3,OC,Pb,Se,Si,SO4,V,Zn,`PM2.5`) %>%
+    na.omit %>%
+    cor()
+  corrplot(corr, type = "lower",
+           tl.col = "black", tl.srt = 45, number.cex=0.65,
+           col = rev(brewer.pal(n = 10, name = "RdGy")), title =i, mar=c(0,0,1,0)) +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+                                     size = 14, hjust = 1, face='bold'),
+          axis.text.y = element_text(angle = 0, vjust = 1, 
+                                     size = 14, hjust = 1, face='bold'),
+          legend.title = element_blank())
+}
+dev.off()
+```

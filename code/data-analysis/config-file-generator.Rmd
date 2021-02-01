@@ -9,8 +9,8 @@ output:
       ii. cause of death
       iii. model
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
 
 ```{r load packages}
@@ -701,6 +701,53 @@ for (i in seq(1,length(expo),1)){
   }
 ```
 
+```{r ses adj. model for factors - urban}
+dataname <- "ndi-fac-urban.csv"
+expo <- fac
+subg <- "urb"
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.em.2, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    s <- gsub("subg", subg, z)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], s)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','fac-urban', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for factors - rural}
+dataname <- "ndi-fac-rural.csv"
+expo <- fac
+subg <- "rur"
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.em.2, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    s <- gsub("subg", subg, z)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], s)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','fac-rural', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
 
 ```{r ses adj. model for components - Urban ses Low}
 dataname <- "ndi-pmc-urban-sesL.csv"
@@ -866,6 +913,102 @@ for (i in seq(1,length(expo),1)){
       cat(w, file=f, sep="\n")
       k=j+length(cuz)*(i-1)
       writeLines(w, here('config-files','pmc-northeast', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for factors - west}
+dataname <- "ndi-fac-west.csv"
+expo <- fac
+subg <- "rW"
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.em.2, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    s <- gsub("subg", subg, z)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], s)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','fac-west', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for factors - midwest}
+dataname <- "ndi-fac-midwest.csv"
+expo <- fac
+subg <- "rMW"
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.em.2, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    s <- gsub("subg", subg, z)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], s)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','fac-midwest', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for factors - south}
+dataname <- "ndi-fac-south.csv"
+expo <- fac
+subg <- "rS"
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.em.2, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    s <- gsub("subg", subg, z)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], s)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','fac-south', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for factors - northeast}
+dataname <- "ndi-fac-northeast.csv"
+expo <- fac
+subg <- "rNE"
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.em.2, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    s <- gsub("subg", subg, z)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], s)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','fac-northeast', paste(k,'.txt', sep = "")))
     }
   }
   file.remove(f)
