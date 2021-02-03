@@ -127,6 +127,13 @@ Code.to.Sym <- tribble(
    88321, "EC.TOR"
    ) %>% 
   mutate(Parameter.Symbol = as.factor(Parameter.Symbol))
+
+Code.to.Sym <- tribble(
+  ~Parameter.Code, ~Parameter.Symbol,
+   88313, "BC",
+   88317, "BC.c"
+   ) %>% 
+  mutate(Parameter.Symbol = as.factor(Parameter.Symbol))
 ```
 
 ```{r EPA AQS Data Download}
@@ -136,6 +143,17 @@ dt.spec.raw <- EPA.AQS.download (period = "daily", Index = "SPEC",
                         Code.Sym = Code.to.Sym)
 save(dt.spec.raw, file = here('data', 'raw', 'spec-raw.RDa'))
 #Monitor.ID: Site.ID-POC
+
+dt.bc.raw <- EPA.AQS.download (period = "daily", Index = "SPEC",
+                        start = 2000, end = 2008, 
+                        Code.Sym = Code.to.Sym)
+save(dt.bc.raw, file = here('data', 'raw', 'bc-raw.RDa'))
+
+dt.bc.raw %>% distinct(Monitor.ID) %>% nrow() #29
+dt.bc.raw %>% distinct(Site.ID) %>% nrow() #28
+
+dt.spec.raw <- dt.spec.raw %>% 
+  add_row(dt.bc.raw)
 ```
 
 ```{r EPA AQS Data Exploration}
