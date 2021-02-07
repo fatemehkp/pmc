@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
 
 ```{r Call Functions}
-source(here('code','data-viz','plot-functions.R'))
+source(here('code','data-viz','forest-plot-functions.R'))
 ```
 
 ```{r Load data}
@@ -57,7 +57,7 @@ ggtheme.single <- theme_bw() +
   )
 ```
 
-```{r set theme 2 - effect modification, subgroups, multiple groups plots}
+```{r set theme 2 - components - effect modification, subgroups, multiple groups plots}
 ggtheme.multi.1 <- theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
         panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
@@ -75,7 +75,7 @@ ggtheme.multi.1 <- theme_classic() +
         legend.key.width = unit(0.25, units = 'in'))
 ```
 
-```{r set theme 3 - effect modification, subgroups, multiple groups plots}
+```{r set theme 3 - factors - effect modification, subgroups, multiple groups plots}
 ggtheme.multi.2 <- theme_classic() + 
   theme(panel.spacing.x = unit(0.25,'lines'),
         panel.spacing.y = unit(c(0.25),'lines'),
@@ -447,6 +447,7 @@ plot.cols <- c("#07f900", "#0433ff", "#ffa501", "#a034f0")
 Plot.Multi(dt = data, ggtheme = ggtheme.multi.1) +
 ggsave(here('output', 'plot','pmc-region.png'), width = 6.5, height = 7.5)
 ```
+
 ```{r - Factor Region}
 data <- out.fac.region %>% 
   filter(Index %in% So.multi,
