@@ -1,9 +1,10 @@
 ---
 title: "PM Component Paper Plots"
 author: "Fatemeh Kazemi"
-date: "01-19-2021"
+date: "02-13-2021"
 ---
 
+### plots subgroups using different colors and shapes
 ###color codes: https://www.schemecolor.com/british-airways-website.php
 
 ```{r}
@@ -130,7 +131,7 @@ data <- out.pmc.base %>%
   mutate(Cause = factor(Cause, levels = cuz),
          Index = factor(Index, levels = cmp.main),
          sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null #16-sigpos
   )
 
 plot.cols <- c("#EB2226")
@@ -146,7 +147,7 @@ data <- out.pmc.ses %>%
   mutate(Cause = factor(Cause, levels = cuz),
          Index = factor(Index, levels = cmp.main),
          sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null #16-sigpos
   )
 
 plot.cols <- c("#EB2226")
@@ -162,7 +163,7 @@ data <- out.fac.base %>%
   mutate(Cause = factor(Cause, levels = cuz),
          Index = factor(Index, levels = So.main),
          sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null #16-sigpos
   )
 
 plot.cols <- c("#EB2226")
@@ -178,45 +179,13 @@ data <- out.fac.ses %>%
   mutate(Cause = factor(Cause, levels = cuz),
          Index = factor(Index, levels = So.main),
          sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null #16-sigpos
   )
 
 plot.cols <- c("#EB2226")
 
 Plot.Single(dt = data, ggtheme = ggtheme.single) +
 ggsave(here('output','plot','fac-ses.png'), width = 6.5, height = 6.5)
-```
-
-```{r - Factor Inc. EC Base}
-data <- out.fac.base.ec %>% 
-  filter(Index %in% So.ec,
-         Cause %in% cuz) %>% 
-  mutate(Cause = factor(Cause, levels = cuz),
-         Index = factor(Index, levels = So.ec),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
-  )
-
-plot.cols <- c("#EB2226")
-
-Plot.Single(dt = data, ggtheme = ggtheme.single) +
-ggsave(here('output','plot','fac-base-ec.png'), width = 6.5, height = 6.5)
-```
-
-```{r - Factor Inc. EC SES-Adj}
-data <- out.fac.ses.ec %>% 
-  filter(Index %in% So.ec,
-         Cause %in% cuz) %>% 
-  mutate(Cause = factor(Cause, levels = cuz),
-         Index = factor(Index, levels = So.ec),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
-  )
-
-plot.cols <- c("#EB2226")
-
-Plot.Single(dt = data, ggtheme = ggtheme.single) +
-ggsave(here('output','plot','fac-ses-ec.png'), width = 6.5, height = 6.5)
 ```
 
 ```{r - Components - PM Residual}
@@ -226,7 +195,7 @@ data <- out.pmc.resid %>%
   mutate(Cause = factor(Cause, levels = cuz),
          Index = factor(Index, levels = cmp.res),
          sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null #16-sigpos
   )
 
 plot.cols <- c("#EB2226")
@@ -242,7 +211,7 @@ data <- out.fac.resid %>%
   mutate(Cause = factor(Cause, levels = cuz),
          Index = factor(Index, levels = So.res),
          sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null #16-sigpos
   )
 
 plot.cols <- c("#EB2226")
@@ -259,14 +228,19 @@ data <- out.pmc.age %>%
          Index = factor(Index, levels = cmp.multi),
          Tag = ifelse(Age == "LE75", "b", "a"),
          Tag = as.factor(Tag),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & Age == "M75"), 1,
+                      ifelse((sig == 15 & Age == "M75"),16, sig)),
+         sig = as.factor(sig)
   )
 
 plot.labs <- c("> 75 years", "<= 75 years")
 plot.cols <- c("#EB2226", "#075AAA")
+plot.shapes <- c(0,1,15,16)
+guide.shapes <- c(15,16)
 
-Plot.Multi(dt = data, ggtheme = ggtheme.multi.1) +
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
 ggsave(here('output', 'plot','pmc-age.png'), width = 6.5, height = 7.5)
 ```
 
@@ -278,14 +252,19 @@ data <- out.fac.age %>%
          Index = factor(Index, levels = So.multi),
          Tag = ifelse(Age == "LE75", "b", "a"),
          Tag = as.factor(Tag),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & Age == "M75"), 1,
+                      ifelse((sig == 15 & Age == "M75"),16, sig)),
+         sig = as.factor(sig)
   )
 
 plot.labs <- c("> 75 years", "<= 75 years")
 plot.cols <- c("#EB2226", "#075AAA")
+plot.shapes <- c(0,1,15,16)
+guide.shapes <- c(15,16)
 
-Plot.Multi(dt = data, ggtheme = ggtheme.multi.2) +
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
 ggsave(here('output', 'plot','fac-age.png'), width = 6.5, height = 6.5)
 ```
 
@@ -297,14 +276,19 @@ data <- out.pmc.sex %>%
          Index = factor(Index, levels = cmp.multi),
          Tag = ifelse(Sex == "F", "b", "a"),
          Tag = as.factor(Tag),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & Sex == "M"), 1,
+                      ifelse((sig == 15 & Sex == "M"),16, sig)),
+         sig = as.factor(sig)
   )
 
 plot.labs <- c("Male", "Female")
 plot.cols <- c("#EB2226", "#075AAA")
+plot.shapes <- c(0,1,15,16)
+guide.shapes <- c(15,16)
 
-Plot.Multi(dt = data, ggtheme = ggtheme.multi.1) +
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
 ggsave(here('output', 'plot','pmc-sex.png'), width = 6.5, height = 7.5)
 ```
 
@@ -316,14 +300,19 @@ data <- out.fac.sex %>%
          Index = factor(Index, levels = So.multi),
          Tag = ifelse(Sex == "F", "b", "a"),
          Tag = as.factor(Tag),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & Sex == "M"), 1,
+                      ifelse((sig == 15 & Sex == "M"),16, sig)),
+         sig = as.factor(sig)
   )
 
 plot.labs <- c("Male", "Female")
 plot.cols <- c("#EB2226", "#075AAA")
+plot.shapes <- c(0,1,15,16)
+guide.shapes <- c(15,16)
 
-Plot.Multi(dt = data, ggtheme = ggtheme.multi.2) +
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
 ggsave(here('output', 'plot','fac-sex.png'), width = 6.5, height = 6.5)
 ```
 
@@ -337,14 +326,23 @@ data <- out.pmc.race %>%
                       ifelse(Race == "B", "c",
                              ifelse(Race == "H", "b", "a"))),
          Tag = as.factor(Tag),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & Race == "W"), 5,
+                      ifelse((sig == 15 & Race == "W"),18, sig)),
+         sig = ifelse((sig == 0 & Race == "H"), 2,
+                      ifelse((sig == 15 & Race == "H"),17, sig)),
+         sig = ifelse((sig == 0 & Race == "B"), 1,
+                      ifelse((sig == 15 & Race == "B"),16, sig)),
+         sig = as.factor(sig)
   )
 
 plot.labs <- c("White", "Hispanic", "Black", "Asian")
 plot.cols <- c("#FF8200", "#075AAA", "#EB2226", "#01742F")
+plot.shapes <- c(0,1,2,5,15,16,17,18)
+guide.shapes <- c(15,16,17,18)
 
-Plot.Multi(dt = data, ggtheme = ggtheme.multi.1) +
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.1, n =1) +
 ggsave(here('output', 'plot','pmc-race.png'), width = 6.5, height = 7.5)
 ```
 
@@ -354,18 +352,27 @@ data <- out.fac.race %>%
          Cause %in% cuz) %>% 
   mutate(Cause = factor(Cause, levels = cuz),
          Index = factor(Index, levels = So.multi),
-         Tag = ifelse(Race == "A", "d",
-                      ifelse(Race == "B", "c",
-                             ifelse(Race == "H", "b", "a"))),
+         Tag = ifelse(Race == "A", "dd",
+                      ifelse(Race == "B", "cc",
+                             ifelse(Race == "H", "bb", "aa"))),
          Tag = as.factor(Tag),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & Race == "W"), 5,
+                      ifelse((sig == 15 & Race == "W"),18, sig)),
+         sig = ifelse((sig == 0 & Race == "H"), 2,
+                      ifelse((sig == 15 & Race == "H"),17, sig)),
+         sig = ifelse((sig == 0 & Race == "B"), 1,
+                      ifelse((sig == 15 & Race == "B"),16, sig)),
+         sig = as.factor(sig)
   )
 
 plot.labs <- c("White", "Hispanic", "Black", "Asian")
 plot.cols <- c("#FF8200", "#075AAA", "#EB2226", "#01742F")
+plot.shapes <- c(0,1,2,5,15,16,17,18)
+guide.shapes <- c(15,16,17,18)
 
-Plot.Multi(dt = data, ggtheme = ggtheme.multi.2) +
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
 ggsave(here('output', 'plot','fac-race.png'), width = 6.5, height = 6.5)
 ```
 
@@ -377,14 +384,19 @@ data <- out.pmc.urbanicity %>%
          Index = factor(Index, levels = cmp.multi),
          Tag = ifelse(Loc.Set == "urban", "b", "a"),
          Tag = as.factor(Tag),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & Loc.Set == "rural"), 1,
+                      ifelse((sig == 15 & Loc.Set == "rural"),16, sig)),
+         sig = as.factor(sig)
   )
 
 plot.labs <- c("Rural", "Urban")
 plot.cols <- c("#EB2226", "#075AAA")
+plot.shapes <- c(0,1,15,16)
+guide.shapes <- c(15,16)
 
-Plot.Multi(dt = data, ggtheme = ggtheme.multi.1) +
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
 ggsave(here('output', 'plot','pmc-urbanicity.png'), width = 6.5, height = 7.5)
 ```
 
@@ -396,14 +408,19 @@ data <- out.fac.urbanicity %>%
          Index = factor(Index, levels = So.multi),
          Tag = ifelse(Loc.Set == "urban", "b", "a"),
          Tag = as.factor(Tag),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & Loc.Set == "rural"), 1,
+                      ifelse((sig == 15 & Loc.Set == "rural"),16, sig)),
+         sig = as.factor(sig)
   )
 
 plot.labs <- c("Rural", "Urban")
 plot.cols <- c("#EB2226", "#075AAA")
+plot.shapes <- c(0,1,15,16)
+guide.shapes <- c(15,16)
 
-Plot.Multi(dt = data, ggtheme = ggtheme.multi.2) +
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
 ggsave(here('output', 'plot','fac-urbanicity.png'), width = 6.5, height = 6.5)
 ```
 
@@ -416,14 +433,22 @@ data <- out.pmc.sescat %>%
          Tag = ifelse(SES.Cat == "L", "c",
                       ifelse(SES.Cat == "M", "b", "a")),
          Tag = as.factor(Tag),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & SES.Cat == "H"), 2,
+                      ifelse((sig == 15 & SES.Cat == "H"),17, sig)),
+         sig = ifelse((sig == 0 & SES.Cat == "M"), 1,
+                      ifelse((sig == 15 & SES.Cat == "M"),16, sig)),
+         sig = as.factor(sig)
   )
 
-plot.labs <- c("High", "Middle", "Low")
-plot.cols <-  c("#01742F", "#075AAA", "#EB2226")
 
-Plot.Multi(dt = data, ggtheme = ggtheme.multi.1) +
+plot.labs <- c("High", "Middle", "Low")
+plot.cols <- c("#01742F", "#FFA42E", "#EB2226")
+plot.shapes <- c(0,1,2,15,16,17)
+guide.shapes <- c(15,16,17)
+
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
 ggsave(here('output', 'plot','pmc-sescat.png'), width = 6.5, height = 7.5)
 ```
 
@@ -437,14 +462,23 @@ data <- out.pmc.region %>%
                       ifelse(Region == "midwest", "c",
                              ifelse(Region == "south", "b", "a"))),
          Tag = as.factor(Tag),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & Region == "northeast"), 5,
+                      ifelse((sig == 15 & Region == "northeast"),18, sig)),
+         sig = ifelse((sig == 0 & Region == "south"), 2,
+                      ifelse((sig == 15 & Region == "south"),17, sig)),
+         sig = ifelse((sig == 0 & Region == "midwest"), 1,
+                      ifelse((sig == 15 & Region == "midwest"),16, sig)),
+         sig = as.factor(sig)
   )
 
 plot.labs <- c("Northeast", "South", "Midwest", "West")
-plot.cols <- c("#07f900", "#0433ff", "#ffa501", "#a034f0")
+plot.cols <- c("#FF8200", "#075AAA", "#EB2226", "#01742F")
+plot.shapes <- c(0,1,2,5,15,16,17,18)
+guide.shapes <- c(15,16,17,18)
 
-Plot.Multi(dt = data, ggtheme = ggtheme.multi.1) +
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
 ggsave(here('output', 'plot','pmc-region.png'), width = 6.5, height = 7.5)
 ```
 
@@ -458,14 +492,23 @@ data <- out.fac.region %>%
                ifelse(Region == "midwest", "c",
                       ifelse(Region == "south", "b", "a"))),
          Tag = as.factor(Tag),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & Region == "northeast"), 5,
+                      ifelse((sig == 15 & Region == "northeast"),18, sig)),
+         sig = ifelse((sig == 0 & Region == "south"), 2,
+                      ifelse((sig == 15 & Region == "south"),17, sig)),
+         sig = ifelse((sig == 0 & Region == "midwest"), 1,
+                      ifelse((sig == 15 & Region == "midwest"),16, sig)),
+         sig = as.factor(sig)
   )
 
 plot.labs <- c("Northeast", "South", "Midwest", "West")
-plot.cols <- c("#07f900", "#0433ff", "#ffa501", "#a034f0")
+plot.cols <- c("#FF8200", "#075AAA", "#EB2226", "#01742F")
+plot.shapes <- c(0,1,2,5,15,16,17,18)
+guide.shapes <- c(15,16,17,18)
 
-Plot.Multi(dt = data, ggtheme = ggtheme.multi.2) +
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
 ggsave(here('output', 'plot','fac-region.png'), width = 6.5, height = 6.5)
 ```
 
@@ -479,14 +522,23 @@ data <- out.pmc.resid.region %>%
                       ifelse(Region == "midwest", "c",
                              ifelse(Region == "south", "b", "a"))),
          Tag = as.factor(Tag),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & Region == "northeast"), 5,
+                      ifelse((sig == 15 & Region == "northeast"),18, sig)),
+         sig = ifelse((sig == 0 & Region == "south"), 2,
+                      ifelse((sig == 15 & Region == "south"),17, sig)),
+         sig = ifelse((sig == 0 & Region == "midwest"), 1,
+                      ifelse((sig == 15 & Region == "midwest"),16, sig)),
+         sig = as.factor(sig)
   )
 
 plot.labs <- c("Northeast", "South", "Midwest", "West")
-plot.cols <- c("#07f900", "#0433ff", "#ffa501", "#a034f0")
+plot.cols <- c("#FF8200", "#075AAA", "#EB2226", "#01742F")
+plot.shapes <- c(0,1,2,5,15,16,17,18)
+guide.shapes <- c(15,16,17,18)
 
-Plot.Multi(dt = data, ggtheme = ggtheme.multi.1) +
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
 ggsave(here('output', 'plot','pmc-resid-region.png'),width = 6.5, height = 7.5)
 ```
 
@@ -498,14 +550,19 @@ data <- out.pmc.brfss %>%
          Index = factor(Index, levels = cmp.multi),
          Tag = ifelse(BRFSS == "brfss0", "b", "a"),
          Tag = as.factor(Tag),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & BRFSS == "brfss"), 1,
+                      ifelse((sig == 15 & BRFSS == "brfss"),16, sig)),
+         sig = as.factor(sig)
   )
 
-plot.labs <- c("BRFSS-Adjusted", "Base")
+plot.labs <- c("BRFSS-Adjusted","Base")
 plot.cols <- c("#EB2226", "#075AAA")
-  
-Plot.Multi(dt = data, ggtheme = ggtheme.multi.1) +
+plot.shapes <- c(0,1,15,16)
+guide.shapes <- c(15,16)
+
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
 ggsave(here('output', 'plot','pmc-brfss.png'), width = 6.5, height = 7.5)
 ```
 
@@ -518,14 +575,22 @@ data <- out.pmc.buffer %>%
          Tag = ifelse(Buffer == 6, "c",
                       ifelse(Buffer == 12, "b", "a")),
          Tag = as.factor(Tag),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & Buffer == 24), 2,
+                      ifelse((sig == 15 & Buffer == 24),17, sig)),
+         sig = ifelse((sig == 0 & Buffer == 12), 1,
+                      ifelse((sig == 15 & Buffer == 12),16, sig)),
+         sig = as.factor(sig)
   )
 
-plot.labs <- c("24-miles", "12-miles", "6-miles") 
-plot.cols <- c("#EB2226", "#075AAA", "#01742F")
 
-Plot.Multi(dt = data, ggtheme = ggtheme.multi.1) +
+plot.labs <- c("24-miles", "12-miles", "6-miles")
+plot.cols <- c("#01742F", "#FFA42E", "#EB2226")
+plot.shapes <- c(0,1,2,15,16,17)
+guide.shapes <- c(15,16,17)
+
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
 ggsave(here('output', 'plot','pmc-buffer.png'), width = 6.5, height = 7.5)
 ```
 
@@ -540,14 +605,25 @@ data <- out.pmc.expo %>%
                              ifelse(Window == 3, "c",
                                     ifelse(Window == 4, "b", "a")))),
          Tag = as.factor(Tag),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & Window == 5), 6,
+                      ifelse((sig == 15 & Window == 5),25, sig)),
+         sig = ifelse((sig == 0 & Window == 4), 5,
+                      ifelse((sig == 15 & Window == 4),18, sig)),
+         sig = ifelse((sig == 0 & Window == 3), 2,
+                      ifelse((sig == 15 & Window == 3),17, sig)),
+         sig = ifelse((sig == 0 & Window == 2), 1,
+                      ifelse((sig == 15 & Window == 2),16, sig)),
+         sig = as.factor(sig)
   )
 
 plot.labs <- c("5-yr", "4-yr","3-yr","2-yr","1-yr")
 plot.cols <- c("#EB2226","#FF8200","#9D178D","#075AAA","#01742F")
+plot.shapes <- c(0,1,2,5,4,15,16,17,18,8)
+guide.shapes <- c(15,16,17,18,8)
 
-Plot.Multi(dt = data, ggtheme = ggtheme.multi.1) + 
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.1, n = 1) + 
 ggsave(here('output', 'plot','pmc-expo.png'), width = 6.5, height = 8.5)
 ```
 

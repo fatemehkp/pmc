@@ -1,0 +1,554 @@
+---
+title: "PM Component Paper Plots"
+author: "Fatemeh Kazemi"
+date: "01-19-2021"
+---
+
+### plots subgroups using different colors
+###color codes: https://www.schemecolor.com/british-airways-website.php
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r Load packages}
+  library(tidyverse)
+  library(here)
+  library(ggthemes)
+```
+
+```{r Call Functions}
+source(here('code','data-viz','forest-plot-functions.R'))
+```
+
+```{r Load data}
+load(here('output','analysis','out-pmc-base.RDa'))
+load(here('output','analysis','out-pmc-ses.RDa'))
+load(here('output','analysis','out-fac-base.RDa'))
+load(here('output','analysis','out-fac-ses.RDa'))
+load(here('output','analysis','out-fac-base-ec.RDa'))
+load(here('output','analysis','out-fac-ses-ec.RDa'))
+load(here('output','analysis','out-pmc-resid.RDa'))
+load(here('output','analysis','out-fac-resid.RDa'))
+load(here('output','analysis','out-pmc-age.RDa'))
+load(here('output','analysis','out-fac-age.RDa'))
+load(here('output','analysis','out-pmc-sex.RDa'))
+load(here('output','analysis','out-fac-sex.RDa'))
+load(here('output','analysis','out-pmc-race.RDa'))
+load(here('output','analysis','out-fac-race.RDa'))
+load(here('output','analysis','out-pmc-urbanicity.RDa'))
+load(here('output','analysis','out-fac-urbanicity.RDa'))
+load(here('output','analysis','out-pmc-sescat.RDa'))
+load(here('output','analysis','out-pmc-region.RDa'))
+load(here('output','analysis','out-pmc-resid-region.RDa'))
+load(here('output','analysis','out-fac-region.RDa'))
+load(here('output','analysis','out-pmc-brfss.RDa'))
+load(here('output','analysis','out-pmc-buffer.RDa'))
+load(here('output','analysis','out-pmc-expo.RDa'))
+```
+
+```{r set theme 1 - single group plots}
+ggtheme.single <- theme_bw() + 
+  theme(panel.spacing.x = unit(0.25, 'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.background = element_rect(fill = "#B9CFED"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_text(size = 8, face = 'bold', color = 'black'),
+  )
+```
+
+```{r set theme 2 - components - effect modification, subgroups, multiple groups plots}
+ggtheme.multi.1 <- theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "#B9CFED"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in'))
+```
+
+```{r set theme 3 - factors - effect modification, subgroups, multiple groups plots}
+ggtheme.multi.2 <- theme_classic() + 
+  theme(panel.spacing.x = unit(0.25,'lines'),
+        panel.spacing.y = unit(c(0.25),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = "bold", color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "#B9CFED"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in'))
+```
+
+```{r}
+cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
+         "Respiratory", "COPD", "Pneumonia", 
+         "Cancer", "Lung Cancer")
+
+cuz.top.row <-  c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")
+cuz.bot.row <- c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")
+
+cmp.main <- c("Mn", "Fe", "V", "Ni", "Cl", "Na", "SO4", "Se", 
+              "Cu", "K", "OC", "NO3", "Zn", "Pb", "Ca", "Si", "PM2.5")
+cmp.multi <- c("PM2.5","Si", "Ca", "Pb", "Zn", "NO3", "OC", "Se", "SO4", 
+               "Ni", "V") 
+
+So.main <- c("Steel", "Oil", "Salt", "Coal", 
+         "Biomass", "Traffic", "Metals", "Soil")
+So.multi <- c("Soil", "Metals", "Traffic",
+              "Coal", "Oil")
+
+So.ec <- c("Steel", "Coal", "Oil", "Salt",
+         "Biomass", "Metals", "Soil", "Traffic")
+
+cmp.res <- c("-V", "-Ni","-SO4", "-Se", "-OC", "-NO3", 
+         "-Zn", "-Pb", "-Ca", "-Si", "PM2.5")
+So.res <- c("-Oil", "-Coal", 
+         "-Traffic", "-Metals", "-Soil", "PM2.5")
+
+cmp.multi.res <- c("PM2.5","-Si", "-Ca", "-Pb", "-Zn", "-NO3", "-OC",
+                   "-Se", "-SO4", "-Ni", "-V")
+```
+
+```{r - Components Base}
+data <- out.pmc.base %>% 
+  filter(Index %in% cmp.main,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp.main),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.cols <- c("#EB2226")
+
+Plot.Single(dt = data, ggtheme = ggtheme.single) +
+ggsave(here('output','plot','pmc-base.png'), width = 6.5, height = 6.5)
+```
+
+```{r - Components SES-Adj}
+data <- out.pmc.ses %>% 
+  filter(Index %in% cmp.main,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp.main),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.cols <- c("#EB2226")
+
+Plot.Single(dt = data, ggtheme = ggtheme.single) +
+ggsave(here('output','plot','pmc-ses.png'), width = 6.5, height = 6.5)
+```
+
+```{r - Factor Base Ex. EC}
+data <- out.fac.base %>% 
+  filter(Index %in% So.main,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So.main),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.cols <- c("#EB2226")
+
+Plot.Single(dt = data, ggtheme = ggtheme.single) +
+ggsave(here('output','plot','fac-base.png'), width = 6.5, height = 6.5)
+```
+
+```{r - Factor SES-Adj Ex. EC}
+data <- out.fac.ses %>% 
+  filter(Index %in% So.main,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So.main),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.cols <- c("#EB2226")
+
+Plot.Single(dt = data, ggtheme = ggtheme.single) +
+ggsave(here('output','plot','fac-ses.png'), width = 6.5, height = 6.5)
+```
+
+```{r - Factor Inc. EC Base}
+data <- out.fac.base.ec %>% 
+  filter(Index %in% So.ec,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So.ec),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.cols <- c("#EB2226")
+
+Plot.Single(dt = data, ggtheme = ggtheme.single) +
+ggsave(here('output','plot','fac-base-ec.png'), width = 6.5, height = 6.5)
+```
+
+```{r - Factor Inc. EC SES-Adj}
+data <- out.fac.ses.ec %>% 
+  filter(Index %in% So.ec,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So.ec),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.cols <- c("#EB2226")
+
+Plot.Single(dt = data, ggtheme = ggtheme.single) +
+ggsave(here('output','plot','fac-ses-ec.png'), width = 6.5, height = 6.5)
+```
+
+```{r - Components - PM Residual}
+data <- out.pmc.resid %>% 
+  filter(Index %in% cmp.res,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp.res),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.cols <- c("#EB2226")
+
+Plot.Single(dt = data, ggtheme = ggtheme.single) +
+ggsave(here('output','plot','pmc-resid.png'), width = 6.5, height = 6.5)
+```
+
+```{r - Factor - PM Residual}
+data <- out.fac.resid %>% 
+  filter(Index %in% So.res,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So.res),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.cols <- c("#EB2226")
+
+Plot.Single(dt = data, ggtheme = ggtheme.single) +
+ggsave(here('output', 'plot','fac-resid.png'), width = 6.5, height = 6.5)
+```
+
+```{r - Components Age}
+data <- out.pmc.age %>% 
+  filter(Index %in% cmp.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp.multi),
+         Tag = ifelse(Age == "LE75", "b", "a"),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.labs <- c("> 75 years", "<= 75 years")
+plot.cols <- c("#EB2226", "#075AAA")
+
+Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
+ggsave(here('output', 'plot','pmc-age.png'), width = 6.5, height = 7.5)
+```
+
+```{r - Factor Age}
+data <- out.fac.age %>% 
+  filter(Index %in% So.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So.multi),
+         Tag = ifelse(Age == "LE75", "b", "a"),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.labs <- c("> 75 years", "<= 75 years")
+plot.cols <- c("#EB2226", "#075AAA")
+
+Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
+ggsave(here('output', 'plot','fac-age.png'), width = 6.5, height = 6.5)
+```
+
+```{r - Components Sex}
+data <- out.pmc.sex %>% 
+  filter(Index %in% cmp.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp.multi),
+         Tag = ifelse(Sex == "F", "b", "a"),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.labs <- c("Male", "Female")
+plot.cols <- c("#EB2226", "#075AAA")
+
+Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
+ggsave(here('output', 'plot','pmc-sex.png'), width = 6.5, height = 7.5)
+```
+
+```{r - Factor Sex}
+data <- out.fac.sex %>% 
+  filter(Index %in% So.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So.multi),
+         Tag = ifelse(Sex == "F", "b", "a"),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.labs <- c("Male", "Female")
+plot.cols <- c("#EB2226", "#075AAA")
+
+Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
+ggsave(here('output', 'plot','fac-sex.png'), width = 6.5, height = 6.5)
+```
+
+```{r - Components Race}
+data <- out.pmc.race %>% 
+  filter(Index %in% cmp.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp.multi),
+         Tag = ifelse(Race == "A", "d",
+                      ifelse(Race == "B", "c",
+                             ifelse(Race == "H", "b", "a"))),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.labs <- c("White", "Hispanic", "Black", "Asian")
+plot.cols <- c("#FF8200", "#075AAA", "#EB2226", "#01742F")
+
+Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
+ggsave(here('output', 'plot','pmc-race.png'), width = 6.5, height = 7.5)
+```
+
+```{r - Factor Race}
+data <- out.fac.race %>% 
+  filter(Index %in% So.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So.multi),
+         Tag = ifelse(Race == "A", "d",
+                      ifelse(Race == "B", "c",
+                             ifelse(Race == "H", "b", "a"))),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.labs <- c("White", "Hispanic", "Black", "Asian")
+plot.cols <- c("#FF8200", "#075AAA", "#EB2226", "#01742F")
+
+Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
+ggsave(here('output', 'plot','fac-race.png'), width = 6.5, height = 6.5)
+```
+
+```{r Components Urban}
+data <- out.pmc.urbanicity %>% 
+  filter(Index %in% cmp.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp.multi),
+         Tag = ifelse(Loc.Set == "urban", "b", "a"),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.labs <- c("Rural", "Urban")
+plot.cols <- c("#EB2226", "#075AAA")
+
+Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
+ggsave(here('output', 'plot','pmc-urbanicity.png'), width = 6.5, height = 7.5)
+```
+
+```{r - Factor Urbaniity}
+data <- out.fac.urbanicity %>% 
+  filter(Index %in% So.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So.multi),
+         Tag = ifelse(Loc.Set == "urban", "b", "a"),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.labs <- c("Rural", "Urban")
+plot.cols <- c("#EB2226", "#075AAA")
+
+Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
+ggsave(here('output', 'plot','fac-urbanicity.png'), width = 6.5, height = 6.5)
+```
+
+```{r Components SES-Urban}
+data <- out.pmc.sescat %>% 
+  filter(Index %in% cmp.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp.multi),
+         Tag = ifelse(SES.Cat == "L", "c",
+                      ifelse(SES.Cat == "M", "b", "a")),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.labs <- c("High", "Middle", "Low")
+plot.cols <-  c("#01742F", "#075AAA", "#EB2226")
+
+Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
+ggsave(here('output', 'plot','pmc-sescat.png'), width = 6.5, height = 7.5)
+```
+
+```{r - Components Region}
+data <- out.pmc.region %>% 
+  filter(Index %in% cmp.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp.multi),
+         Tag = ifelse(Region == "west", "d",
+                      ifelse(Region == "midwest", "c",
+                             ifelse(Region == "south", "b", "a"))),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.labs <- c("Northeast", "South", "Midwest", "West")
+plot.cols <- c("#07f900", "#0433ff", "#ffa501", "#a034f0")
+
+Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
+ggsave(here('output', 'plot','pmc-region.png'), width = 6.5, height = 7.5)
+```
+
+```{r - Factor Region}
+data <- out.fac.region %>% 
+  filter(Index %in% So.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So.multi),
+  Tag = ifelse(Region == "west", "d",
+               ifelse(Region == "midwest", "c",
+                      ifelse(Region == "south", "b", "a"))),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.labs <- c("Northeast", "South", "Midwest", "West")
+plot.cols <- c("#07f900", "#0433ff", "#ffa501", "#a034f0")
+
+Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
+ggsave(here('output', 'plot','fac-region.png'), width = 6.5, height = 6.5)
+```
+
+```{r - Components Residual Region}
+data <- out.pmc.resid.region %>% 
+  filter(Index %in% cmp.multi.res,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp.multi.res),
+         Tag = ifelse(Region == "west", "d",
+                      ifelse(Region == "midwest", "c",
+                             ifelse(Region == "south", "b", "a"))),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.labs <- c("Northeast", "South", "Midwest", "West")
+plot.cols <- c("#07f900", "#0433ff", "#ffa501", "#a034f0")
+
+Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
+ggsave(here('output', 'plot','pmc-resid-region.png'),width = 6.5, height = 7.5)
+```
+
+```{r - Components BRFSS}
+data <- out.pmc.brfss %>% 
+  filter(Index %in% cmp.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp.multi),
+         Tag = ifelse(BRFSS == "brfss0", "b", "a"),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.labs <- c("BRFSS-Adjusted", "Base")
+plot.cols <- c("#EB2226", "#075AAA")
+  
+Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
+ggsave(here('output', 'plot','pmc-brfss.png'), width = 6.5, height = 7.5)
+```
+
+```{r Components Buffer}
+data <- out.pmc.buffer %>% 
+  filter(Index %in% cmp.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp.multi),
+         Tag = ifelse(Buffer == 6, "c",
+                      ifelse(Buffer == 12, "b", "a")),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.labs <- c("24-miles", "12-miles", "6-miles") 
+plot.cols <- c("#EB2226", "#075AAA", "#01742F")
+
+Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
+ggsave(here('output', 'plot','pmc-buffer.png'), width = 6.5, height = 7.5)
+```
+
+```{r Components Exposure window}
+data <- out.pmc.expo %>% 
+  filter(Index %in% cmp.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp.multi),
+         Tag = ifelse(Window == 1, "e",
+                      ifelse(Window == 2, "d",
+                             ifelse(Window == 3, "c",
+                                    ifelse(Window == 4, "b", "a")))),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.labs <- c("5-yr", "4-yr","3-yr","2-yr","1-yr")
+plot.cols <- c("#EB2226","#FF8200","#9D178D","#075AAA","#01742F")
+
+Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.1, n = 1) + 
+ggsave(here('output', 'plot','pmc-expo.png'), width = 6.5, height = 8.5)
+```
+

@@ -6,9 +6,15 @@
 library(tidyverse)
 library(ggpubr)
 
+
+###############################################################################
+##############################  Plot.Single  ##################################
+###############################################################################
+
 ### Function *** Plot.Single ***
 # Function Arguments: 
 # dt : dataset that contains the HRs for each exposure and outcome
+# ggtheme : customized theme
 
 ### Single Group Plot Function
 Plot.Single <- function(dt, ggtheme){
@@ -26,12 +32,20 @@ Plot.Single <- function(dt, ggtheme){
 }
 
 
+###############################################################################
+##############################  Plot.Multi ####################################
+###############################################################################
+
 ### Function *** Plot.Multi ***
+# Plots subgroups with different colors and shapes
 # Function Arguments: 
 # dt : dataset that contains the HRs for each exposure, outcome and subgroups
+# ggtheme : customized theme
+# n : desired number of rows of legends
 
 ### Multiple Group Plot Function
-Plot.Multi <- function(dt, ggtheme) {
+Plot.Multi <- function(dt, ggtheme, n) {
+  
   p1 <- ggplot(data = filter(data, Cause %in% cuz.top.row),
                aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
     geom_vline(xintercept = 1, linetype = 2, color = "black") +
@@ -40,15 +54,18 @@ Plot.Multi <- function(dt, ggtheme) {
                  size = 0.25, show.legend = T) + 
     geom_point(aes(x = HR, y = Tag, color = Tag, shape = sig), 
                size = 1.5, show.legend = T) + 
-    scale_shape_identity() +
+    scale_shape_manual(
+      values = plot.shapes,
+      guide = F) +
     scale_color_manual(
       labels = plot.labs, 
       values = plot.cols) +
-    
     facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
                shrink = T, space = 'fixed') +
     ggtheme +
-    guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical")) 
+    guides(color = guide_legend(override.aes = list(shape = guide.shapes),
+                                nrow = n, byrow = T, reverse = T, 
+                                direction = "vertical"))
   
   p2 <- ggplot(data = filter(data, Cause %in% cuz.bot.row),
                aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
@@ -58,14 +75,77 @@ Plot.Multi <- function(dt, ggtheme) {
                  size = 0.25, show.legend = T) + 
     geom_point(aes(x = HR, y = Tag, color = Tag, shape = sig), 
                size = 1.5, show.legend = T) + 
-    scale_shape_identity() +
+    scale_shape_manual(
+      values = plot.shapes,
+      guide = F) +
     scale_color_manual(
       labels = plot.labs, 
       values = plot.cols) +
     facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
                shrink = T, space = 'fixed') +
     ggtheme +
-    guides(colour = guide_legend(nrow = 1, byrow = T, reverse = T, direction = "vertical"))
+    guides(colour = guide_legend(override.aes = list(shape = guide.shapes),
+                                 nrow = n, byrow = T, reverse = T, 
+                                 direction = "vertical"))
+  
+  p <- ggarrange(p1, p2, common.legend =T, nrow = 2, legend = "bottom")
+  return(p)
+}
+
+
+
+
+
+
+###############################################################################
+############################  Plot.Multi.Color  ###############################
+###############################################################################
+
+### Function *** Plot.Multi.Color ***
+# Plots subgroups with different colors
+# Function Arguments: 
+# dt : dataset that contains the HRs for each exposure, outcome and subgroups
+# ggtheme : customized theme
+# n : desired number of rows of legends
+
+### Multiple Group Plot Function
+Plot.Multi.Color <- function(dt, ggtheme, n) {
+  
+  p1 <- ggplot(data = filter(data, Cause %in% cuz.top.row),
+               aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+    geom_vline(xintercept = 1, linetype = 2, color = "black") +
+    labs(x = "", y = "") +
+    geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                 size = 0.25, show.legend = T) + 
+    geom_point(aes(x = HR, y = Tag, color = Tag, shape = sig), 
+               size = 1.5, show.legend = T) + 
+    scale_color_manual(
+      labels = plot.labs, 
+      values = plot.cols) +
+    scale_shape_identity() +
+    facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+    ggtheme +
+    guides(color = guide_legend(nrow = n, byrow = T, reverse = T,
+                                direction = "vertical")) 
+  
+  p2 <- ggplot(data = filter(data, Cause %in% cuz.bot.row),
+               aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
+    geom_vline(xintercept = 1, linetype = 2, color = "black") +
+    labs(x = "", y = "") +
+    geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
+                 size = 0.25, show.legend = T) + 
+    geom_point(aes(x = HR, y = Tag, color = Tag, shape = sig), 
+               size = 1.5, show.legend = T) + 
+    scale_color_manual(
+      labels = plot.labs, 
+      values = plot.cols) +
+    scale_shape_identity() +
+    facet_grid(Index ~ Cause,  scales = "free_x", switch = 'y',
+               shrink = T, space = 'fixed') +
+    ggtheme +
+    guides(color = guide_legend(nrow = n, byrow = T, reverse = T, 
+                                 direction = "vertical"))
   
   p <- ggarrange(p1, p2, common.legend =T, nrow = 2, legend = "bottom")
   return(p)

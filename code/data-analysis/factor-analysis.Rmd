@@ -17,13 +17,16 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
 
 ```{r load packages}
-library(tidyverse)
-library(here)
-library(psych) # for factor analysis
+  library(tidyverse)
+  library(here)
+  library(psych) # for factor analysis
+  library(lme4) # mixed model
+  library(sjPlot) # tab_model
 ```
 
 ```{r Load datasets}
 load(here('data','processed', 'pmc-daily.RDa'))
+load(here('data','processed', 'aqs-sites.RDa'))
 ```
 
 ```{r Call functions}
@@ -33,26 +36,26 @@ source(here('code','data-processors','air-data-smooth-mvavg-function.R'))
 ```{r - preliminary factor analysis}
 # All eligible monitors
 fit <- factanal(dt.pmc.daily %>% select(AS:OC), 8, rotation="varimax")
-factor.loadings <- rbind(fit$loadings)
-save(factor.loadings, file = here('output','table','factor-loadings.RDa'))
+factor.loadings.ec <- rbind(fit$loadings)
+save(factor.loadings.ec, file = here('output','table','factor-loadings-ec.RDa'))
 #Traffic Soil Metals Biomass Salt Oil Coal Steel
 
 factor.scores <- factor.scores(dt.pmc.daily %>% select(AS:OC), fit)
 dt.fac.daily <- cbind(dt.pmc.daily %>% select(Site.ID, Date), factor.scores$scores) 
-save(dt.fac.daily, file = here('data', 'processed', 'fac-daily.RDa'))
+save(dt.fac.ec.daily, file = here('data', 'processed', 'fac-ec-daily.RDa'))
 ```
 
 ```{r Removing EC from factor analysis}
 fit <- factanal(dt.pmc.daily %>% select(AS:ZN, OC), 8, rotation="varimax")
-factor.loadings.ex.ec <- rbind(fit$loadings)
-save(factor.loadings.ex.ec, file = here('output','table','factor-loadings-ex-ec.RDa'))
+factor.loadings <- rbind(fit$loadings)
+save(factor.loadings, file = here('output','table','factor-loadings.RDa'))
 # Soil Metals Traffic Biomass Coal Salt Oil Steel
-write.csv(factor.loadings.ex.ec,
+write.csv(factor.loadings,
           file = here('output','table', 'factor-loadings.csv'))
 
 factor.scores <- factor.scores(dt.pmc.daily %>% select(AS:ZN, OC), fit)
-dt.fac.daily.ex.ec <- cbind(dt.pmc.daily %>% select(Site.ID, Date), factor.scores$scores)
-save(dt.fac.daily.ex.ec, file = here('data', 'processed', 'fac-daily-ex-ec.RDa'))
+dt.fac.daily <- cbind(dt.pmc.daily %>% select(Site.ID, Date), factor.scores$scores)
+save(dt.fac.daily, file = here('data', 'processed', 'fac-daily.RDa'))
 ```
 
 ```{r Smoothing Data & Caluculating 1-yr mvavg for each month}
@@ -86,8 +89,8 @@ save(dt.fac.1yr, file = here('data', 'processed', 'fac-1yr.RDa'))
 write.csv(dt.fac.1yr, file = here('data', 'processed', 'fac-1yr.csv'), row.names = F)
 ```
 
-```{r Smoothing Data & Caluculating 1-yr mvavg for each month}
-dt.air <- dt.fac.daily.ex.ec %>% 
+```{r Smoothing Data & Caluculating 1-yr mvavg for each month with EC}
+dt.air <- dt.fac.daily.ec %>% 
   pivot_longer(cols = Factor1:Factor8,
                names_to = "Parameter.Symbol",
                values_to = "Value") %>% 
@@ -104,7 +107,7 @@ para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
                            Date=unlist(smooth.out[3,]), 
                            para.1yr=unlist(smooth.out[4,]))
 
-dt.fac.ex.ec.1yr <- para.monthly %>% 
+dt.fac.ec.1yr <- para.monthly %>% 
   mutate(Year = floor(Date -0.01),
          Month = round((Date - Year)*12)) %>% 
   select(-Date) %>% 
@@ -113,15 +116,15 @@ dt.fac.ex.ec.1yr <- para.monthly %>%
               values_from = c(para.1yr)) %>% 
   arrange(Site.ID, Year, Month)
 
-save(dt.fac.ex.ec.1yr, file = here('data', 'processed', 'fac-ex-ec-1yr.RDa'))
-write.csv(dt.fac.ex.ec.1yr, file = here('data', 'processed', 'fac-ex-ec-1yr.csv'), row.names = F)
+save(dt.fac.ec.1yr, file = here('data', 'processed', 'fac-ec-1yr.RDa'))
+write.csv(dt.fac.ec.1yr, file = here('data', 'processed', 'fac-ec-1yr.csv'), row.names = F)
 ```
 
 ```{r residuals of PM vs. Factors}
 dt.pm.daily <- dt.pmc.daily %>% 
   select(Site.ID, Date, PM)
 
-dt.fac.ex.ec.residual <- dt.fac.daily.ex.ec %>% 
+dt.fac.residual <- dt.fac.daily %>% 
   merge(dt.pm.daily) %>% 
   group_by(Site.ID) %>% 
   nest() %>% 
@@ -137,11 +140,11 @@ dt.fac.ex.ec.residual <- dt.fac.daily.ex.ec %>%
   unnest(c(data, PM_Factor1:PM_Factor8)) %>% 
   select(-(Factor1:Factor8), -PM)
 
-save(dt.fac.ex.ec.residual, file = here('data', 'processed', 'fac-ex-ec-residual.RDa'))
+save(dt.fac.residual, file = here('data', 'processed', 'fac-residual.RDa'))
 ```
 
 ```{r Smoothing Data & Caluculating 1-yr mvavg for each month}
-dt.air <- dt.fac.ex.ec.residual %>% 
+dt.air <- dt.fac.residual %>% 
   pivot_longer(cols = PM_Factor1:PM_Factor8,
                names_to = "Parameter.Symbol",
                values_to = "Value") %>% 
@@ -158,7 +161,7 @@ para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
                            Date=unlist(smooth.out[3,]), 
                            para.1yr=unlist(smooth.out[4,]))
 
-dt.fac.ex.ec.residual.1yr <- para.monthly %>% 
+dt.fac.residual.1yr <- para.monthly %>% 
   mutate(Year = floor(Date -0.01),
          Month = round((Date - Year)*12)) %>% 
   select(-Date) %>% 
@@ -167,6 +170,114 @@ dt.fac.ex.ec.residual.1yr <- para.monthly %>%
               values_from = c(para.1yr)) %>% 
   arrange(Site.ID, Year, Month)
 
-save(dt.fac.ex.ec.residual.1yr, file = here('data', 'processed', 'fac-ex-ec-residual-1yr.RDa'))
+save(dt.fac.residual.1yr, file = here('data', 'processed', 'fac-residual-1yr.RDa'))
 
 ```
+
+```{r - Single Tracer Mass Regression Model Test}
+# Factor order: Soil Metals Traffic Biomass Coal Salt Oil Steel
+# Soil(Si), Metals(Pb), Traffic(Oc), Biomass(K),
+# Coal(SO4), Salt(Cl), Oil(Ni), Steel(Fe)
+
+### high load
+high.load <- lmer(data = dt.pmc.daily,
+              PM ~ SI + PB + OC + K + SO4 + CL + NI + FE + (1|Site.ID))
+tab_model(high.load, show.se = T, show.ci = F, show.aic = T,
+            show.re.var = F, show.icc = T, show.obs = T, show.ngroups = T,
+          title = "Higher Load Tracers")
+
+### high health impact
+high.health <- lmer(data = dt.pmc.daily,
+              PM ~ SI + PB + NO3 + K + SO4 + CL + NI + FE + (1|Site.ID))
+tab_model(high.health, show.se = T, show.ci = F, show.aic = T, digits = 2,
+            show.re.var = F, show.icc = T, show.obs = T, show.ngroups = T,
+          title = "Higher Health Impact Tracers")
+# Nagative Ni
+
+### high health impact ii
+high.health <- lmer(data = dt.pmc.daily,
+              PM ~ SI + PB + NO3 + K + SO4 + CL + NI + MN + (1|Site.ID))
+tab_model(high.health, show.se = T, show.ci = F, show.aic = T, digits = 2,
+            show.re.var = F, show.icc = T, show.obs = T, show.ngroups = T,
+          title = "Higher Health Impact Tracers - II")
+
+### Thurston
+thurston <- lmer(data = dt.pmc.daily,
+              PM ~ SI + ZN + NO3 + K + SO4 + CL + NI + FE + (1|Site.ID))
+tab_model(thurston, show.se = T, show.ci = F, show.aic = T, digits = 2,
+            show.re.var = F, show.icc = T, show.obs = T, show.ngroups = T,
+          title = "Close to Thurston Tracers")
+# Negative Ni
+```
+
+
+```{r - Single Tracer Mass Apportionment}
+dt.sites <- dt.aqs.sites %>% 
+  transmute(Site.ID,
+            Latitude,
+            Longitude,
+            Location = ifelse(Location.Setting != "RURAL", "Urban", "Rural"),
+            Region = ifelse(Region.IV == 1, "West",
+                            ifelse(Region.IV == 2, "Midwest",
+                                   ifelse(Region.IV == 3, "South", "Northeast"))))
+            
+Sources <- c("Soil", "Metal", "Traffic", "Biomass", "Coal", "Salt", "Oil", "Steel")
+
+so.coef <- function(model, cmp){
+  source = as.numeric(summary(model)$coefficients[,1][cmp])
+  return(source)
+}
+
+dt.mass.app <- dt.pmc.daily %>% 
+  mutate(Soil = so.coef(high.load, 'SI') * SI,
+         Metal = so.coef(high.load, 'PB') * PB,
+         Traffic = so.coef(high.load, 'OC') * OC,
+         Biomass = so.coef(high.load, 'K') * K,
+         Coal = so.coef(high.load, 'SO4') * SO4,
+         Salt = so.coef(high.load, 'CL') * CL,
+         Oil = so.coef(high.load, 'NI') * NI,
+         Steel = so.coef(high.load, 'FE') * FE) %>% 
+  select(Site.ID, Date, PM, Sources) %>% 
+  inner_join(dt.sites) %>% 
+  pivot_longer(cols = c('PM', Sources),
+               names_to = "Source",
+               values_to = "Mass")
+
+save(dt.mass.app, file = here('data', 'processed', 'mass-apportioned.RDa'))
+
+mass.summary.us <- dt.mass.app %>% 
+  group_by(Source) %>% 
+  summarise(Mass.mean = round(mean(Mass),2),
+            Mass.sd = round(sd(Mass),2)) %>% 
+  mutate(Unit = "US")
+
+mass.summary.region <- dt.mass.app %>% 
+  group_by(Source, Region) %>% 
+  summarise(Mass.mean = round(mean(Mass),2),
+            Mass.sd = round(sd(Mass),2)) %>% 
+  rename(Unit = Region)
+
+mass.summary.locset <- dt.mass.app %>% 
+  group_by(Source, Location) %>% 
+  summarise(Mass.mean = round(mean(Mass),2),
+            Mass.sd = round(sd(Mass),2)) %>% 
+rename(Unit = Location)
+
+mass.summary <- mass.summary.us %>% 
+  add_row(mass.summary.region) %>% 
+  add_row(mass.summary.locset)
+
+write.csv(mass.summary,
+          file = here('output','table', 'mass-app-summary.csv'))
+
+dt.mass.map <- dt.mass.app %>% 
+  group_by(Site.ID, Source) %>% 
+  summarise(Mass = mean(Mass)) %>% 
+  pivot_wider(names_from = "Source",
+              values_from = "Mass") %>% 
+  inner_join(dt.sites)
+
+save(dt.mass.map, file = here('data', 'processed', 'mass-map.RDa'))
+write.csv(dt.mass.map, file = here('output','table', 'mass-map.csv'), row.names = F)
+```
+

@@ -40,9 +40,9 @@ load(here('data','processed','master-ndi-pmc-bz24.RDa'))
 load(here('data','processed','pmc-site-ndi.RDa'))
 load(here('data','processed','pmc-1yr.RDa'))
 load(here('data','processed','fac-1yr.RDa'))
-load(here('data','processed','fac-ex-ec-1yr.RDa'))
+load(here('data','processed','fac-ec-1yr.RDa'))
 load(here('data','processed','pmc-residual-1yr.RDa'))
-load(here('data','processed','fac-ex-ec-residual-1yr.RDa'))
+load(here('data','processed','fac-residual-1yr.RDa'))
 load(here('data','processed','pmc-sub-5yr.RDa'))
 load(here('data','processed','pmc-sub-4yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-3yr-5yr.RDa'))
@@ -122,7 +122,24 @@ write.csv(dt.ndi.pmc,
           row.names = F)
 ```
 
-```{r Factors}
+```{r Factors with EC}
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.ndi.fac.ec <- dt.master.ndi.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
+  inner_join(dt.fac.ec.1yr) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID)
+
+write.csv(dt.ndi.fac.ec, 
+          file = here('data', 'processed', 'ndi-fac-ec.csv'),
+          row.names = F)
+```
+
+```{r Factors Excluding EC}
 dt.ses <- dt.ses.site.bz12 %>% 
   mutate(ses = SES.Zip.Norm) %>% 
   select(Site.ID, Year, ses)
@@ -136,23 +153,6 @@ dt.ndi.fac <- dt.master.ndi.pmc %>%
 
 write.csv(dt.ndi.fac, 
           file = here('data', 'processed', 'ndi-fac.csv'),
-          row.names = F)
-```
-
-```{r Factors Excluding EC}
-dt.ses <- dt.ses.site.bz12 %>% 
-  mutate(ses = SES.Zip.Norm) %>% 
-  select(Site.ID, Year, ses)
-
-dt.ndi.fac.ex.ec <- dt.master.ndi.pmc %>% 
-  mutate(StrID = paste(age, sex, race)) %>% 
-  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
-  inner_join(dt.fac.ex.ec.1yr) %>% 
-  inner_join(dt.ses) %>% 
-  rename(SiteID = Site.ID)
-
-write.csv(dt.ndi.fac.ex.ec, 
-          file = here('data', 'processed', 'ndi-fac-ex-ec.csv'),
           row.names = F)
 ```
 
@@ -238,21 +238,21 @@ write.csv(dt.ndi.pmc.residual,
           row.names = F)
 ```
 
-```{r Factors Excluding EC Residual}
+```{r Factors Residual}
 dt.ses <- dt.ses.site.bz12 %>% 
   mutate(ses = SES.Zip.Norm) %>% 
   select(Site.ID, Year, ses)
 
-dt.ndi.fac.ex.ec.residual <- dt.master.ndi.pmc %>% 
+dt.ndi.fac.residual <- dt.master.ndi.pmc %>% 
   mutate(StrID = paste(age, sex, race)) %>% 
   select(Site.ID, Year, Month, StrID, no_enrollee:no_enrollee:no_death_lungc,
          -no_death_uri, -no_death_ards) %>%  
-  inner_join(dt.fac.ex.ec.residual.1yr) %>% 
+  inner_join(dt.fac.residual.1yr) %>% 
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
-write.csv(dt.ndi.fac.ex.ec.residual, 
-          file = here('data', 'processed', 'ndi-fac-ex-ec-residual.csv'),
+write.csv(dt.ndi.fac.residual, 
+          file = here('data', 'processed', 'ndi-fac-residual.csv'),
           row.names = F)
 ```
 
@@ -343,7 +343,7 @@ dt.age <-
 
 ### LE 75
 dt.ndi.fac.ageLE75 <- dt.age %>% 
-  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.fac.1yr) %>% 
   inner_join(dt.ses) %>% 
   mutate(aLE75 = ifelse(age == "LE", 0,1),
          StrID = paste(age, sex, race)) %>% 
@@ -364,7 +364,7 @@ write.csv(dt.ndi.fac.ageLE75,
 
 ### M 75
 dt.ndi.fac.ageM75 <- dt.age %>% 
-  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.fac.1yr) %>% 
   inner_join(dt.ses) %>% 
   mutate(aM75 = ifelse(age == "M", 0,1),
          StrID = paste(age, sex, race)) %>% 
@@ -454,7 +454,7 @@ dt.sex <- dt.master.ndi.pmc %>%
     select(Site.ID:no_death_lungc,
          -no_death_nacc, -no_death_acc,
          -no_death_uri, -no_death_ards) %>%  
-  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.fac.1yr) %>% 
   inner_join(dt.ses)
 
 ### Female
@@ -656,7 +656,7 @@ dt.raceA <-
   arrange(Site.ID, Year, Month, age, sex, race)
 
 dt.ndi.fac.raceA <- dt.raceA %>% 
-  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.fac.1yr) %>% 
   inner_join(dt.ses) %>% 
   mutate(rA = ifelse(race == "A", 0,1),
          StrID = paste(age, sex, race)) %>% 
@@ -687,7 +687,7 @@ dt.raceB <-
   arrange(Site.ID, Year, Month, age, sex, race)
 
 dt.ndi.fac.raceB <- dt.raceB %>% 
-  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.fac.1yr) %>% 
   inner_join(dt.ses) %>% 
   mutate(rB = ifelse(race == "B", 0,1),
          StrID = paste(age, sex, race)) %>% 
@@ -718,7 +718,7 @@ dt.raceH <-
   arrange(Site.ID, Year, Month, age, sex, race)
 
 dt.ndi.fac.raceH <- dt.raceH %>% 
-  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.fac.1yr) %>% 
   inner_join(dt.ses) %>% 
   mutate(rH = ifelse(race == "H", 0,1),
          StrID = paste(age, sex, race)) %>% 
@@ -750,7 +750,7 @@ dt.raceW <-
   arrange(Site.ID, Year, Month, age, sex, race)
 
 dt.ndi.fac.raceW <- dt.raceW %>% 
-  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.fac.1yr) %>% 
   inner_join(dt.ses) %>% 
   mutate(rW = ifelse(race == "W", 0,1),
          StrID = paste(age, sex, race)) %>% 
@@ -853,7 +853,7 @@ dt.ndi.fac.urban <- dt.master.ndi.pmc %>%
   select(Site.ID:no_death_lungc,
          -no_death_nacc, -no_death_acc,
          -no_death_uri, -no_death_ards) %>% 
-  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.fac.1yr) %>% 
   inner_join(dt.ses) %>% 
   inner_join(dt.site) %>% 
   mutate(urb = ifelse(!Location.Setting == "RURAL", 0,1),
@@ -879,7 +879,7 @@ dt.ndi.fac.rural <- dt.master.ndi.pmc %>%
   select(Site.ID:no_death_lungc,
          -no_death_nacc, -no_death_acc,
          -no_death_uri, -no_death_ards) %>% 
-  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.fac.1yr) %>% 
   inner_join(dt.ses) %>% 
   inner_join(dt.site) %>% 
   mutate(rur = ifelse(Location.Setting == "RURAL", 0,1),
@@ -1130,7 +1130,7 @@ dt.ndi.fac.west <- dt.master.ndi.pmc %>%
   select(Site.ID:no_death_lungc,
          -no_death_nacc, -no_death_acc,
          -no_death_uri, -no_death_ards) %>% 
-  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.fac.1yr) %>% 
   inner_join(dt.ses) %>% 
   inner_join(dt.site) %>% 
   mutate(rW = ifelse(Region.IV == 1, 0,1),
@@ -1155,7 +1155,7 @@ dt.ndi.fac.midwest <- dt.master.ndi.pmc %>%
   select(Site.ID:no_death_lungc,
          -no_death_nacc, -no_death_acc,
          -no_death_uri, -no_death_ards) %>% 
-  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.fac.1yr) %>% 
   inner_join(dt.ses) %>% 
   inner_join(dt.site) %>% 
   mutate(rMW = ifelse(Region.IV == 2, 0,1),
@@ -1180,7 +1180,7 @@ dt.ndi.fac.south <- dt.master.ndi.pmc %>%
   select(Site.ID:no_death_lungc,
          -no_death_nacc, -no_death_acc,
          -no_death_uri, -no_death_ards) %>% 
-  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.fac.1yr) %>% 
   inner_join(dt.ses) %>% 
   inner_join(dt.site) %>% 
   mutate(rS = ifelse(Region.IV == 3, 0,1),
@@ -1205,7 +1205,7 @@ dt.ndi.fac.northeast <- dt.master.ndi.pmc %>%
   select(Site.ID:no_death_lungc,
          -no_death_nacc, -no_death_acc,
          -no_death_uri, -no_death_ards) %>% 
-  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.fac.1yr) %>% 
   inner_join(dt.ses) %>% 
   inner_join(dt.site) %>% 
   mutate(rNE = ifelse(Region.IV == 4, 0,1),

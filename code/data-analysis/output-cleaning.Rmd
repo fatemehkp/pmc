@@ -14,7 +14,7 @@ library(here)
 ```{r Load data}
 load(here('data','processed','pmc-1yr.RDa'))
 load(here('data','processed','fac-1yr.RDa'))
-load(here('data','processed','fac-ex-ec-1yr.RDa'))
+load(here('data','processed','fac-ec-1yr.RDa'))
 load(here('data','processed','pmc-site-ndi.RDa'))
 load(here('data','processed','pmc-sub-1yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-2yr-5yr.RDa'))
@@ -114,7 +114,7 @@ pmc.1yr.iqr <- dt.pmc.site.ndi %>%
 ### Factors excluding EC
 fac.1yr.iqr <- dt.pmc.site.ndi %>% 
   select(Site.ID) %>% 
-  inner_join(dt.fac.ex.ec.1yr) %>% 
+  inner_join(dt.fac.1yr) %>% 
   summarise_at(vars(Factor1:Factor8), ~IQR(.x)) %>% 
   pivot_longer(cols = Factor1:Factor8,
                names_to = "Parameter",
@@ -124,7 +124,7 @@ fac.1yr.iqr <- dt.pmc.site.ndi %>%
 ### Factors Inc EC
 fac.ec.1yr.iqr <- dt.pmc.site.ndi %>% 
   select(Site.ID) %>% 
-  inner_join(dt.fac.1yr) %>% 
+  inner_join(dt.fac.ec.1yr) %>% 
   summarise_at(vars(Factor1:Factor8), ~IQR(.x)) %>% 
   pivot_longer(cols = Factor1:Factor8,
                names_to = "Parameter",
@@ -245,7 +245,7 @@ save(out.pmc.ses, file = here('output','analysis','out-pmc-ses.RDa'))
 ```
 
 ```{r Output Factors Ex. EC Base}
-out.fac.base <- read.csv(here('output','analysis','fac-ex-ec-base.csv')) %>% 
+out.fac.base <- read.csv(here('output','analysis','fac-base.csv')) %>% 
   rename(Parameter = Predictor) %>% 
   merge(fac.1yr.iqr) %>% 
   merge(Factor.to.Index) %>% 
@@ -260,7 +260,7 @@ save(out.fac.base, file = here('output','analysis','out-fac-base.RDa'))
 ```
 
 ```{r Output Factors Ex. EC SES-Adj}
-out.fac.ses <- read.csv(here('output','analysis','fac-ex-ec-ses.csv')) %>% 
+out.fac.ses <- read.csv(here('output','analysis','fac-ses.csv')) %>% 
   rename(Parameter = Predictor) %>% 
   merge(fac.1yr.iqr) %>% 
   merge(Factor.to.Index) %>% 
@@ -275,7 +275,7 @@ save(out.fac.ses, file = here('output','analysis','out-fac-ses.RDa'))
 ```
 
 ```{r Output Factors Base}
-out.fac.base.ec <- read.csv(here('output','analysis','fac-base.csv')) %>% 
+out.fac.ec.base <- read.csv(here('output','analysis','fac-ec-base.csv')) %>% 
   rename(Parameter = Predictor) %>% 
   merge(fac.ec.1yr.iqr) %>% 
   merge(Factor.ec.to.Index) %>% 
@@ -286,11 +286,11 @@ out.fac.base.ec <- read.csv(here('output','analysis','fac-base.csv')) %>%
   arrange(Config) %>% 
   select(Index, Cause, HR, HR.L, HR.U)
 
-save(out.fac.base.ec, file = here('output','analysis','out-fac-base-ec.RDa'))
+save(out.fac.ec.base, file = here('output','analysis','out-fac-ec-base.RDa'))
 ```
 
 ```{r Output Factors SES-Adj}
-out.fac.ses.ec <- read.csv(here('output','analysis','fac-ses.csv')) %>% 
+out.fac.ec.ses <- read.csv(here('output','analysis','fac-ec-ses.csv')) %>% 
   rename(Parameter = Predictor) %>% 
   merge(fac.ec.1yr.iqr) %>% 
   merge(Factor.ec.to.Index) %>% 
@@ -301,7 +301,7 @@ out.fac.ses.ec <- read.csv(here('output','analysis','fac-ses.csv')) %>%
   arrange(Config) %>% 
   select(Index, Cause, HR, HR.L, HR.U)
 
-save(out.fac.ses.ec, file = here('output','analysis','out-fac-ses-ec.RDa'))
+save(out.fac.ec.ses, file = here('output','analysis','out-fac-ec-ses.RDa'))
 ```
 
 ```{r Output Carbon SES-Adj}
