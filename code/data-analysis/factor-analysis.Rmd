@@ -27,6 +27,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```{r Load datasets}
 load(here('data','processed', 'pmc-daily.RDa'))
 load(here('data','processed', 'aqs-sites.RDa'))
+load(here('data','processed', 'mass-apportioned.RDa'))
 ```
 
 ```{r Call functions}
@@ -179,27 +180,20 @@ save(dt.fac.residual.1yr, file = here('data', 'processed', 'fac-residual-1yr.RDa
 # Soil(Si), Metals(Pb), Traffic(Oc), Biomass(K),
 # Coal(SO4), Salt(Cl), Oil(Ni), Steel(Fe)
 
-### high load
+### high load -- Comb1
 high.load <- lmer(data = dt.pmc.daily,
               PM ~ SI + PB + OC + K + SO4 + CL + NI + FE + (1|Site.ID))
 tab_model(high.load, show.se = T, show.ci = F, show.aic = T,
             show.re.var = F, show.icc = T, show.obs = T, show.ngroups = T,
           title = "Higher Load Tracers")
 
-### high health impact
-high.health <- lmer(data = dt.pmc.daily,
-              PM ~ SI + PB + NO3 + K + SO4 + CL + NI + FE + (1|Site.ID))
-tab_model(high.health, show.se = T, show.ci = F, show.aic = T, digits = 2,
-            show.re.var = F, show.icc = T, show.obs = T, show.ngroups = T,
-          title = "Higher Health Impact Tracers")
-# Nagative Ni
-
-### high health impact ii
+### high health impact ii - Comb2
 high.health <- lmer(data = dt.pmc.daily,
               PM ~ SI + PB + NO3 + K + SO4 + CL + NI + MN + (1|Site.ID))
 tab_model(high.health, show.se = T, show.ci = F, show.aic = T, digits = 2,
             show.re.var = F, show.icc = T, show.obs = T, show.ngroups = T,
           title = "Higher Health Impact Tracers - II")
+# CL non sig
 
 ### Thurston
 thurston <- lmer(data = dt.pmc.daily,
@@ -211,7 +205,7 @@ tab_model(thurston, show.se = T, show.ci = F, show.aic = T, digits = 2,
 ```
 
 
-```{r - Single Tracer Mass Apportionment}
+```{r - Single Tracer Mass Apportionment - function}
 dt.sites <- dt.aqs.sites %>% 
   transmute(Site.ID,
             Latitude,
@@ -227,8 +221,11 @@ so.coef <- function(model, cmp){
   source = as.numeric(summary(model)$coefficients[,1][cmp])
   return(source)
 }
+```
 
-dt.mass.app <- dt.pmc.daily %>% 
+
+```{r - Single Tracer Mass Apportionment - Combination 1}
+dt.mass.app.c1 <- dt.pmc.daily %>% 
   mutate(Soil = so.coef(high.load, 'SI') * SI,
          Metal = so.coef(high.load, 'PB') * PB,
          Traffic = so.coef(high.load, 'OC') * OC,
@@ -243,41 +240,159 @@ dt.mass.app <- dt.pmc.daily %>%
                names_to = "Source",
                values_to = "Mass")
 
-save(dt.mass.app, file = here('data', 'processed', 'mass-apportioned.RDa'))
+save(dt.mass.app.c1, file = here('data', 'processed', 'mass-apportioned-c1.RDa'))
 
-mass.summary.us <- dt.mass.app %>% 
+mass.summary.us <- dt.mass.app.c1 %>% 
   group_by(Source) %>% 
   summarise(Mass.mean = round(mean(Mass),2),
             Mass.sd = round(sd(Mass),2)) %>% 
   mutate(Unit = "US")
 
-mass.summary.region <- dt.mass.app %>% 
+mass.summary.region <- dt.mass.app.c1 %>% 
   group_by(Source, Region) %>% 
   summarise(Mass.mean = round(mean(Mass),2),
             Mass.sd = round(sd(Mass),2)) %>% 
   rename(Unit = Region)
 
-mass.summary.locset <- dt.mass.app %>% 
+mass.summary.locset <- dt.mass.app.c1 %>% 
   group_by(Source, Location) %>% 
   summarise(Mass.mean = round(mean(Mass),2),
             Mass.sd = round(sd(Mass),2)) %>% 
 rename(Unit = Location)
 
-mass.summary <- mass.summary.us %>% 
+mass.summary.c1 <- mass.summary.us %>% 
   add_row(mass.summary.region) %>% 
   add_row(mass.summary.locset)
 
-write.csv(mass.summary,
-          file = here('output','table', 'mass-app-summary.csv'))
+write.csv(mass.summary.c1,
+          file = here('output','table', 'mass-app-summary-c1.csv'))
 
-dt.mass.map <- dt.mass.app %>% 
+dt.mass.map.c1 <- dt.mass.app.c1 %>% 
   group_by(Site.ID, Source) %>% 
   summarise(Mass = mean(Mass)) %>% 
   pivot_wider(names_from = "Source",
               values_from = "Mass") %>% 
   inner_join(dt.sites)
 
-save(dt.mass.map, file = here('data', 'processed', 'mass-map.RDa'))
-write.csv(dt.mass.map, file = here('output','table', 'mass-map.csv'), row.names = F)
+save(dt.mass.map.c1, file = here('data', 'processed', 'mass-map-c1.RDa'))
+write.csv(dt.mass.map.c1, file = here('output','table', 'mass-map-c1.csv'), row.names = F)
+```
+
+```{r Smoothing Data & Caluculating 1-yr mvavg for each month - Combination 1}
+dt.air <- dt.mass.app.c1 %>% 
+  transmute(Site.ID,
+            Parameter.Symbol = Source,
+            Date,
+            Value = Mass) %>% 
+  arrange(Site.ID, Parameter.Symbol, Date)
+
+site.para <- dt.air %>% 
+  distinct(Site.ID, Parameter.Symbol)
+
+#using smoothed.yr function
+smooth.out <- mapply(Smoothed.Year, 
+                     site.para$Site.ID, site.para$Parameter.Symbol, 0.99, 350)
+para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
+                           Parameter.Symbol=unlist(smooth.out[2,]),
+                           Date=unlist(smooth.out[3,]), 
+                           para.1yr=unlist(smooth.out[4,]))
+
+dt.mass.app.1yr.c1 <- para.monthly %>% 
+  mutate(Year = floor(Date -0.01),
+         Month = round((Date - Year)*12)) %>% 
+  select(-Date) %>% 
+  pivot_wider(names_sort = T,
+              names_from = c(Parameter.Symbol),
+              values_from = c(para.1yr)) %>% 
+  arrange(Site.ID, Year, Month)
+
+save(dt.mass.app.1yr.c1, file = here('data', 'processed', 'mass-app-1yr-c1.RDa'))
+write.csv(dt.mass.app.1yr.c1, file = here('data', 'processed', 'mass-app-1yr-c1.csv'), row.names = F)
+```
+
+```{r - Single Tracer Mass Apportionment - Combination 2}
+dt.mass.app.c2 <- dt.pmc.daily %>% 
+  mutate(Soil = so.coef(high.health, 'SI') * SI,
+         Metal = so.coef(high.health, 'PB') * PB,
+         Traffic = so.coef(high.health, 'NO3') * NO3,
+         Biomass = so.coef(high.health, 'K') * K,
+         Coal = so.coef(high.health, 'SO4') * SO4,
+         Salt = so.coef(high.health, 'CL') * CL,
+         Oil = so.coef(high.health, 'NI') * NI,
+         Steel = so.coef(high.health, 'MN') * MN) %>% 
+  select(Site.ID, Date, PM, Sources) %>% 
+  inner_join(dt.sites) %>% 
+  pivot_longer(cols = c('PM', Sources),
+               names_to = "Source",
+               values_to = "Mass")
+
+save(dt.mass.app.c2, file = here('data', 'processed', 'mass-apportioned-c2.RDa'))
+
+mass.summary.us <- dt.mass.app.c2 %>% 
+  group_by(Source) %>% 
+  summarise(Mass.mean = round(mean(Mass),2),
+            Mass.sd = round(sd(Mass),2)) %>% 
+  mutate(Unit = "US")
+
+mass.summary.region <- dt.mass.app.c2 %>% 
+  group_by(Source, Region) %>% 
+  summarise(Mass.mean = round(mean(Mass),2),
+            Mass.sd = round(sd(Mass),2)) %>% 
+  rename(Unit = Region)
+
+mass.summary.locset <- dt.mass.app.c2 %>% 
+  group_by(Source, Location) %>% 
+  summarise(Mass.mean = round(mean(Mass),2),
+            Mass.sd = round(sd(Mass),2)) %>% 
+rename(Unit = Location)
+
+mass.summary.c2 <- mass.summary.us %>% 
+  add_row(mass.summary.region) %>% 
+  add_row(mass.summary.locset)
+
+write.csv(mass.summary.c2,
+          file = here('output','table', 'mass-app-summary-c2.csv'))
+
+dt.mass.map.c2 <- dt.mass.app.c2 %>% 
+  group_by(Site.ID, Source) %>% 
+  summarise(Mass = mean(Mass)) %>% 
+  pivot_wider(names_from = "Source",
+              values_from = "Mass") %>% 
+  inner_join(dt.sites)
+
+save(dt.mass.map.c2, file = here('data', 'processed', 'mass-map-c2.RDa'))
+write.csv(dt.mass.map.c2, file = here('output','table', 'mass-map-c2.csv'), row.names = F)
+```
+
+```{r Smoothing Data & Caluculating 1-yr mvavg for each month - Combination 2}
+dt.air <- dt.mass.app.c2 %>% 
+  transmute(Site.ID,
+            Parameter.Symbol = Source,
+            Date,
+            Value = Mass) %>% 
+  arrange(Site.ID, Parameter.Symbol, Date)
+
+site.para <- dt.air %>% 
+  distinct(Site.ID, Parameter.Symbol)
+
+#using smoothed.yr function
+smooth.out <- mapply(Smoothed.Year, 
+                     site.para$Site.ID, site.para$Parameter.Symbol, 0.99, 350)
+para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
+                           Parameter.Symbol=unlist(smooth.out[2,]),
+                           Date=unlist(smooth.out[3,]), 
+                           para.1yr=unlist(smooth.out[4,]))
+
+dt.mass.app.1yr.c2 <- para.monthly %>% 
+  mutate(Year = floor(Date -0.01),
+         Month = round((Date - Year)*12)) %>% 
+  select(-Date) %>% 
+  pivot_wider(names_sort = T,
+              names_from = c(Parameter.Symbol),
+              values_from = c(para.1yr)) %>% 
+  arrange(Site.ID, Year, Month)
+
+save(dt.mass.app.1yr.c2, file = here('data', 'processed', 'mass-app-1yr-c2.RDa'))
+write.csv(dt.mass.app.1yr.c2, file = here('data', 'processed', 'mass-app-1yr-c2.csv'), row.names = F)
 ```
 

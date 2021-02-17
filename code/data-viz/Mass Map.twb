@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8' ?>
 
-<!-- build 20202.20.0415.1946                               -->
-<workbook original-version='18.1' source-build='2020.2.0 (20202.20.0415.1946)' source-platform='win' version='18.1' xmlns:user='http://www.tableausoftware.com/xml/user'>
+<!-- build 20203.20.1110.1623                               -->
+<workbook original-version='18.1' source-build='2020.3.3 (20203.20.1110.1623)' source-platform='win' version='18.1' xmlns:user='http://www.tableausoftware.com/xml/user'>
   <document-format-change-manifest>
     <AutoCreateAndUpdateDSDPhoneLayouts />
     <_.fcp.MarkAnimation.true...MarkAnimation />
@@ -23,8 +23,11 @@
           <named-connection caption='mass-map' name='textscan.1i6fxpt02yq6w218rtdfa0rqgvy5'>
             <connection class='textscan' directory='C:/Users/fkazem01/Box/Projects/PM Components/output/table' filename='mass-map.csv' password='' server='' />
           </named-connection>
+          <named-connection caption='mass-map-c2' name='textscan.0jgnln20euu5d915jc3w104u3zq4'>
+            <connection class='textscan' directory='C:/Users/fkazem01/Box/Projects/PM Components/output/table' filename='mass-map-c2.csv' password='' server='' />
+          </named-connection>
         </named-connections>
-        <_.fcp.ObjectModelEncapsulateLegacy.false...relation connection='textscan.1i6fxpt02yq6w218rtdfa0rqgvy5' name='mass-map.csv' table='[mass-map#csv]' type='table'>
+        <_.fcp.ObjectModelEncapsulateLegacy.false...relation connection='textscan.1i6fxpt02yq6w218rtdfa0rqgvy5' name='mass-map-c1.csv' table='[mass-map-c1#csv]' type='table'>
           <columns character-set='UTF-8' header='yes' locale='en_US' separator=','>
             <column datatype='string' name='Site.ID' ordinal='0' />
             <column datatype='real' name='Biomass' ordinal='1' />
@@ -42,7 +45,7 @@
             <column datatype='string' name='Region' ordinal='13' />
           </columns>
         </_.fcp.ObjectModelEncapsulateLegacy.false...relation>
-        <_.fcp.ObjectModelEncapsulateLegacy.true...relation connection='textscan.1i6fxpt02yq6w218rtdfa0rqgvy5' name='mass-map.csv' table='[mass-map#csv]' type='table'>
+        <_.fcp.ObjectModelEncapsulateLegacy.true...relation connection='textscan.1i6fxpt02yq6w218rtdfa0rqgvy5' name='mass-map-c1.csv' table='[mass-map-c1#csv]' type='table'>
           <columns character-set='UTF-8' header='yes' locale='en_US' separator=','>
             <column datatype='string' name='Site.ID' ordinal='0' />
             <column datatype='real' name='Biomass' ordinal='1' />
@@ -64,7 +67,7 @@
           <metadata-record class='capability'>
             <remote-name />
             <remote-type>0</remote-type>
-            <parent-name>[mass-map.csv]</parent-name>
+            <parent-name>[mass-map-c1.csv]</parent-name>
             <remote-alias />
             <aggregation>Count</aggregation>
             <contains-null>true</contains-null>
@@ -81,7 +84,7 @@
             <remote-name>Site.ID</remote-name>
             <remote-type>129</remote-type>
             <local-name>[Site.ID]</local-name>
-            <parent-name>[mass-map.csv]</parent-name>
+            <parent-name>[mass-map-c1.csv]</parent-name>
             <remote-alias>Site.ID</remote-alias>
             <ordinal>0</ordinal>
             <local-type>string</local-type>
@@ -90,145 +93,145 @@
             <width>1073741823</width>
             <contains-null>true</contains-null>
             <collation flag='0' name='LEN_RUS' />
-            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map.csv_2C07E6F1ED0141238A625405EB446E7F]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
           </metadata-record>
           <metadata-record class='column'>
             <remote-name>Biomass</remote-name>
             <remote-type>5</remote-type>
             <local-name>[Biomass]</local-name>
-            <parent-name>[mass-map.csv]</parent-name>
+            <parent-name>[mass-map-c1.csv]</parent-name>
             <remote-alias>Biomass</remote-alias>
             <ordinal>1</ordinal>
             <local-type>real</local-type>
             <aggregation>Sum</aggregation>
             <contains-null>true</contains-null>
-            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map.csv_2C07E6F1ED0141238A625405EB446E7F]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
           </metadata-record>
           <metadata-record class='column'>
             <remote-name>Coal</remote-name>
             <remote-type>5</remote-type>
             <local-name>[Coal]</local-name>
-            <parent-name>[mass-map.csv]</parent-name>
+            <parent-name>[mass-map-c1.csv]</parent-name>
             <remote-alias>Coal</remote-alias>
             <ordinal>2</ordinal>
             <local-type>real</local-type>
             <aggregation>Sum</aggregation>
             <contains-null>true</contains-null>
-            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map.csv_2C07E6F1ED0141238A625405EB446E7F]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
           </metadata-record>
           <metadata-record class='column'>
             <remote-name>Metal</remote-name>
             <remote-type>5</remote-type>
             <local-name>[Metal]</local-name>
-            <parent-name>[mass-map.csv]</parent-name>
+            <parent-name>[mass-map-c1.csv]</parent-name>
             <remote-alias>Metal</remote-alias>
             <ordinal>3</ordinal>
             <local-type>real</local-type>
             <aggregation>Sum</aggregation>
             <contains-null>true</contains-null>
-            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map.csv_2C07E6F1ED0141238A625405EB446E7F]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
           </metadata-record>
           <metadata-record class='column'>
             <remote-name>Oil</remote-name>
             <remote-type>5</remote-type>
             <local-name>[Oil]</local-name>
-            <parent-name>[mass-map.csv]</parent-name>
+            <parent-name>[mass-map-c1.csv]</parent-name>
             <remote-alias>Oil</remote-alias>
             <ordinal>4</ordinal>
             <local-type>real</local-type>
             <aggregation>Sum</aggregation>
             <contains-null>true</contains-null>
-            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map.csv_2C07E6F1ED0141238A625405EB446E7F]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
           </metadata-record>
           <metadata-record class='column'>
             <remote-name>PM</remote-name>
             <remote-type>5</remote-type>
             <local-name>[PM]</local-name>
-            <parent-name>[mass-map.csv]</parent-name>
+            <parent-name>[mass-map-c1.csv]</parent-name>
             <remote-alias>PM</remote-alias>
             <ordinal>5</ordinal>
             <local-type>real</local-type>
             <aggregation>Sum</aggregation>
             <contains-null>true</contains-null>
-            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map.csv_2C07E6F1ED0141238A625405EB446E7F]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
           </metadata-record>
           <metadata-record class='column'>
             <remote-name>Salt</remote-name>
             <remote-type>5</remote-type>
             <local-name>[Salt]</local-name>
-            <parent-name>[mass-map.csv]</parent-name>
+            <parent-name>[mass-map-c1.csv]</parent-name>
             <remote-alias>Salt</remote-alias>
             <ordinal>6</ordinal>
             <local-type>real</local-type>
             <aggregation>Sum</aggregation>
             <contains-null>true</contains-null>
-            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map.csv_2C07E6F1ED0141238A625405EB446E7F]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
           </metadata-record>
           <metadata-record class='column'>
             <remote-name>Soil</remote-name>
             <remote-type>5</remote-type>
             <local-name>[Soil]</local-name>
-            <parent-name>[mass-map.csv]</parent-name>
+            <parent-name>[mass-map-c1.csv]</parent-name>
             <remote-alias>Soil</remote-alias>
             <ordinal>7</ordinal>
             <local-type>real</local-type>
             <aggregation>Sum</aggregation>
             <contains-null>true</contains-null>
-            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map.csv_2C07E6F1ED0141238A625405EB446E7F]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
           </metadata-record>
           <metadata-record class='column'>
             <remote-name>Steel</remote-name>
             <remote-type>5</remote-type>
             <local-name>[Steel]</local-name>
-            <parent-name>[mass-map.csv]</parent-name>
+            <parent-name>[mass-map-c1.csv]</parent-name>
             <remote-alias>Steel</remote-alias>
             <ordinal>8</ordinal>
             <local-type>real</local-type>
             <aggregation>Sum</aggregation>
             <contains-null>true</contains-null>
-            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map.csv_2C07E6F1ED0141238A625405EB446E7F]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
           </metadata-record>
           <metadata-record class='column'>
             <remote-name>Traffic</remote-name>
             <remote-type>5</remote-type>
             <local-name>[Traffic]</local-name>
-            <parent-name>[mass-map.csv]</parent-name>
+            <parent-name>[mass-map-c1.csv]</parent-name>
             <remote-alias>Traffic</remote-alias>
             <ordinal>9</ordinal>
             <local-type>real</local-type>
             <aggregation>Sum</aggregation>
             <contains-null>true</contains-null>
-            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map.csv_2C07E6F1ED0141238A625405EB446E7F]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
           </metadata-record>
           <metadata-record class='column'>
             <remote-name>Latitude</remote-name>
             <remote-type>5</remote-type>
             <local-name>[Latitude]</local-name>
-            <parent-name>[mass-map.csv]</parent-name>
+            <parent-name>[mass-map-c1.csv]</parent-name>
             <remote-alias>Latitude</remote-alias>
             <ordinal>10</ordinal>
             <local-type>real</local-type>
             <aggregation>Sum</aggregation>
             <contains-null>true</contains-null>
-            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map.csv_2C07E6F1ED0141238A625405EB446E7F]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
           </metadata-record>
           <metadata-record class='column'>
             <remote-name>Longitude</remote-name>
             <remote-type>5</remote-type>
             <local-name>[Longitude]</local-name>
-            <parent-name>[mass-map.csv]</parent-name>
+            <parent-name>[mass-map-c1.csv]</parent-name>
             <remote-alias>Longitude</remote-alias>
             <ordinal>11</ordinal>
             <local-type>real</local-type>
             <aggregation>Sum</aggregation>
             <contains-null>true</contains-null>
-            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map.csv_2C07E6F1ED0141238A625405EB446E7F]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
           </metadata-record>
           <metadata-record class='column'>
             <remote-name>Location</remote-name>
             <remote-type>129</remote-type>
             <local-name>[Location]</local-name>
-            <parent-name>[mass-map.csv]</parent-name>
+            <parent-name>[mass-map-c1.csv]</parent-name>
             <remote-alias>Location</remote-alias>
             <ordinal>12</ordinal>
             <local-type>string</local-type>
@@ -237,13 +240,13 @@
             <width>1073741823</width>
             <contains-null>true</contains-null>
             <collation flag='0' name='LEN_RUS' />
-            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map.csv_2C07E6F1ED0141238A625405EB446E7F]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
           </metadata-record>
           <metadata-record class='column'>
             <remote-name>Region</remote-name>
             <remote-type>129</remote-type>
             <local-name>[Region]</local-name>
-            <parent-name>[mass-map.csv]</parent-name>
+            <parent-name>[mass-map-c1.csv]</parent-name>
             <remote-alias>Region</remote-alias>
             <ordinal>13</ordinal>
             <local-type>string</local-type>
@@ -252,7 +255,7 @@
             <width>1073741823</width>
             <contains-null>true</contains-null>
             <collation flag='0' name='LEN_RUS' />
-            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map.csv_2C07E6F1ED0141238A625405EB446E7F]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
           </metadata-record>
         </metadata-records>
       </connection>
@@ -281,18 +284,18 @@
       <column caption='BiomassRatio' datatype='real' name='[Calculation_2662190340629778439]' role='measure' type='quantitative'>
         <calculation class='tableau' formula='[Biomass]/[PM]' />
       </column>
-      <column aggregation='Avg' datatype='real' name='[Latitude]' role='measure' semantic-role='[Geographical].[Latitude]' type='quantitative' />
-      <column aggregation='Avg' datatype='real' name='[Longitude]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
-      <_.fcp.ObjectModelTableType.true...column caption='mass-map.csv' datatype='table' name='[__tableau_internal_object_id__].[mass-map.csv_2C07E6F1ED0141238A625405EB446E7F]' role='measure' type='quantitative' />
+      <column aggregation='Avg' caption='Latitude1' datatype='real' name='[Latitude]' role='measure' semantic-role='[Geographical].[Latitude]' type='quantitative' />
+      <column aggregation='Avg' caption='Longitude1' datatype='real' name='[Longitude]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
+      <_.fcp.ObjectModelTableType.true...column caption='mass-map-c1.csv' datatype='table' name='[__tableau_internal_object_id__].[mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6]' role='measure' type='quantitative' />
       <layout _.fcp.SchemaViewerObjectModel.false...dim-percentage='0.5' _.fcp.SchemaViewerObjectModel.false...measure-percentage='0.4' dim-ordering='alphabetic' measure-ordering='alphabetic' show-structure='true' />
       <semantic-values>
         <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
       </semantic-values>
       <_.fcp.ObjectModelEncapsulateLegacy.true...object-graph>
         <objects>
-          <object caption='mass-map.csv' id='mass-map.csv_2C07E6F1ED0141238A625405EB446E7F'>
+          <object caption='mass-map-c1.csv' id='mass-map-c1.csv_A5FE56C095044252BABF79309534A5E6'>
             <properties context=''>
-              <relation connection='textscan.1i6fxpt02yq6w218rtdfa0rqgvy5' name='mass-map.csv' table='[mass-map#csv]' type='table'>
+              <relation connection='textscan.1i6fxpt02yq6w218rtdfa0rqgvy5' name='mass-map-c1.csv' table='[mass-map-c1#csv]' type='table'>
                 <columns character-set='UTF-8' header='yes' locale='en_US' separator=','>
                   <column datatype='string' name='Site.ID' ordinal='0' />
                   <column datatype='real' name='Biomass' ordinal='1' />
@@ -330,8 +333,8 @@
             <mapsource name='Offline' />
           </mapsources>
           <datasource-dependencies datasource='federated.055e8xt0nt4muq1gxg3ck058opaq'>
-            <column aggregation='Avg' datatype='real' name='[Latitude]' role='measure' semantic-role='[Geographical].[Latitude]' type='quantitative' />
-            <column aggregation='Avg' datatype='real' name='[Longitude]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
+            <column aggregation='Avg' caption='Latitude1' datatype='real' name='[Latitude]' role='measure' semantic-role='[Geographical].[Latitude]' type='quantitative' />
+            <column aggregation='Avg' caption='Longitude1' datatype='real' name='[Longitude]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
             <column datatype='real' name='[Oil]' role='measure' type='quantitative' />
             <column-instance column='[Latitude]' derivation='None' name='[none:Latitude:qk]' pivot='key' type='quantitative' />
             <column-instance column='[Longitude]' derivation='None' name='[none:Longitude:qk]' pivot='key' type='quantitative' />
@@ -423,8 +426,8 @@
         <devicelayout auto-generated='true' name='Phone'>
           <size maxheight='700' minheight='700' sizing-mode='vscroll' />
           <zones>
-            <zone _.fcp.SetMembershipControl.false...type='layout-basic' _.fcp.SetMembershipControl.true...type-v2='layout-basic' h='100000' id='14' w='100000' x='0' y='0'>
-              <zone _.fcp.SetMembershipControl.false...type='layout-flow' _.fcp.SetMembershipControl.true...type-v2='layout-flow' h='98000' id='13' param='vert' w='98400' x='800' y='1000'>
+            <zone _.fcp.SetMembershipControl.false...type='layout-basic' _.fcp.SetMembershipControl.true...type-v2='layout-basic' h='100000' id='16' w='100000' x='0' y='0'>
+              <zone _.fcp.SetMembershipControl.false...type='layout-flow' _.fcp.SetMembershipControl.true...type-v2='layout-flow' h='84000' id='15' param='vert' w='84000' x='8000' y='8000'>
                 <zone fixed-size='280' h='98000' id='3' is-fixed='true' name='Sheet 1' w='82400' x='800' y='1000'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
@@ -495,7 +498,7 @@
           <zoom type='entire-view' />
         </viewpoint>
       </viewpoints>
-      <active id='3' />
+      <active id='-1' />
       <simple-id uuid='{E016E543-5099-4F99-8739-9E6A63D3C91D}' />
     </window>
   </windows>
