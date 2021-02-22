@@ -53,6 +53,11 @@ pmc.sub.yr <- c("Yr_SE","Yr_CA","Yr_CL","Yr_NA","Yr_NI","Yr_NO3","Yr_OC",
              "Yr_PB","Yr_PM","Yr_SI","Yr_SO4","Yr_V","Yr_ZN")
 ```
 
+```{r List of Sources}
+so <- c("Yr_Biomass","Yr_Coal","Yr_Metal","Yr_Oil",
+         "Yr_Salt","Yr_Soil","Yr_Steel","Yr_Traffic")
+```
+
 ```{r List of Causes of Death}
 cuz <- c("allcuz","nacc","acc","cvd","ihd","chf","cbv","resp","copd","pneu","canc","lungc")
 ```
@@ -1519,6 +1524,28 @@ for (i in seq(1,length(expo),1)){
       cat(w, file=f, sep="\n")
       k=j+length(cuz.sub)*(i-1)
       writeLines(w, here('config-files','pmc-resid-northeast', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for apportioned mass}
+dataname <- "ndi-mass.csv"
+expo <- so
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.ses, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], z)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','mass-ses', paste(k,'.txt', sep = "")))
     }
   }
   file.remove(f)

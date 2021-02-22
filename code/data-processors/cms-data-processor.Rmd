@@ -48,6 +48,7 @@ load(here('data','processed','pmc-sub-4yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-3yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-2yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-1yr-5yr.RDa'))
+load(here('data','processed','mass-app-1yr-c2.RDa'))
 ```
 
 ```{r Import and save CMS(/ndi) data}
@@ -1564,5 +1565,25 @@ dt.ndi.pmc.1 <- dt.master.ndi.pmc %>%
 
 write.csv(dt.ndi.pmc.1, 
           file = here('data', 'processed', 'ndi-pmc-1yr-5yr.csv'),
+          row.names = F)
+```
+
+```{r PM Apportioned Mass}
+dt.mass <- dt.mass.app.1yr.c2 %>% 
+  rename_at(vars(Biomass: Traffic), ~paste("Yr", .x, sep = "_"))
+
+dt.ses <- dt.ses.site.bz12 %>% 
+  mutate(ses = SES.Zip.Norm) %>% 
+  select(Site.ID, Year, ses)
+
+dt.ndi.mass <- dt.master.ndi.pmc %>% 
+  mutate(StrID = paste(age, sex, race)) %>% 
+  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
+  inner_join(dt.mass) %>% 
+  inner_join(dt.ses) %>% 
+  rename(SiteID = Site.ID)
+
+write.csv(dt.ndi.mass, 
+          file = here('data', 'processed', 'ndi-mass.csv'),
           row.names = F)
 ```
