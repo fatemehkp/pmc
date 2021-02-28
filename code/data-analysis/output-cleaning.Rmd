@@ -21,6 +21,7 @@ load(here('data','processed','pmc-sub-2yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-3yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-4yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-5yr.RDa'))
+load(here('data','processed','mass-app-1yr-c2.RDa'))
 ```
 
 ```{r - Parameter/Factor to Index}
@@ -127,6 +128,16 @@ fac.ec.1yr.iqr <- dt.pmc.site.ndi %>%
   inner_join(dt.fac.ec.1yr) %>% 
   summarise_at(vars(Factor1:Factor8), ~IQR(.x)) %>% 
   pivot_longer(cols = Factor1:Factor8,
+               names_to = "Parameter",
+               values_to = "IQR")%>% 
+  mutate(Parameter = as.factor(Parameter))
+
+### Source Apportioned PM Mass
+mass.1yr.iqr <- dt.pmc.site.ndi %>% 
+  select(Site.ID) %>% 
+  inner_join(dt.mass.app.1yr.c2) %>% 
+  summarise_at(vars(Biomass:Traffic), ~IQR(.x)) %>% 
+  pivot_longer(cols = Biomass:Traffic,
                names_to = "Parameter",
                values_to = "IQR")%>% 
   mutate(Parameter = as.factor(Parameter))
@@ -302,6 +313,22 @@ out.fac.ec.ses <- read.csv(here('output','analysis','fac-ec-ses.csv')) %>%
   select(Index, Cause, HR, HR.L, HR.U)
 
 save(out.fac.ec.ses, file = here('output','analysis','out-fac-ec-ses.RDa'))
+```
+
+```{r Output App Mass SES-Adj}
+out.mass.ses <- read.csv(here('output','analysis','mass-ses.csv')) %>%
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>%  
+  merge(mass.1yr.iqr) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3),
+         Index = Parameter) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, HR, HR.L, HR.U)
+
+save(out.mass.ses, file = here('output','analysis','out-mass-ses.RDa'))
 ```
 
 ```{r Output Carbon SES-Adj}
@@ -741,3 +768,4 @@ out.pmc.expo <- out.pmc.expo %>%
 
 save(out.pmc.expo, file = here('output','analysis','out-pmc-expo.RDa'))
 ```
+
