@@ -1,5 +1,7 @@
 ---
-title: "R Notebook"
+title: "PM Component Paper Correlation Plots"
+author: "Fatemeh Kazemi"
+date: "01-31-2021"
 ---
 
 

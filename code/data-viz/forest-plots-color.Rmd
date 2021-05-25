@@ -408,6 +408,40 @@ Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
 ggsave(here('output', 'plot','fac-urbanicity.png'), width = 6.5, height = 6.5)
 ```
 
+```{r - Components urban}
+data <- out.pmc.urbanicity %>% 
+  filter(Index %in% cmp.main,
+         Cause %in% cuz,
+         Loc.Set == "urban") %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = cmp.main),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.cols <- c("#EB2226")
+
+Plot.Single(dt = data, ggtheme = ggtheme.single) +
+ggsave(here('output','plot','pmc-urban.png'), width = 6.5, height = 6.5)
+```
+
+```{r - Factors urban}
+data <- out.fac.urbanicity %>% 
+  filter(Index %in% So.main,
+         Cause %in% cuz,
+         Loc.Set == "urban") %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So.main),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
+  )
+
+plot.cols <- c("#EB2226")
+
+Plot.Single(dt = data, ggtheme = ggtheme.single) +
+ggsave(here('output','plot','fac-urban.png'), width = 6.5, height = 6.5)
+```
+
 ```{r Components SES-Urban}
 data <- out.pmc.sescat %>% 
   filter(Index %in% cmp.multi,
