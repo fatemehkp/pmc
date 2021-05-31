@@ -94,7 +94,7 @@ table_fk <- function(data, cmp, cuz){
               values_from = "HR.Sum") %>% 
   slice(match(cmp, Index)),
   align = "c", booktabs = TRUE) %>%
-    kable_classic_2(full_width = F, html_font = "Times New Roman", font_size = 8) %>%
+    kable_classic(full_width = F, html_font = "Times New Roman", font_size = 8) %>%
     group_rows("Soil", 2, 3) %>%   # same result with group 1=
     group_rows("Metals", 4, 5) %>% 
     group_rows("Traffic", 6, 7) %>% 
@@ -130,7 +130,7 @@ table_fk <- function(data, cmp, cuz){
               values_from = "HR.Sum") %>% 
   slice(match(cmp, Index)),
   align = "c", booktabs = TRUE) %>%
-    kable_classic_2(full_width = F, html_font = "Times New Roman", font_size = 11) %>%
+    kable_classic(full_width = F, html_font = "Times New Roman", font_size = 11) %>%
     kable_styling() %>% 
     row_spec(0, font_size = 9)
 }
@@ -158,7 +158,7 @@ table_fk <- function(data, cmp, cuz){
               values_from = "HR.Sum") %>% 
   slice(match(cmp, Index)),
   align = "c", booktabs = TRUE) %>%
-    kable_classic_2(full_width = F, html_font = "Times New Roman", font_size = 11) %>%
+    kable_classic(full_width = F, html_font = "Times New Roman", font_size = 11) %>%
     group_rows("Soil", 2, 3) %>%   # same result with group 1=
     group_rows("Metals", 4, 5) %>% 
     group_rows("Traffic", 6, 7) %>% 
@@ -191,7 +191,7 @@ table_fk <- function(data, cmp, cuz){
               values_from = "HR.Sum") %>% 
   slice(match(cmp, Index)),
   align = "c", booktabs = TRUE) %>%
-    kable_classic_2(full_width = F, html_font = "Times New Roman", font_size = 11) %>%
+    kable_classic(full_width = F, html_font = "Times New Roman", font_size = 11) %>%
     kable_styling() %>% 
     row_spec(0, font_size = 9)
 }
@@ -220,7 +220,7 @@ table_fk <- function(data, cmp, cuz, em){
               values_from = "HR.Sum") %>% 
     arrange(factor(Index, levels = cmp), Age),
   align = "c", booktabs = TRUE) %>%
-    kable_classic_2(full_width = F, html_font = "Times New Roman", font_size = 8) %>%
+    kable_classic(full_width = F, html_font = "Times New Roman", font_size = 8) %>%
     group_rows("Soil", 3, 6) %>%   # same result with group 1=
     group_rows("Metals", 7, 10) %>% 
     group_rows("Traffic", 11, 14) %>% 
@@ -252,7 +252,12 @@ table_fk <- function(data, cmp, cuz){
               values_from = "HR.Sum") %>% 
     arrange(factor(Index, levels = cmp), Age),
   align = "c", booktabs = TRUE) %>%
-    kable_classic_2(full_width = F, html_font = "Times New Roman", font_size = 11) %>%
+    kable_classic(full_width = F, html_font = "Times New Roman", font_size = 11) %>%
+    group_rows("Soil", 3, 6) %>%   # same result with group 1=
+    group_rows("Metals", 7, 10) %>% 
+    group_rows("Traffic", 11, 14) %>% 
+    group_rows("Coal", 15, 18) %>% 
+    group_rows("Oil", 19, 22) %>%
     kable_styling() %>% 
     row_spec(0, font_size = 9)
 }

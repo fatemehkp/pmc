@@ -215,7 +215,7 @@ dt.sites <- dt.aqs.sites %>%
                             ifelse(Region.IV == 2, "Midwest",
                                    ifelse(Region.IV == 3, "South", "Northeast"))))
             
-Sources <- c("Soil", "Metal", "Traffic", "Biomass", "Coal", "Salt", "Oil", "Steel")
+Sources <- c("Soil", "Metals", "Traffic", "Biomass", "Coal", "Salt", "Oil", "Steel")
 
 so.coef <- function(model, cmp){
   source = as.numeric(summary(model)$coefficients[,1][cmp])
@@ -227,7 +227,7 @@ so.coef <- function(model, cmp){
 ```{r - Single Tracer Mass Apportionment - Combination 1}
 dt.mass.app.c1 <- dt.pmc.daily %>% 
   mutate(Soil = so.coef(high.load, 'SI') * SI,
-         Metal = so.coef(high.load, 'PB') * PB,
+         Metals = so.coef(high.load, 'PB') * PB,
          Traffic = so.coef(high.load, 'OC') * OC,
          Biomass = so.coef(high.load, 'K') * K,
          Coal = so.coef(high.load, 'SO4') * SO4,
@@ -313,7 +313,7 @@ write.csv(dt.mass.app.1yr.c1, file = here('data', 'processed', 'mass-app-1yr-c1.
 ```{r - Single Tracer Mass Apportionment - Combination 2}
 dt.mass.app.c2 <- dt.pmc.daily %>% 
   mutate(Soil = so.coef(high.health, 'SI') * SI,
-         Metal = so.coef(high.health, 'PB') * PB,
+         Metals = so.coef(high.health, 'PB') * PB,
          Traffic = so.coef(high.health, 'NO3') * NO3,
          Biomass = so.coef(high.health, 'K') * K,
          Coal = so.coef(high.health, 'SO4') * SO4,
