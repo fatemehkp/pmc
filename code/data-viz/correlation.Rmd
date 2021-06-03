@@ -67,15 +67,16 @@ dt.pmc <- dt.pmc.site.ndi %>%
                                 ifelse(Region.IV == 3, "S", "NE")))) %>% 
     select(Site.ID, Region, Region.IV, Loc.Set) %>% 
   merge(dt.pmc)
-```
 
-```{r}
 cmp.main.labels <- c("As", "Ca", "Cl", "Cu", "Fe", "K",  "Mg", "Mn", "Na", "Ni",
                      "$NO[3]^'-'", "OC", "Pb", "Se", "Si",
                      "$SO[4]^'2-'", "V", "Zn", "$PM[2.5]")
 ```
 
-```{r}
+<br>
+
+### US
+```{r - US, fig.dim=c(6.5, 6.5)}
 corr <- dt.pmc %>%
   select(As,Ca,Cl,Cu,Fe,K,Mg,Mn,Na,Ni,NO3,OC,Pb,Se,Si,SO4,V,Zn,`PM2.5`) %>%
   na.omit %>%
@@ -87,13 +88,16 @@ rownames(corr) <- cmp.main.labels
 jpeg(here('output','plot','corr-us.png'), width = 6.5, height = 6.5, units = 'in',
      res = 300)
 corrplot(corr, type = "lower",  method = 'number',
-         tl.col = "black", tl.srt = 45, number.cex=0.65, title = "US",mar=c(0,0,1,0),
+         tl.col = "black", tl.srt = 45, number.cex=0.65, tl.cex = 0.75,
+         title = "US",mar=c(0,0,1,0),
          col = rev(brewer.pal(n = 10, name = "RdGy")))
 dev.off()
 ```
 
+<br>
 
-```{r - Region}
+### Regions
+```{r - Region, fig.dim=c(6.5, 6.5)}
 dt.pmc<-dt.pmc[order(dt.pmc$Region.IV),] %>% 
   mutate(Region = ifelse(Region == "W", "West",
                          ifelse(Region == "MW", "Midwest",
@@ -117,10 +121,15 @@ for(i in unique(dt.pmc$Region)) {
 dev.off()
 ```
 
-```{r - Urbanicity}
+<br>
+
+### Urbanicity
+```{r - Urbanicity, fig.dim=c(6.5,6.5)}
 jpeg(here('output','plot','corr-urbanicity.png'), width = 6.5, height = 6.5, units = 'in',
      res = 300)
 par(mfrow=c(2,2))
+dt.pmc$Loc.Set <- as.factor(dt.pmc$Loc.Set)
+dt.pmc$Loc.Set <- relevel(dt.pmc$Loc.Set, ref = "Urban")
 dt.pmc <- dt.pmc %>% arrange(Loc.Set)
 for(i in unique(dt.pmc$Loc.Set)) {
   data<- subset(dt.pmc, Loc.Set==i)

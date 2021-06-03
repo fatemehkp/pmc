@@ -1,7 +1,7 @@
 ---
-title: "Tables for PM2.5 Paper Manuscript"
+title: "Tables for PM2.5 Components Paper Manuscript"
 author: "Fatemeh Kazemi"
-date: "3/28/2021"
+date: "05/31/2021"
 output:
   html_document:
     df_print: paged
@@ -15,18 +15,17 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```{r load packages}
 library(tidyverse)
 library(here)
-library(knitr)
-library(kableExtra)
+library(flextable)
+library(officer)
 ```
 
+```{r Call Functions}
+source(here('code','data-viz','manuscript-table-functions.R'))
+```
 
 ```{r Load data}
-load(here('output','analysis','out-pmc-base.RDa'))
 load(here('output','analysis','out-pmc-ses.RDa'))
-load(here('output','analysis','out-fac-base.RDa'))
 load(here('output','analysis','out-fac-ses.RDa'))
-#load(here('output','analysis','out-fac-base-ec.RDa'))
-#load(here('output','analysis','out-fac-ses-ec.RDa'))
 load(here('output','analysis','out-pmc-resid.RDa'))
 load(here('output','analysis','out-fac-resid.RDa'))
 load(here('output','analysis','out-pmc-age.RDa'))
@@ -59,8 +58,9 @@ cmp.main <- c("PM2.5", "Si","Ca", "Pb","Zn", "NO3","OC", "K","Cu",
 
 cmp.multi <- c("PM2.5","Si", "Ca", "Pb", "Zn", "NO3", "OC", "Se", "SO4", 
                "Ni", "V") 
-cmp.m2 <- c("PM2.5", "PM2.5", "Si", "Si", "Ca", "Ca", "Pb", "Pb", "Zn", "Zn",
-            "NO3", "NO3", "OC", "OC", "Se", "Se", "SO4", "SO4", "Ni", "Ni", "V", "V")
+cmp.multi.labels <- c(expression("PM"[2.5]),"Si", "Ca", "Pb", "Zn", 
+                      expression("NO"[3]^{"-"}), "OC", "Se", expression("SO"[4]^{"2-"}),
+                      "Ni", "V")
 
 So.main <- c("Soil", "Metals", "Traffic", "Biomass",
              "Coal", "Salt", "Oil", "Steel")
@@ -74,200 +74,217 @@ So.res <- c("PM2.5", "-Soil", "-Metals", "-Traffic", "-Coal", "-Oil")
 
 cmp.multi.res <- c("PM2.5","-Si", "-Ca", "-Pb", "-Zn", "-NO3", "-OC",
                    "-Se", "-SO4", "-Ni", "-V")
-
-Race <- c("A", "B", "H", "W")
-AgeC <- c("LE75", "M75")
 ```
 
-# Figure 1a
+
 ```{r}
-table_fk <- function(data, cmp, cuz){
-  opts <- options(knitr.kable.NA = "0")
-  kbl(data %>% 
-  filter(Index %in% cmp,
-         Cause %in% cuz) %>% 
-  mutate(Cause = factor(Cause, levels = cuz)) %>% 
-  mutate_at(.vars = c("HR", "HR.L", "HR.U"), ~sprintf('%.3f', .x)) %>% 
-  mutate(HR.Sum = paste(HR," (", HR.L,"-", HR.U,")", sep = "")) %>% 
-  select(-(HR:HR.U)) %>% 
-  pivot_wider(names_from = "Cause",
-              values_from = "HR.Sum") %>% 
-  slice(match(cmp, Index)),
-  align = "c", booktabs = TRUE) %>%
-    kable_classic(full_width = F, html_font = "Times New Roman", font_size = 8) %>%
-    group_rows("Soil", 2, 3) %>%   # same result with group 1=
-    group_rows("Metals", 4, 5) %>% 
-    group_rows("Traffic", 6, 7) %>% 
-    group_rows("Biomass", 8, 9) %>% 
-    group_rows("Coal", 10, 11) %>%
-    group_rows("Salt", 12, 13) %>% 
-    group_rows("Oil", 14, 15) %>% 
-    group_rows("Steel", 16, 17) %>% 
-    kable_styling() %>% 
-    row_spec(0, font_size = 8)
-}
-
-table_fk(data = out.pmc.ses, cmp = cmp.main, cuz = cuz.top.row)
-```
-
-# Figure 1a
-```{r}
-table_fk(data = out.pmc.ses, cmp = cmp.main, cuz = cuz.bot.row)
-```
-
-# Figure 1b
-```{r}
-table_fk <- function(data, cmp, cuz){
-  opts <- options(knitr.kable.NA = "0")
-  kbl(data %>% 
-  filter(Index %in% cmp,
-         Cause %in% cuz) %>% 
-  mutate(Cause = factor(Cause, levels = cuz)) %>% 
-  mutate_at(.vars = c("HR", "HR.L", "HR.U"), ~sprintf('%.3f', .x)) %>% 
-  mutate(HR.Sum = paste(HR," (", HR.L,"-", HR.U,")", sep = "")) %>% 
-  select(-(HR:HR.U)) %>% 
-  pivot_wider(names_from = "Cause",
-              values_from = "HR.Sum") %>% 
-  slice(match(cmp, Index)),
-  align = "c", booktabs = TRUE) %>%
-    kable_classic(full_width = F, html_font = "Times New Roman", font_size = 11) %>%
-    kable_styling() %>% 
-    row_spec(0, font_size = 9)
-}
-
-table_fk(data = out.fac.ses, cmp = So.main, cuz = cuz.top.row)
-```
-
-# Figure 1b
-```{r}
-table_fk(data = out.fac.ses, cmp = So.main, cuz = cuz.bot.row)
-```
-
-# Figure 2a
-```{r}
-table_fk <- function(data, cmp, cuz){
-  opts <- options(knitr.kable.NA = "0")
-  kbl(data %>% 
-  filter(Index %in% cmp,
-         Cause %in% cuz) %>% 
-  mutate(Cause = factor(Cause, levels = cuz)) %>% 
-  mutate_at(.vars = c("HR", "HR.L", "HR.U"), ~sprintf('%.3f', .x)) %>% 
-  mutate(HR.Sum = paste(HR," (", HR.L,"-", HR.U,")", sep = "")) %>% 
-  select(-(HR:HR.U)) %>% 
-  pivot_wider(names_from = "Cause",
-              values_from = "HR.Sum") %>% 
-  slice(match(cmp, Index)),
-  align = "c", booktabs = TRUE) %>%
-    kable_classic(full_width = F, html_font = "Times New Roman", font_size = 11) %>%
-    group_rows("Soil", 2, 3) %>%   # same result with group 1=
-    group_rows("Metals", 4, 5) %>% 
-    group_rows("Traffic", 6, 7) %>% 
-    group_rows("Coal", 8, 9) %>%
-    group_rows("Oil", 10, 11) %>% 
-    kable_styling() %>% 
-    row_spec(0, font_size = 9)
-}
-
-table_fk(data = out.pmc.resid, cmp = cmp.res, cuz = cuz.top.row)
-```
-
-# Figure 2a
-```{r}
-table_fk(data = out.pmc.resid, cmp = cmp.res, cuz = cuz.bot.row)
-```
-
-# Figure 2b
-```{r}
-table_fk <- function(data, cmp, cuz){
-  opts <- options(knitr.kable.NA = "0")
-  kbl(data %>% 
-  filter(Index %in% cmp,
-         Cause %in% cuz) %>% 
-  mutate(Cause = factor(Cause, levels = cuz)) %>% 
-  mutate_at(.vars = c("HR", "HR.L", "HR.U"), ~sprintf('%.3f', .x)) %>% 
-  mutate(HR.Sum = paste(HR," (", HR.L,"-", HR.U,")", sep = "")) %>% 
-  select(-(HR:HR.U)) %>% 
-  pivot_wider(names_from = "Cause",
-              values_from = "HR.Sum") %>% 
-  slice(match(cmp, Index)),
-  align = "c", booktabs = TRUE) %>%
-    kable_classic(full_width = F, html_font = "Times New Roman", font_size = 11) %>%
-    kable_styling() %>% 
-    row_spec(0, font_size = 9)
-}
-
-table_fk(data = out.fac.resid, cmp = So.res, cuz = cuz.top.row)
-```
-
-# Figure 2b
-```{r}
-table_fk(data = out.fac.resid, cmp = So.res, cuz = cuz.bot.row)
-```
-
-# Figure x
-```{r}
-table_fk <- function(data, cmp, cuz, em){
-  opts <- options(knitr.kable.NA = "0")
-  kbl(data %>% 
-  filter(!Index %in% c("Na", "Cl")) %>% 
-  filter(Index %in% cmp,
-         Cause %in% cuz) %>% 
-  mutate(Cause = factor(Cause, levels = cuz)) %>% 
-  mutate_at(.vars = c("HR", "HR.L", "HR.U"), ~sprintf('%.3f', .x)) %>% 
-  mutate(HR.Sum = paste(HR," (", HR.L,"-", HR.U,")", sep = "")) %>% 
-  select(-(HR:HR.U)) %>% 
-  pivot_wider(names_from = "Cause",
-              values_from = "HR.Sum") %>% 
-    arrange(factor(Index, levels = cmp), Age),
-  align = "c", booktabs = TRUE) %>%
-    kable_classic(full_width = F, html_font = "Times New Roman", font_size = 8) %>%
-    group_rows("Soil", 3, 6) %>%   # same result with group 1=
-    group_rows("Metals", 7, 10) %>% 
-    group_rows("Traffic", 11, 14) %>% 
-    group_rows("Coal", 15, 18) %>% 
-    group_rows("Oil", 19, 22) %>%
-    kable_styling() %>% 
-    row_spec(0, font_size = 8)
-}
-
-table_fk(data = out.pmc.age, cmp = cmp.multi, cuz = cuz.top.row)
+doc <- read_docx()
+doc <- Table.Single(dt = out.pmc.ses, cmp = cmp.main, cuz = cuz.top.row,
+                 cpt = "Figure 1", ftnt = "Continued ...")
+doc <- Table.Single(dt = out.pmc.ses, cmp = cmp.main, cuz = cuz.bot.row,
+                 cpt = "Figure 1, Continued", ftnt = "")
 ```
 
 ```{r}
-table_fk(data = out.pmc.age, cmp = cmp.multi, cuz = cuz.bot.row)
-```
-
-# Figure x2
-```{r}
-table_fk <- function(data, cmp, cuz){
-  opts <- options(knitr.kable.NA = "0")
-  kbl(data %>% 
-  filter(Index %in% cmp,
-         Cause %in% cuz) %>% 
-  mutate(Cause = factor(Cause, levels = cuz)) %>% 
-  mutate_at(.vars = c("HR", "HR.L", "HR.U"), ~sprintf('%.3f', .x)) %>% 
-  mutate(HR.Sum = paste(HR," (", HR.L,"-", HR.U,")", sep = "")) %>% 
-  select(-(HR:HR.U)) %>% 
-  pivot_wider(names_from = "Cause",
-              values_from = "HR.Sum") %>% 
-    arrange(factor(Index, levels = cmp), Age),
-  align = "c", booktabs = TRUE) %>%
-    kable_classic(full_width = F, html_font = "Times New Roman", font_size = 11) %>%
-    group_rows("Soil", 3, 6) %>%   # same result with group 1=
-    group_rows("Metals", 7, 10) %>% 
-    group_rows("Traffic", 11, 14) %>% 
-    group_rows("Coal", 15, 18) %>% 
-    group_rows("Oil", 19, 22) %>%
-    kable_styling() %>% 
-    row_spec(0, font_size = 9)
-}
-
-table_fk(data = out.fac.age, cmp = So.multi, cuz = cuz.top.row)
+doc <- Table.Single(dt = out.fac.ses, cmp = So.main, cuz = cuz.top.row,
+                 cpt = "Figure 2", ftnt = "Continued ...")
+doc <- Table.Single(dt = out.fac.ses, cmp = So.main, cuz = cuz.bot.row,
+                 cpt = "Figure 2, Continued", ftnt = "")
 ```
 
 ```{r}
-table_fk(data = out.fac.age, cmp = So.multi, cuz = cuz.bot.row)
+doc <- Table.Single(dt = out.pmc.resid, cmp = cmp.res, cuz = cuz.top.row,
+                 cpt = "Figure 3", ftnt = "Continued ...")
+doc <- Table.Single(dt = out.pmc.resid, cmp = cmp.res, cuz = cuz.bot.row,
+                 cpt = "Figure 3, Continued", ftnt = "")
 ```
 
+```{r}
+doc <- Table.Single(dt = out.fac.resid, cmp = So.res, cuz = cuz.top.row,
+                 cpt = "Figure 4", ftnt = "Continued ...")
+doc <- Table.Single(dt = out.fac.resid, cmp = So.res, cuz = cuz.bot.row,
+                 cpt = "Figure 4, Continued", ftnt = "")
+```
+
+```{r}
+out.pmc.race <- out.pmc.race %>% 
+  mutate(Race = ifelse(Race == "A", "Asian",
+                       ifelse(Race == "B", "Black",
+                              ifelse(Race == "H", "Hispanic", "White"))))
+
+doc <- Table.Multi.race(dt = out.pmc.race, cmp = cmp.multi, cuz = cuz.top.row,
+                 cpt = "Figure 5", ftnt = "Continued ...")
+doc <- Table.Multi.race(dt = out.pmc.race, cmp = cmp.multi, cuz = cuz.bot.row,
+                 cpt = "Figure 5, Continued", ftnt = "")
+```
+
+```{r}
+out.fac.race <- out.fac.race %>% 
+  mutate(Race = ifelse(Race == "A", "Asian",
+                       ifelse(Race == "B", "Black",
+                              ifelse(Race == "H", "Hispanic", "White"))))
+
+doc <- Table.Multi.race(dt = out.fac.race, cmp = So.multi, cuz = cuz.top.row,
+                 cpt = "Figure 6", ftnt = "Continued ...")
+doc <- Table.Multi.race(dt = out.fac.race, cmp = So.multi, cuz = cuz.bot.row,
+                 cpt = "Figure 6, Continued", ftnt = "")
+```
+
+
+```{r}
+out.pmc.age <- out.pmc.age %>% 
+  mutate(Age = ifelse(Age == "LE75", "65-75", "> 75"),
+         Age = factor(Age, levels = c("65-75", "> 75")))
+
+doc <- Table.Multi.age(dt = out.pmc.age, cmp = cmp.multi, cuz = cuz.top.row,
+                 cpt = "Figure 7", ftnt = "Continued ...")
+doc <- Table.Multi.age(dt = out.pmc.age, cmp = cmp.multi, cuz = cuz.bot.row,
+                 cpt = "Figure 7, Continued", ftnt = "")
+```
+
+```{r}
+out.fac.age <- out.fac.age %>% 
+  mutate(Age = ifelse(Age == "LE75", "65-75", "> 75"),
+         Age = factor(Age, levels = c("65-75", "> 75")))
+
+doc <- Table.Multi.age(dt = out.fac.age, cmp = So.multi, cuz = cuz.top.row,
+                 cpt = "Figure 8", ftnt = "Continued ...")
+doc <- Table.Multi.age(dt = out.fac.age, cmp = So.multi, cuz = cuz.bot.row,
+                 cpt = "Figure 8, Continued", ftnt = "")
+```
+
+```{r}
+out.pmc.sex <- out.pmc.sex %>% 
+  mutate(Sex = ifelse(Sex == "F", "Female", "Male"))
+
+doc <- Table.Multi.sex(dt = out.pmc.sex, cmp = cmp.multi, cuz = cuz.top.row,
+                 cpt = "Figure 9", ftnt = "Continued ...")
+doc <- Table.Multi.sex(dt = out.pmc.sex, cmp = cmp.multi, cuz = cuz.bot.row,
+                 cpt = "Figure 9, Continued", ftnt = "")
+```
+
+```{r}
+out.fac.sex <- out.fac.sex %>% 
+  mutate(Sex = ifelse(Sex == "F", "Female", "Male"))
+
+doc <- Table.Multi.sex(dt = out.fac.sex, cmp = So.multi, cuz = cuz.top.row,
+                 cpt = "Figure 10", ftnt = "Continued ...")
+doc <- Table.Multi.sex(dt = out.fac.sex, cmp = So.multi, cuz = cuz.bot.row,
+                 cpt = "Figure 10, Continued", ftnt = "")
+```
+
+```{r}
+doc <- Table.Single(dt = out.pmc.urbanicity %>% filter(Loc.Set == "urban") %>%
+                      select(-Loc.Set),
+                    cmp = cmp.main, cuz = cuz.top.row,
+                 cpt = "Figure 11", ftnt = "Continued ...")
+doc <- Table.Single(dt = out.pmc.urbanicity%>% filter(Loc.Set == "urban") %>% 
+                      select(-Loc.Set),
+                    cmp = cmp.main, cuz = cuz.bot.row,
+                 cpt = "Figure 11, Continued", ftnt = "")
+```
+
+```{r}
+doc <- Table.Single(dt = out.fac.urbanicity %>% filter(Loc.Set == "urban") %>% 
+                      select(-Loc.Set),
+                    cmp = So.main, cuz = cuz.top.row,
+                 cpt = "Figure 12", ftnt = "Continued ...")
+doc <- Table.Single(dt = out.fac.urbanicity%>% filter(Loc.Set == "urban") %>% 
+                      select(-Loc.Set),
+                    cmp = So.main, cuz = cuz.bot.row,
+                 cpt = "Figure 12, Continued", ftnt = "")
+```
+
+```{r}
+out.pmc.sescat <- out.pmc.sescat %>% 
+  mutate(SES.Cat = ifelse(SES.Cat == "L", "Low",
+                          ifelse(SES.Cat == "M", "Middle", "High")),
+         SES.Cat = factor(SES.Cat, levels = c("Low", "Middle", "High")))
+
+doc <- Table.Multi.sescat(dt = out.pmc.sescat, cmp = cmp.multi, cuz = cuz.top.row,
+                 cpt = "Figure 13", ftnt = "Continued ...")
+doc <- Table.Multi.sescat(dt = out.pmc.sescat, cmp = cmp.multi, cuz = cuz.bot.row,
+                 cpt = "Figure 13, Continued", ftnt = "")
+```
+
+
+```{r}
+out.pmc.region <- out.pmc.region %>% 
+  mutate(Region = ifelse(Region == "west", "West",
+                         ifelse(Region == "midwest", "Midwest",
+                                ifelse(Region == "south", "South", "Northeast"))),
+         Region = factor(Region, levels = c("West", "Midwest", "South", "Northeast")))
+
+doc <- Table.Multi.region(dt = out.pmc.region, cmp = cmp.multi, cuz = cuz.top.row,
+                 cpt = "Figure 14", ftnt = "Continued ...")
+doc <- Table.Multi.region(dt = out.pmc.region, cmp = cmp.multi, cuz = cuz.bot.row,
+                 cpt = "Figure 14, Continued", ftnt = "")
+```
+
+```{r}
+out.fac.region <- out.fac.region %>% 
+  mutate(Region = ifelse(Region == "west", "West",
+                         ifelse(Region == "midwest", "Midwest",
+                                ifelse(Region == "south", "South", "Northeast"))),
+         Region = factor(Region, levels = c("West", "Midwest", "South", "Northeast")))
+
+doc <- Table.Multi.region(dt = out.fac.region, cmp = So.multi, cuz = cuz.top.row,
+                 cpt = "Figure 15", ftnt = "Continued ...")
+doc <- Table.Multi.region(dt = out.fac.region, cmp = So.multi, cuz = cuz.bot.row,
+                 cpt = "Figure 15, Continued", ftnt = "")
+```
+
+```{r}
+out.pmc.resid.region <- out.pmc.resid.region %>% 
+  mutate(Region = ifelse(Region == "west", "West",
+                         ifelse(Region == "midwest", "Midwest",
+                                ifelse(Region == "south", "South", "Northeast"))),
+         Region = factor(Region, levels = c("West", "Midwest", "South", "Northeast")))
+
+doc <- Table.Multi.region(dt = out.pmc.resid.region, cmp = cmp.multi.res, cuz = cuz.top.row,
+                 cpt = "Figure 16", ftnt = "Continued ...")
+doc <- Table.Multi.region(dt = out.pmc.resid.region, cmp = cmp.multi.res, cuz = cuz.bot.row,
+                 cpt = "Figure 16, Continued", ftnt = "")
+```
+
+```{r}
+out.pmc.brfss <- out.pmc.brfss %>% 
+  mutate(BRFSS = ifelse(BRFSS == "brfss0", "Base", "BRFSS-Adjusted"))
+
+doc <- Table.Multi.brfss(dt = out.pmc.brfss, cmp = cmp.multi, cuz = cuz.top.row,
+                 cpt = "Figure 17", ftnt = "Continued ...")
+doc <- Table.Multi.brfss(dt = out.pmc.brfss, cmp = cmp.multi, cuz = cuz.bot.row,
+                 cpt = "Figure 17, Continued", ftnt = "")
+```
+
+```{r}
+out.pmc.buffer <- out.pmc.buffer %>% 
+  mutate(Buffer = ifelse(Buffer == "6", "6-miles",
+                         ifelse(Buffer == "12", "12-miles", "24-miles")),
+         Buffer = factor(Buffer, levels = c("6-miles", "12-miles", "24-miles")))
+
+doc <- Table.Multi.buffer(dt = out.pmc.buffer, cmp = cmp.multi, cuz = cuz.top.row,
+                 cpt = "Figure 18", ftnt = "Continued ...")
+doc <- Table.Multi.buffer(dt = out.pmc.buffer, cmp = cmp.multi, cuz = cuz.bot.row,
+                 cpt = "Figure 18, Continued", ftnt = "")
+```
+
+```{r}
+out.pmc.expo <- out.pmc.expo %>% 
+  mutate(Window = ifelse(Window == "1", "1-yr",
+                         ifelse(Window == "2", "2-yr",
+                                ifelse(Window == "3", "3-yr",
+                                       ifelse(Window == "4", "4-yr", "5-yr")))))
+
+doc <- Table.Multi.expo(dt = out.pmc.expo, cmp = cmp.multi, cuz = cuz.top.row,
+                 cpt = "Figure 19", ftnt = "Continued ...")
+doc <- Table.Multi.expo(dt = out.pmc.expo, cmp = cmp.multi, cuz = cuz.bot.row,
+                 cpt = "Figure 19, Continued", ftnt = "")
+```
+
+
+```{r}
+print(doc, target = here('output','table','supplement-tables.docx'))
+```
 
 

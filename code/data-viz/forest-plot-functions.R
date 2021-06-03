@@ -21,7 +21,7 @@ library(ggpubr)
 Plot.Single.lab <- function(dt, ggtheme){
   p <- ggplot(dt, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
     geom_vline(xintercept = 1, linetype = 2, color = "black") +
-    labs(x = "", y = "") +
+    labs(x = "Hazard Ratio (95% CI) \n Solid shapes (point estimates) indicate statistically significant results at the 0.05 level", y = "") +
     geom_segment(aes(x = HR.L, xend = HR.U, y = Index, yend = Index),
                  color = plot.cols, size = 0.25, show.legend = F) + 
     geom_point(aes(x = HR, y = Index, shape = sig), 
@@ -41,7 +41,7 @@ Plot.Single.lab <- function(dt, ggtheme){
 Plot.Single <- function(dt, ggtheme){
   p <- ggplot(dt, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
     geom_vline(xintercept = 1, linetype = 2, color = "black") +
-    labs(x = "", y = "") +
+    labs(x = "Hazard Ratio (95% CI) \n Solid shapes (point estimates) indicate statistically significant results at the 0.05 level", y = "") +
     geom_segment(aes(x = HR.L, xend = HR.U, y = Index, yend = Index),
                  color = plot.cols, size = 0.25, show.legend = F) + 
     geom_point(aes(x = HR, y = Index, shape = sig), 
@@ -96,7 +96,7 @@ Plot.Multi.lab <- function(dt, ggtheme, n) {
   p2 <- ggplot(data = filter(dt, Cause %in% cuz.bot.row),
                aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
     geom_vline(xintercept = 1, linetype = 2, color = "black") +
-    labs(x = "", y = "") +
+    labs(x = "Hazard Ratio (95% CI) \n Solid shapes (point estimates) indicate statistically significant results at the 0.05 level", y = "") +
     geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
                  size = 0.25, show.legend = T) + 
     geom_point(aes(x = HR, y = Tag, color = Tag, shape = sig, size = size.m), 
@@ -150,7 +150,7 @@ Plot.Multi <- function(dt, ggtheme, n) {
   p2 <- ggplot(data = filter(dt, Cause %in% cuz.bot.row),
                aes(x = HR, xmin = HR.L, xmax = HR.U, y = Tag)) +
     geom_vline(xintercept = 1, linetype = 2, color = "black") +
-    labs(x = "", y = "") +
+    labs(x = "Hazard Ratio (95% CI) \n Solid shapes (point estimates) indicate statistically significant results at the 0.05 level", y = "") +
     geom_segment(aes(x = HR.L, xend = HR.U, y = Tag, yend = Tag, color = Tag),
                  size = 0.25, show.legend = T) + 
     geom_point(aes(x = HR, y = Tag, color = Tag, shape = sig, size = size.m), 
