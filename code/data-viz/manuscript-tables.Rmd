@@ -58,9 +58,6 @@ cmp.main <- c("PM2.5", "Si","Ca", "Pb","Zn", "NO3","OC", "K","Cu",
 
 cmp.multi <- c("PM2.5","Si", "Ca", "Pb", "Zn", "NO3", "OC", "Se", "SO4", 
                "Ni", "V") 
-cmp.multi.labels <- c(expression("PM"[2.5]),"Si", "Ca", "Pb", "Zn", 
-                      expression("NO"[3]^{"-"}), "OC", "Se", expression("SO"[4]^{"2-"}),
-                      "Ni", "V")
 
 So.main <- c("Soil", "Metals", "Traffic", "Biomass",
              "Coal", "Salt", "Oil", "Steel")
@@ -76,36 +73,40 @@ cmp.multi.res <- c("PM2.5","-Si", "-Ca", "-Pb", "-Zn", "-NO3", "-OC",
                    "-Se", "-SO4", "-Ni", "-V")
 ```
 
-
+### Figure 1 - Components SES
 ```{r}
 doc <- read_docx()
 doc <- Table.Single(dt = out.pmc.ses, cmp = cmp.main, cuz = cuz.top.row,
-                 cpt = "Figure 1", ftnt = "Continued ...")
+                 cpt = "Table S2. Mortality hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its components.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Single(dt = out.pmc.ses, cmp = cmp.main, cuz = cuz.bot.row,
-                 cpt = "Figure 1, Continued", ftnt = "")
+                 cpt = "Table S2. Mortality hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its components., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
+### Figure 2 - Factors SES
 ```{r}
 doc <- Table.Single(dt = out.fac.ses, cmp = So.main, cuz = cuz.top.row,
-                 cpt = "Figure 2", ftnt = "Continued ...")
+                 cpt = "Table S3. Mortality Hazard ratios (95% CI) associated with an IQR increase in source factors.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Single(dt = out.fac.ses, cmp = So.main, cuz = cuz.bot.row,
-                 cpt = "Figure 2, Continued", ftnt = "")
+                 cpt = "Table S3. Mortality Hazard ratios (95% CI) associated with an IQR increase in source factors., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
+### Figure 3 - PM-Components Residual
 ```{r}
 doc <- Table.Single(dt = out.pmc.resid, cmp = cmp.res, cuz = cuz.top.row,
-                 cpt = "Figure 3", ftnt = "Continued ...")
+                 cpt = "Table S4. Mortality Hazard ratios (95% CI) associated with an IQR increase in total PM2.5 and in PM2.5 minus variability from specific components.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Single(dt = out.pmc.resid, cmp = cmp.res, cuz = cuz.bot.row,
-                 cpt = "Figure 3, Continued", ftnt = "")
+                 cpt = "Table S4. Mortality Hazard ratios (95% CI) associated with an IQR increase in total PM2.5 and in PM2.5 minus variability from specific components., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
+### Figure 4 - PM-Factors Residual
 ```{r}
 doc <- Table.Single(dt = out.fac.resid, cmp = So.res, cuz = cuz.top.row,
-                 cpt = "Figure 4", ftnt = "Continued ...")
+                 cpt = "Table S5. Mortality Hazard ratios (95% CI) associated with an IQR increase in total PM2.5 and in PM2.5 minus variability from source-related factor scores.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Single(dt = out.fac.resid, cmp = So.res, cuz = cuz.bot.row,
-                 cpt = "Figure 4, Continued", ftnt = "")
+                 cpt = "Table S5. Mortality Hazard ratios (95% CI) associated with an IQR increase in total PM2.5 and in PM2.5 minus variability from source-related factor scores., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
+### Figure 5 - Components Race
 ```{r}
 out.pmc.race <- out.pmc.race %>% 
   mutate(Race = ifelse(Race == "A", "Asian",
@@ -113,11 +114,12 @@ out.pmc.race <- out.pmc.race %>%
                               ifelse(Race == "H", "Hispanic", "White"))))
 
 doc <- Table.Multi.race(dt = out.pmc.race, cmp = cmp.multi, cuz = cuz.top.row,
-                 cpt = "Figure 5", ftnt = "Continued ...")
+                 cpt = "Table S6. Mortality Hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its components: by race.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Multi.race(dt = out.pmc.race, cmp = cmp.multi, cuz = cuz.bot.row,
-                 cpt = "Figure 5, Continued", ftnt = "")
+                 cpt = "Table S6. Mortality Hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its components: by race., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
+### Figure 6 - Factors Race
 ```{r}
 out.fac.race <- out.fac.race %>% 
   mutate(Race = ifelse(Race == "A", "Asian",
@@ -125,76 +127,58 @@ out.fac.race <- out.fac.race %>%
                               ifelse(Race == "H", "Hispanic", "White"))))
 
 doc <- Table.Multi.race(dt = out.fac.race, cmp = So.multi, cuz = cuz.top.row,
-                 cpt = "Figure 6", ftnt = "Continued ...")
+                 cpt = "Table S7. Mortality Hazard ratios (95% CI) associated with an IQR increase in source factors: by race.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Multi.race(dt = out.fac.race, cmp = So.multi, cuz = cuz.bot.row,
-                 cpt = "Figure 6, Continued", ftnt = "")
+                 cpt = "Table S7. Mortality Hazard ratios (95% CI) associated with an IQR increase in source factors: by race., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
-
+### Figure 7 - Components Age
 ```{r}
 out.pmc.age <- out.pmc.age %>% 
   mutate(Age = ifelse(Age == "LE75", "65-75", "> 75"),
          Age = factor(Age, levels = c("65-75", "> 75")))
 
 doc <- Table.Multi.age(dt = out.pmc.age, cmp = cmp.multi, cuz = cuz.top.row,
-                 cpt = "Figure 7", ftnt = "Continued ...")
+                 cpt = "Table S8. Mortality Hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its components: By age.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Multi.age(dt = out.pmc.age, cmp = cmp.multi, cuz = cuz.bot.row,
-                 cpt = "Figure 7, Continued", ftnt = "")
+                 cpt = "Table S8. Mortality Hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its components: By age., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
+### Figure 8 - Factors Age
 ```{r}
 out.fac.age <- out.fac.age %>% 
   mutate(Age = ifelse(Age == "LE75", "65-75", "> 75"),
          Age = factor(Age, levels = c("65-75", "> 75")))
 
 doc <- Table.Multi.age(dt = out.fac.age, cmp = So.multi, cuz = cuz.top.row,
-                 cpt = "Figure 8", ftnt = "Continued ...")
+                 cpt = "Table S9. Mortality Hazard ratios (95% CI) associated with an IQR increase in source factors: By age.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Multi.age(dt = out.fac.age, cmp = So.multi, cuz = cuz.bot.row,
-                 cpt = "Figure 8, Continued", ftnt = "")
+                 cpt = "Table S9. Mortality Hazard ratios (95% CI) associated with an IQR increase in source factors: By age., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
+### Figure 9 - Components Sex
 ```{r}
 out.pmc.sex <- out.pmc.sex %>% 
   mutate(Sex = ifelse(Sex == "F", "Female", "Male"))
 
 doc <- Table.Multi.sex(dt = out.pmc.sex, cmp = cmp.multi, cuz = cuz.top.row,
-                 cpt = "Figure 9", ftnt = "Continued ...")
+                 cpt = "Table S10. Mortality Hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its components: by sex.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Multi.sex(dt = out.pmc.sex, cmp = cmp.multi, cuz = cuz.bot.row,
-                 cpt = "Figure 9, Continued", ftnt = "")
+                 cpt = "Table S10. Mortality Hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its components: by sex., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
+### Figure 10 - Factors Sex
 ```{r}
 out.fac.sex <- out.fac.sex %>% 
   mutate(Sex = ifelse(Sex == "F", "Female", "Male"))
 
 doc <- Table.Multi.sex(dt = out.fac.sex, cmp = So.multi, cuz = cuz.top.row,
-                 cpt = "Figure 10", ftnt = "Continued ...")
+                 cpt = "Table S11. Mortality Hazard ratios (95% CI) associated with an IQR increase in source factors: by sex.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Multi.sex(dt = out.fac.sex, cmp = So.multi, cuz = cuz.bot.row,
-                 cpt = "Figure 10, Continued", ftnt = "")
+                 cpt = "Table S11. Mortality Hazard ratios (95% CI) associated with an IQR increase in source factors: by sex., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
-```{r}
-doc <- Table.Single(dt = out.pmc.urbanicity %>% filter(Loc.Set == "urban") %>%
-                      select(-Loc.Set),
-                    cmp = cmp.main, cuz = cuz.top.row,
-                 cpt = "Figure 11", ftnt = "Continued ...")
-doc <- Table.Single(dt = out.pmc.urbanicity%>% filter(Loc.Set == "urban") %>% 
-                      select(-Loc.Set),
-                    cmp = cmp.main, cuz = cuz.bot.row,
-                 cpt = "Figure 11, Continued", ftnt = "")
-```
-
-```{r}
-doc <- Table.Single(dt = out.fac.urbanicity %>% filter(Loc.Set == "urban") %>% 
-                      select(-Loc.Set),
-                    cmp = So.main, cuz = cuz.top.row,
-                 cpt = "Figure 12", ftnt = "Continued ...")
-doc <- Table.Single(dt = out.fac.urbanicity%>% filter(Loc.Set == "urban") %>% 
-                      select(-Loc.Set),
-                    cmp = So.main, cuz = cuz.bot.row,
-                 cpt = "Figure 12, Continued", ftnt = "")
-```
-
+### Figure 11 - Components SES-urban
 ```{r}
 out.pmc.sescat <- out.pmc.sescat %>% 
   mutate(SES.Cat = ifelse(SES.Cat == "L", "Low",
@@ -202,12 +186,36 @@ out.pmc.sescat <- out.pmc.sescat %>%
          SES.Cat = factor(SES.Cat, levels = c("Low", "Middle", "High")))
 
 doc <- Table.Multi.sescat(dt = out.pmc.sescat, cmp = cmp.multi, cuz = cuz.top.row,
-                 cpt = "Figure 13", ftnt = "Continued ...")
+                 cpt = "Table S12. Mortality Hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its components: by income category in urban areas.", ftnt = "Continued ...")
 doc <- Table.Multi.sescat(dt = out.pmc.sescat, cmp = cmp.multi, cuz = cuz.bot.row,
-                 cpt = "Figure 13, Continued", ftnt = "")
+                 cpt = "Table S12. Mortality Hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its components: by income category in urban areas., Continued", ftnt = "")
 ```
 
+### Figure S3 - Components Urban
+```{r}
+doc <- Table.Single(dt = out.pmc.urbanicity %>% filter(Loc.Set == "urban") %>%
+                      select(-Loc.Set),
+                    cmp = cmp.main, cuz = cuz.top.row,
+                 cpt = "Table S13. Mortality Hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its components in urban areas.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
+doc <- Table.Single(dt = out.pmc.urbanicity%>% filter(Loc.Set == "urban") %>% 
+                      select(-Loc.Set),
+                    cmp = cmp.main, cuz = cuz.bot.row,
+                 cpt = "Table S13. Mortality Hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its components in urban areas., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
+```
 
+### Figure S4 - factors Urban
+```{r}
+doc <- Table.Single(dt = out.fac.urbanicity %>% filter(Loc.Set == "urban") %>% 
+                      select(-Loc.Set),
+                    cmp = So.main, cuz = cuz.top.row,
+                 cpt = "Table S14. Mortality Hazard ratios (95% CI) associated with an IQR increase in source factors in urban areas.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
+doc <- Table.Single(dt = out.fac.urbanicity%>% filter(Loc.Set == "urban") %>% 
+                      select(-Loc.Set),
+                    cmp = So.main, cuz = cuz.bot.row,
+                 cpt = "Table S14. Mortality Hazard ratios (95% CI) associated with an IQR increase in source factors in urban areas., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
+```
+
+### Figure S5 - Components Region
 ```{r}
 out.pmc.region <- out.pmc.region %>% 
   mutate(Region = ifelse(Region == "west", "West",
@@ -216,11 +224,12 @@ out.pmc.region <- out.pmc.region %>%
          Region = factor(Region, levels = c("West", "Midwest", "South", "Northeast")))
 
 doc <- Table.Multi.region(dt = out.pmc.region, cmp = cmp.multi, cuz = cuz.top.row,
-                 cpt = "Figure 14", ftnt = "Continued ...")
+                 cpt = "Table S15.  Mortality Hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its components: by region.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Multi.region(dt = out.pmc.region, cmp = cmp.multi, cuz = cuz.bot.row,
-                 cpt = "Figure 14, Continued", ftnt = "")
+                 cpt = "Table S15.  Mortality Hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its components: by region., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
+### Figure S6 - Factors Region
 ```{r}
 out.fac.region <- out.fac.region %>% 
   mutate(Region = ifelse(Region == "west", "West",
@@ -229,11 +238,12 @@ out.fac.region <- out.fac.region %>%
          Region = factor(Region, levels = c("West", "Midwest", "South", "Northeast")))
 
 doc <- Table.Multi.region(dt = out.fac.region, cmp = So.multi, cuz = cuz.top.row,
-                 cpt = "Figure 15", ftnt = "Continued ...")
+                 cpt = "Table S16. Mortality Hazard ratios (95% CI) associated with an IQR increase in source factors: by region.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Multi.region(dt = out.fac.region, cmp = So.multi, cuz = cuz.bot.row,
-                 cpt = "Figure 15, Continued", ftnt = "")
+                 cpt = "Table S16. Mortality Hazard ratios (95% CI) associated with an IQR increase in source factors: by region., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
+### Figure S7 - Components Residual Region
 ```{r}
 out.pmc.resid.region <- out.pmc.resid.region %>% 
   mutate(Region = ifelse(Region == "west", "West",
@@ -242,21 +252,23 @@ out.pmc.resid.region <- out.pmc.resid.region %>%
          Region = factor(Region, levels = c("West", "Midwest", "South", "Northeast")))
 
 doc <- Table.Multi.region(dt = out.pmc.resid.region, cmp = cmp.multi.res, cuz = cuz.top.row,
-                 cpt = "Figure 16", ftnt = "Continued ...")
+                 cpt = "Table S17. Mortality Hazard ratios (95% CI) associated with an IQR increase in total PM2.5 and in PM2.5 minus variability from specific components: by region.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Multi.region(dt = out.pmc.resid.region, cmp = cmp.multi.res, cuz = cuz.bot.row,
-                 cpt = "Figure 16, Continued", ftnt = "")
+                 cpt = "Table S17. Mortality Hazard ratios (95% CI) associated with an IQR increase in total PM2.5 and in PM2.5 minus variability from specific components: by region., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
+### Figure S8 - Components BRFSS
 ```{r}
 out.pmc.brfss <- out.pmc.brfss %>% 
   mutate(BRFSS = ifelse(BRFSS == "brfss0", "Base", "BRFSS-Adjusted"))
 
 doc <- Table.Multi.brfss(dt = out.pmc.brfss, cmp = cmp.multi, cuz = cuz.top.row,
-                 cpt = "Figure 17", ftnt = "Continued ...")
+                 cpt = "Table S18. Mortality Hazard ratios (95% CI) associated with an IQR increase in total PM2.5 and in PM2.5 minus variability from specific components: Base versus BRFSS-adjusted models for the subset of monitors with BRFSS data.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Multi.brfss(dt = out.pmc.brfss, cmp = cmp.multi, cuz = cuz.bot.row,
-                 cpt = "Figure 17, Continued", ftnt = "")
+                 cpt = "Table S18. Mortality Hazard ratios (95% CI) associated with an IQR increase in total PM2.5 and in PM2.5 minus variability from specific components: Base versus BRFSS-adjusted models for the subset of monitors with BRFSS data., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
+### Figure S9 - Components Buffer
 ```{r}
 out.pmc.buffer <- out.pmc.buffer %>% 
   mutate(Buffer = ifelse(Buffer == "6", "6-miles",
@@ -264,11 +276,12 @@ out.pmc.buffer <- out.pmc.buffer %>%
          Buffer = factor(Buffer, levels = c("6-miles", "12-miles", "24-miles")))
 
 doc <- Table.Multi.buffer(dt = out.pmc.buffer, cmp = cmp.multi, cuz = cuz.top.row,
-                 cpt = "Figure 18", ftnt = "Continued ...")
+                 cpt = "Table S19. Mortality Hazard ratios (95% CI) associated with an IQR increase in total PM2.5 and in PM2.5 minus variability from specific components: using 6-, 12- and 24-mile buffer zones to assess PM2.5 and its components exposures.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Multi.buffer(dt = out.pmc.buffer, cmp = cmp.multi, cuz = cuz.bot.row,
-                 cpt = "Figure 18, Continued", ftnt = "")
+                 cpt = "Table S19. Mortality Hazard ratios (95% CI) associated with an IQR increase in total PM2.5 and in PM2.5 minus variability from specific components: using 6-, 12- and 24-mile buffer zones to assess PM2.5 and its components exposures., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
+### Figure S10 - Components Exposure Window
 ```{r}
 out.pmc.expo <- out.pmc.expo %>% 
   mutate(Window = ifelse(Window == "1", "1-yr",
@@ -277,9 +290,9 @@ out.pmc.expo <- out.pmc.expo %>%
                                        ifelse(Window == "4", "4-yr", "5-yr")))))
 
 doc <- Table.Multi.expo(dt = out.pmc.expo, cmp = cmp.multi, cuz = cuz.top.row,
-                 cpt = "Figure 19", ftnt = "Continued ...")
+                 cpt = "Table S20. Mortality Hazard ratios (95% CI) associated with an IQR increase in 1- to 5- years PM2.5 moving average exposure and its components for the subset of the monitors with complete data of 1 to 5 year moving average.", ftnt = "Continued ... Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 doc <- Table.Multi.expo(dt = out.pmc.expo, cmp = cmp.multi, cuz = cuz.bot.row,
-                 cpt = "Figure 19, Continued", ftnt = "")
+                 cpt = "Table S20. Mortality Hazard ratios (95% CI) associated with an IQR increase in 1- to 5- years PM2.5 moving average exposure and its components for the subset of the monitors with complete data of 1 to 5 year moving average., Continued", ftnt = "Hazard ratios are age, sex, race and site stratified and adjusted for SES.")
 ```
 
 
