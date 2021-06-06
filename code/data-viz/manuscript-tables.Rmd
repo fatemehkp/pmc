@@ -24,6 +24,9 @@ source(here('code','data-viz','manuscript-table-functions.R'))
 ```
 
 ```{r Load data}
+load(here('data','processed', 'pmc-daily.RDa'))
+load(here('data','processed','pmc-site-ndi.RDa'))
+
 load(here('output','analysis','out-pmc-ses.RDa'))
 load(here('output','analysis','out-fac-ses.RDa'))
 load(here('output','analysis','out-pmc-resid.RDa'))
@@ -71,6 +74,102 @@ So.res <- c("PM2.5", "-Soil", "-Metals", "-Traffic", "-Coal", "-Oil")
 
 cmp.multi.res <- c("PM2.5","-Si", "-Ca", "-Pb", "-Zn", "-NO3", "-OC",
                    "-Se", "-SO4", "-Ni", "-V")
+```
+
+### Table 2
+```{r}
+dt.pmc <- dt.pmc.site.ndi %>% 
+  mutate(Loc.Set = ifelse(Location.Setting == "RURAL", "Rural", "Urban"),
+         Region = ifelse(Region.IV == 1, "West",
+                         ifelse(Region.IV == 2, "Midwest",
+                                ifelse(Region.IV == 3, "South", "Northeast"))),
+         Region = factor(Region, levels = c("West", "Midwest", "South", "Northeast"))) %>%
+  select(Site.ID, Region, Loc.Set) %>% 
+  merge(dt.pmc.daily) %>% 
+  pivot_longer(AS:PM,
+               names_to = "Parameter",
+               values_to = "Value")
+
+table.region <- dt.pmc %>% 
+  group_by(Parameter, Region) %>% 
+  summarise(Mean = sprintf("%0.2f", mean(Value*1000)),
+            STD = sprintf("%0.2f", sd(Value*1000)))
+
+table.urban <- dt.pmc %>% 
+  group_by(Parameter, Loc.Set) %>% 
+  summarise(Mean = sprintf("%0.2f", mean(Value*1000)),
+            STD = sprintf("%0.2f", sd(Value*1000))) %>% 
+  mutate(Region = Loc.Set,
+         Region = factor(Region, levels = c("Urban", "Rural"))) %>% 
+  select(-Loc.Set) %>% 
+  arrange(Region)
+
+cmp <- c("PM", "AS", "CA", "CL", "CU", "FE", "K", "MG", "MN", "NA", "NI",
+         "NO3", "OC", "PB", "SE", "SI", "SO4", "V", "ZN")
+
+table <- dt.pmc %>% 
+  group_by(Parameter) %>% 
+  summarise(Mean = sprintf("%0.2f", mean(Value*1000)),
+            STD = sprintf("%0.2f", sd(Value*1000))) %>% 
+  mutate(Region = "US",
+         Region = factor(Region, levels = c("US"))) %>% 
+  as.data.frame() %>% 
+  add_row(table.region) %>% 
+  add_row(table.urban) %>% 
+  filter(Parameter != "EC") %>% 
+  mutate(test = paste(Mean,"±",STD, sep = " ")) %>% 
+  select(-Mean, -STD) %>% 
+  pivot_wider(names_from = "Region",
+              values_from = "test",
+              names_sort = F) %>% 
+  mutate(Parameter = factor(Parameter, levels = cmp)) %>% 
+  arrange(Parameter) %>% 
+  rename(Component = Parameter)
+
+ft <- flextable(table)
+ft <- theme_booktabs(ft)
+ft <- vline(ft, j = c('Component', 'US', 'Northeast'))
+ft <- hline(ft, i = c(1, 4, 7, 10, 13, 16))
+ft <- padding(ft, padding = 0)
+ft <- fontsize(ft, size = 10)
+ft <- set_caption(ft, caption = "Table 2. Daily concentrations of PM2.5 and its components, mean ± standard deviation, nationwide, by region and urbanicity.")
+ft <- fontsize(ft, i = 1, size = 12, part = "header")
+ft <- autofit(ft)
+
+doc <- read_docx()
+doc <- body_add_flextable(doc, value = ft, split = T)
+doc <- body_add_par(doc, "Units are ng/m3 unless specified", style = "Normal")
+body_add(doc, run_pagebreak())
+```
+
+### Table 3
+```{r}
+fit <- factanal(dt.pmc.daily %>% select(AS:ZN, OC), 8, rotation="varimax")
+factor.loadings <- rbind(fit$loadings) %>% as.data.frame()
+factor.loadings <- rownames_to_column(factor.loadings, "Component")
+
+colnames(factor.loadings) <- c("Component", "Soil", "Metals", "Traffic", 
+                               "Biomass Combustion", "Coal combustion", "Salt", 
+                               "Residual Oil Combustion", "Steel Industry") 
+factor.loadings <- factor.loadings %>% 
+  mutate_at(.vars = c("Soil", "Metals", "Traffic", "Biomass Combustion", 
+                      "Coal combustion", "Salt", "Residual Oil Combustion", 
+                      "Steel Industry"), ~sprintf('%.2f', .x))
+
+ft <- flextable(factor.loadings)
+ft <- theme_booktabs(ft)
+ft <- vline(ft, j = c('Component'))
+ft <- hline(ft, i = c(3, 6, 9, 12, 15))
+ft <- padding(ft, padding = 0)
+ft <- fontsize(ft, size = 10)
+ft <- set_caption(ft, caption = "Table 3. Loadings of each component for eight identified factors.")
+ft <- fontsize(ft, i = 1, size = 12, part = "header")
+ft <- autofit(ft)
+
+doc <- body_add_flextable(doc, value = ft, split = T)
+body_add(doc, run_pagebreak())
+
+print(doc, target = here('output','table','main-tables.docx'))
 ```
 
 ### Figure 1 - Components SES

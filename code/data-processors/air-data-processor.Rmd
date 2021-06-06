@@ -862,46 +862,4 @@ dt.pmc.2yr %>% distinct(Site.ID, Year) %>% nrow() #317 - 1745
 dt.pmc.1yr %>% distinct(Site.ID, Year) %>% nrow() #317 - 2074
 ```
 
-```{r}
-load(here('data','processed', 'pmc-daily.RDa'))
-load(here('data','processed','pmc-site-ndi.RDa'))
-
-dt.pmc <- dt.pmc.site.ndi %>% 
-  mutate(Loc.Set = ifelse(Location.Setting == "RURAL", "Rural", "Urban"),
-         Region = ifelse(Region.IV == 1, "W",
-                         ifelse(Region.IV == 2, "MW",
-                                ifelse(Region.IV == 3, "S", "NE")))) %>% 
-    select(Site.ID, Region, Loc.Set) %>% 
-  merge(dt.pmc.daily) %>% 
-  pivot_longer(AS:PM,
-               names_to = "Parameter",
-               values_to = "Value")
-
-table.region <- dt.pmc %>% 
-  group_by(Parameter, Region) %>% 
-  summarise(Mean = sprintf("%0.2f", mean(Value*1000)),
-            STD = sprintf("%0.2f", sd(Value*1000)))
-
-table.urban <- dt.pmc %>% 
-  group_by(Parameter, Loc.Set) %>% 
-  summarise(Mean = sprintf("%0.2f", mean(Value*1000)),
-            STD = sprintf("%0.2f", sd(Value*1000))) %>% 
-  rename(Region = Loc.Set)
-
-table <- dt.pmc %>% 
-  group_by(Parameter) %>% 
-  summarise(Mean = sprintf("%0.2f", mean(Value*1000)),
-            STD = sprintf("%0.2f", sd(Value*1000))) %>% 
-  mutate(Region = "US") %>% 
-  as.data.frame() %>% 
-  add_row(table.region) %>% 
-  add_row(table.urban) %>% 
-  pivot_wider(names_from = c(Region),
-              values_from = c(Mean, STD))
-
-write.csv(table,
-          file = here('output','table', 'pmc-daily-summary.csv'),
-          row.names = F)
-  
-```
 
