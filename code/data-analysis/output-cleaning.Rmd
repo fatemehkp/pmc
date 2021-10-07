@@ -24,9 +24,13 @@ load(here('data','processed','pmc-sub-3yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-4yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-5yr.RDa'))
 load(here('data','processed','mass-app-1yr-c2.RDa'))
+load(here('data','processed','site-urban-ses-cat.RDa'))
 ```
 
 ```{r - Parameter/Factor to Index}
+cmp <- c("PM2.5", "Si", "Ca", "Pb", "Zn", "NO3", "OC", "K", "Cu", "Se", "SO4",
+         "Na", "Cl", "Ni", "V", "Fe", "Mn")
+
 ### Components
 Para.to.Index <- tribble(
   ~Index, ~Parameter,
@@ -105,9 +109,7 @@ Outcome.to.Cause <- tribble(
 
 ```{r calculating IQRS}
 ### Components
-pmc.1yr.iqr <- dt.pmc.site.ndi %>% 
-  select(Site.ID) %>% 
-  inner_join(dt.pmc.1yr) %>% 
+pmc.1yr.iqr <- dt.pmc.1yr %>% 
   summarise_at(vars(AS:ZN), ~IQR(.x)) %>% 
   pivot_longer(cols = AS:ZN,
                names_to = "Parameter",
@@ -115,9 +117,7 @@ pmc.1yr.iqr <- dt.pmc.site.ndi %>%
   mutate(Parameter = as.factor(Parameter))
 
 ### Factors excluding EC
-fac.1yr.iqr <- dt.pmc.site.ndi %>% 
-  select(Site.ID) %>% 
-  inner_join(dt.fac.1yr) %>% 
+fac.1yr.iqr <- dt.fac.1yr %>% 
   summarise_at(vars(Factor1:Factor8), ~IQR(.x)) %>% 
   pivot_longer(cols = Factor1:Factor8,
                names_to = "Parameter",
@@ -125,9 +125,7 @@ fac.1yr.iqr <- dt.pmc.site.ndi %>%
   mutate(Parameter = as.factor(Parameter))
 
 ### Factors Inc EC
-fac.ec.1yr.iqr <- dt.pmc.site.ndi %>% 
-  select(Site.ID) %>% 
-  inner_join(dt.fac.ec.1yr) %>% 
+fac.ec.1yr.iqr <- dt.fac.ec.1yr %>% 
   summarise_at(vars(Factor1:Factor8), ~IQR(.x)) %>% 
   pivot_longer(cols = Factor1:Factor8,
                names_to = "Parameter",
@@ -135,9 +133,7 @@ fac.ec.1yr.iqr <- dt.pmc.site.ndi %>%
   mutate(Parameter = as.factor(Parameter))
 
 ### Source Apportioned PM Mass
-mass.1yr.iqr <- dt.pmc.site.ndi %>% 
-  select(Site.ID) %>% 
-  inner_join(dt.mass.app.1yr.c2) %>% 
+mass.1yr.iqr <- dt.mass.app.1yr.c2 %>% 
   summarise_at(vars(Biomass:Traffic), ~IQR(.x)) %>% 
   pivot_longer(cols = Biomass:Traffic,
                names_to = "Parameter",
@@ -152,9 +148,7 @@ dt.site <- dt.pmc.site.ndi %>%
   filter(!Method == "EC.TOT-OC.TOR") %>% 
   select(Site.ID, Method)
 
-carbon.1yr.iqr <- dt.site %>% 
-  select(Site.ID) %>% 
-  inner_join(dt.carbon) %>% 
+carbon.1yr.iqr <- dt.carbon %>% 
   summarise_at(vars(EC:OC), ~IQR(.x)) %>% 
   pivot_longer(cols = EC:OC,
                names_to = "Parameter",
@@ -222,7 +216,35 @@ pmc.xyr.5yr.iqr  <-  pmc.5yr.5yr.iqr %>%
   add_row(pmc.3yr.5yr.iqr) %>% 
   add_row(pmc.2yr.5yr.iqr) %>% 
   add_row(pmc.1yr.5yr.iqr)
-  
+
+table <- pmc.xyr.5yr.iqr %>% 
+  mutate(IQR = ifelse(Parameter %in% c("PM", "NO3", "OC", "SO4"), IQR, IQR * 1000),
+         IQR = sprintf("%0.2f", IQR)) %>% 
+  pivot_wider(names_from = "Window",
+              values_from = "IQR",
+              names_sort = T) %>% 
+  merge(Para.to.Index) %>% 
+  rename(Component = Index) %>% 
+  select(Component, everything(), -Parameter) %>% 
+  filter(Component %in% cmp) %>% 
+  mutate(Component = factor(Component, levels = cmp)) %>% 
+  arrange(Component)
+
+write.csv(table,
+          file = here('output','table', '1to5iqr.csv'))
+
+
+### Components - SES urban
+pmc.1yr.sescat.iqr <- dt.site.urban.ses.cat %>% 
+  inner_join(dt.pmc.1yr) %>% 
+  group_by(ses.cat) %>% 
+  summarise_at(vars(AS:ZN), ~IQR(.x)) %>% 
+  pivot_longer(cols = AS:ZN,
+               names_to = "Parameter",
+               values_to = "IQR") %>% 
+  mutate(Parameter = as.factor(Parameter),
+         SES.Cat = substr(ses.cat,1,1)) %>% 
+  select(-ses.cat)
 ```
 
 ```{r Output PMC Base}
@@ -613,10 +635,10 @@ for (i in c("L", "M", "H")){
   out.pmc.sescat  <-  rbind(out.pmc.sescat, dt)
 }
 
-out.pmc.sescat <- out.pmc.sescat %>% 
+out.pmc.sescat.upd <- out.pmc.sescat %>% 
   mutate(Parameter = gsub(".*Yr_", "", Predictor),
          Parameter = as.factor(Parameter)) %>% 
-  merge(pmc.1yr.iqr) %>% 
+  merge(pmc.1yr.sescat.iqr) %>% #pmc.1yr.iqr
   merge(Para.to.Index) %>% 
   merge(Outcome.to.Cause) %>% 
   mutate(HR = round(exp(Coef * IQR),3),
@@ -625,7 +647,7 @@ out.pmc.sescat <- out.pmc.sescat %>%
   arrange(Config) %>% 
   select(Index, Cause, SES.Cat, HR, HR.L, HR.U) 
 
-save(out.pmc.sescat, file = here('output','analysis','out-pmc-sescat.RDa'))
+save(out.pmc.sescat.upd, file = here('output','analysis','out-pmc-sescat-upd.RDa'))
 ```
 
 ```{r Output PMC Region}
@@ -769,5 +791,29 @@ out.pmc.expo <- out.pmc.expo %>%
   select(Index, Cause, Window, HR, HR.L, HR.U) 
 
 save(out.pmc.expo, file = here('output','analysis','out-pmc-expo.RDa'))
+```
+
+```{r Output PMC Bufferzone and Exposure window}
+out.pmc.buffer.expo = data.frame()
+for (i in c("6", "12", "24")){
+  dt <- read.csv(here('output','analysis',paste('pmc-bz',i,'-15yr.csv', sep= ""))) %>% 
+    mutate(Buffer = i,
+           Window = substr(Predictor, 3,3))
+  out.pmc.buffer.expo  <-  rbind(out.pmc.buffer.expo, dt)
+}
+
+out.pmc.buffer.expo <- out.pmc.buffer.expo %>% 
+  mutate(Parameter = gsub(".*_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>% 
+  merge(pmc.xyr.5yr.iqr) %>% 
+  merge(Para.to.Index) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3)) %>% 
+  arrange(Config, Buffer) %>% 
+  select(Index, Cause, Buffer, Window, HR, HR.L, HR.U) 
+
+save(out.pmc.buffer.expo, file = here('output','analysis','out-pmc-buffer-expo.RDa'))
 ```
 

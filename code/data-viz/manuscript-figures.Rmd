@@ -220,7 +220,7 @@ ggsave(here('output', 'plot','Figure 4.jpeg'), width = 7.5, height = 6.5, dpi = 
 
 <br>
 
-### Figure 5 - Components Race
+### Figure S3 - Components Race
 ```{r - Components Race, fig.dim = c(7.5, 8.5)}
 data <- out.pmc.race %>% 
   arrange(Index, Cause, Race) %>% 
@@ -251,12 +251,12 @@ guide.shapes <- c(15,16,17,18)
 Index.labels <- cmp.multi.labels
 
 Plot.Multi.lab(dt = data, ggtheme = ggtheme.multi.1, n =1) +
-ggsave(here('output', 'plot','Figure 5.jpeg'), width = 7.5, height = 8.5, dpi = 600)
+ggsave(here('output', 'plot','Figure S3.jpeg'), width = 7.5, height = 8.5, dpi = 600)
 ```
 
 <br>
 
-### Figure 6 - Factors Race
+### Figure S4 - Factors Race
 ```{r - Factor Race, fig.dim = c(7.5, 6.5)}
 data <- out.fac.race %>% 
   filter(Index %in% So.multi,
@@ -283,12 +283,12 @@ plot.cols <- c("#FF8200", "#075AAA", "#EB2226", "#01742F")
 guide.shapes <- c(15,16,17,18)
 
 Plot.Multi(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
-ggsave(here('output', 'plot','Figure 6.jpeg'), width = 7.5, height = 6.5, dpi = 600)
+ggsave(here('output', 'plot','Figure S4.jpeg'), width = 7.5, height = 6.5, dpi = 600)
 ```
 
 <br>
 
-### Figure 7 - Components Age
+### Figure S5 - Components Age
 ```{r - Components Age, fig.dim = c(7.5, 7.5)}
 data <- out.pmc.age %>% 
   filter(Index %in% cmp.multi,
@@ -312,12 +312,12 @@ guide.shapes <- c(15,16)
 Index.labels <- cmp.multi.labels
 
 Plot.Multi.lab(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
-ggsave(here('output', 'plot','Figure 7.jpeg'), width = 7.5, height = 7.5, dpi = 600)
+ggsave(here('output', 'plot','Figure S5.jpeg'), width = 7.5, height = 7.5, dpi = 600)
 ```
 
 <br>
 
-### Figure 8 - Factors Age
+### Figure S6 - Factors Age
 ```{r - Factor Age, fig.dim = c(7.5, 6.5)}
 data <- out.fac.age %>% 
   filter(Index %in% So.multi,
@@ -338,12 +338,12 @@ plot.cols <- c("#EB2226", "#075AAA")
 guide.shapes <- c(15,16)
 
 Plot.Multi(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
-ggsave(here('output', 'plot','Figure 8.jpeg'), width = 7.5, height = 6.5, dpi = 600)
+ggsave(here('output', 'plot','Figure S6.jpeg'), width = 7.5, height = 6.5, dpi = 600)
 ```
 
 <br>
 
-### Figure 9 - Components Sex
+### Figure S7 - Components Sex
 ```{r - Components Sex, fig.dim = c(7.5, 7.5)}
 data <- out.pmc.sex %>% 
   filter(Index %in% cmp.multi,
@@ -367,12 +367,12 @@ guide.shapes <- c(15,16)
 Index.labels <- cmp.multi.labels
 
 Plot.Multi.lab(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
-ggsave(here('output', 'plot','Figure 9.jpeg'), width = 7.5, height = 7.5, dpi = 600)
+ggsave(here('output', 'plot','Figure S7.jpeg'), width = 7.5, height = 7.5, dpi = 600)
 ```
 
 <br>
 
-### Figure 10 - Factors Sex
+### Figure S8 - Factors Sex
 ```{r - Factor Sex, fig.dim = c(7.5, 6.5)}
 data <- out.fac.sex %>% 
   filter(Index %in% So.multi,
@@ -393,12 +393,53 @@ plot.cols <- c("#EB2226", "#075AAA")
 guide.shapes <- c(15,16)
 
 Plot.Multi(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
-ggsave(here('output', 'plot','Figure 10.jpeg'), width = 7.5, height = 6.5, dpi = 600)
+ggsave(here('output', 'plot','Figure S8.jpeg'), width = 7.5, height = 6.5, dpi = 600)
 ```
 
 <br>
 
-### Figure 11 - Components SES-urban
+### Figure S9 - Components Urban
+```{r - Components urban, fig.dim = c(7.5, 6.5)}
+data <- out.pmc.urbanicity %>% 
+  filter(Loc.Set == "urban") %>% 
+  filter(Index %in% cmp.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = rev(cmp.multi)),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null #16-sigpos
+  )
+
+plot.cols <- c("#EB2226")
+Index.labels <- rev(cmp.multi.labels)
+
+Plot.Single.lab(dt = data, ggtheme = ggtheme.single) +
+ggsave(here('output','plot','Figure S9.jpeg'), width = 7.5, height = 6.5, dpi = 600)
+```
+
+<br>
+
+### Figure S10 - Factors Urban
+```{r - Factor Urban, fig.dim = c(7.5, 6.5)}
+data <- out.fac.urbanicity %>%
+  filter(Loc.Set == "urban") %>% 
+  filter(Index %in% So.multi,
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So.main),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null #16-sigpos
+  )
+
+plot.cols <- c("#EB2226")
+
+Plot.Single(dt = data, ggtheme = ggtheme.single) +
+ggsave(here('output','plot','Figure S10.jpeg'), width = 7.5, height = 6.5, dpi = 600)
+```
+
+<br>
+
+### Figure S11 - Components SES-urban
 ```{r Components SES-Urban, fig.dim = c(7.5, 7.5)}
 data <- out.pmc.sescat %>% 
   filter(Index %in% cmp.multi,
@@ -425,54 +466,12 @@ guide.shapes <- c(15,16,17)
 Index.labels <- cmp.multi.labels
 
 Plot.Multi.lab(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
-ggsave(here('output', 'plot','Figure 11.jpeg'), width = 7.5, height = 7.5, dpi = 600)
+ggsave(here('output', 'plot','Figure S11.jpeg'), width = 7.5, height = 7.5, dpi = 600)
 ```
 
 <br>
 
-### Figure S3 - Components Urban
-```{r - Components urban, fig.dim = c(7.5, 6.5)}
-data <- out.pmc.urbanicity %>% 
-  filter(Loc.Set == "urban") %>% 
-  filter(Index %in% cmp.multi,
-         Cause %in% cuz) %>% 
-  mutate(Cause = factor(Cause, levels = cuz),
-         Index = factor(Index, levels = rev(cmp.multi)),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null #16-sigpos
-  )
-
-plot.cols <- c("#EB2226")
-Index.labels <- rev(cmp.multi.labels)
-
-Plot.Single.lab(dt = data, ggtheme = ggtheme.single) +
-ggsave(here('output','plot','Figure S3.jpeg'), width = 7.5, height = 6.5, dpi = 600)
-```
-
-<br>
-
-### Figure S4 - Factors Urban
-```{r - Factor Urban, fig.dim = c(7.5, 6.5)}
-data <- out.fac.urbanicity %>%
-  filter(Loc.Set == "urban") %>% 
-  filter(Index %in% So.multi,
-         Cause %in% cuz) %>% 
-  mutate(Cause = factor(Cause, levels = cuz),
-         Index = factor(Index, levels = So.main),
-         sig = ifelse(HR.U < 1 , 16, #16-prtc
-                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null #16-sigpos
-  )
-
-plot.cols <- c("#EB2226")
-
-Plot.Single(dt = data, ggtheme = ggtheme.single) +
-ggsave(here('output','plot','Figure S4.jpeg'), width = 7.5, height = 6.5, dpi = 600)
-```
-
-
-<br>
-
-### Figure S5 - Components Region
+### Figure S12 - Components Region
 ```{r - Components Region, fig.dim = c(7.5, 8.5)}
 data <- out.pmc.region %>% 
   filter(Index %in% cmp.multi,
@@ -502,12 +501,12 @@ guide.shapes <- c(15,16,17,18)
 Index.labels <- cmp.multi.labels
 
 Plot.Multi.lab(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
-ggsave(here('output', 'plot','Figure S5.jpeg'), width = 7.5, height = 8.5, dpi = 600)
+ggsave(here('output', 'plot','Figure S12.jpeg'), width = 7.5, height = 8.5, dpi = 600)
 ```
 
 <br>
 
-### Figure S6 - Factors Region
+### Figure S13 - Factors Region
 ```{r - Factor Region, fig.dim = c(7.5, 6.5)}
 data <- out.fac.region %>% 
   filter(Index %in% So.multi,
@@ -534,12 +533,12 @@ plot.cols <- c("#FF8200", "#075AAA", "#EB2226", "#01742F")
 guide.shapes <- c(15,16,17,18)
 
 Plot.Multi(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
-ggsave(here('output', 'plot','Figure S6.jpeg'), width = 7.5, height = 6.5, dpi = 600)
+ggsave(here('output', 'plot','Figure S13.jpeg'), width = 7.5, height = 6.5, dpi = 600)
 ```
 
 <br>
 
-### Figure S7 - Components Residual Region
+### Figure S14 - Components Residual Region
 ```{r - Components Residual Region, fig.dim = c(7.5, 8.5)}
 data <- out.pmc.resid.region %>% 
   filter(Index %in% cmp.multi.res,
@@ -569,12 +568,12 @@ guide.shapes <- c(15,16,17,18)
 Index.labels <- cmp.multi.res.labels
 
 Plot.Multi.lab(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
-ggsave(here('output', 'plot','Figure S7.jpeg'),width = 7.5, height = 8.5, dpi = 600)
+ggsave(here('output', 'plot','Figure S14.jpeg'),width = 7.5, height = 8.5, dpi = 600)
 ```
 
 <br>
 
-### Figure S8 - Components BRFSS
+### Figure S15 - Components BRFSS
 ```{r - Components BRFSS, fig.dim = c(7.5, 7.5)}
 data <- out.pmc.brfss %>% 
   filter(Index %in% cmp.multi,
@@ -598,12 +597,12 @@ guide.shapes <- c(15,16)
 Index.labels <- cmp.multi.labels
 
 Plot.Multi.lab(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
-ggsave(here('output', 'plot','Figure S8.jpeg'), width = 7.5, height = 7.5, dpi = 600)
+ggsave(here('output', 'plot','Figure S15.jpeg'), width = 7.5, height = 7.5, dpi = 600)
 ```
 
 <br>
 
-### Figure S9 - Components Buffer
+### Figure S16 - Components Buffer
 ```{r Components Buffer, fig.dim = c(7.5, 8.5)}
 data <- out.pmc.buffer %>% 
   filter(Index %in% cmp.multi,
@@ -624,18 +623,18 @@ data <- out.pmc.buffer %>%
 
 levels(data$Index) <- cmp.multi.labels
 
-plot.labs <- c("24-miles", "12-miles", "6-miles")
+plot.labs <- c("24-mile", "12-mile", "6-mile")
 plot.cols <- c("#EB2226", "#075AAA", "#01742F")
 guide.shapes <- c(15,16,17)
 Index.labels <- cmp.multi.labels
 
 Plot.Multi.lab(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
-ggsave(here('output', 'plot','Figure S9.jpeg'), width = 7.5, height = 8.5, dpi = 600)
+ggsave(here('output', 'plot','Figure S16.jpeg'), width = 7.5, height = 8.5, dpi = 600)
 ```
 
 <br>
 
-### Figure S10 - Components Exposure Window
+### Figure S17 - Components Exposure Window
 ```{r Components Exposure window, fig.dim = c(7.5, 9.5)}
 data <- out.pmc.expo %>% 
   filter(Index %in% cmp.multi,
@@ -668,6 +667,34 @@ guide.shapes <- c(15,16,17,18,8)
 Index.labels <- cmp.multi.labels
 
 Plot.Multi.lab(dt = data, ggtheme = ggtheme.multi.1, n = 1) + 
-ggsave(here('output', 'plot','Figure S10.jpeg'), width = 7.5, height = 9.5, dpi = 600)
+ggsave(here('output', 'plot','Figure S17.jpeg'), width = 7.5, height = 9.5, dpi = 600)
 ```
 
+### Figure S18 & S19 & S20
+```{r Components Buffer & Exposure window}
+dt <- out.pmc.buffer.expo %>% 
+  arrange(Buffer, Window) %>% 
+  mutate(Cause = factor(Cause, levels = rev(cuz)),
+         Buffer = ifelse(Buffer == 6, "6-mile",
+                         ifelse(Buffer == 12, "12-mile", "24-mile")),
+         Buffer = factor(Buffer, levels = c("6-mile", "12-mile", "24-mile")),
+         Window = ifelse(Window == 1, "1-yr",
+                         ifelse(Window == 2, "2-yr",
+                                ifelse(Window == 3, "3-yr",
+                                       ifelse(Window == 4, "4-yr", "5-yr")))),
+         Window = as.factor(Window),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16))) #1-null # 16-sigpos
+
+Plot.Matrix(dt = dt, cmp = "SO4", title = expression(SO[4]^"2-"), 
+            ggtheme = ggtheme.matrix) +
+ggsave(here('output', 'plot','Figure S18.jpeg'), width = 9, height = 8)
+
+Plot.Matrix(dt = dt, cmp = "NO3", title = expression(NO[3]^"-"), 
+            ggtheme = ggtheme.matrix) +
+ggsave(here('output', 'plot','Figure S19.jpeg'), width = 9, height = 8)
+
+Plot.Matrix(dt = dt, cmp = "Si", title = "Si", 
+            ggtheme = ggtheme.matrix) +
+ggsave(here('output', 'plot','Figure S20.jpeg'), width = 9, height = 8)
+```

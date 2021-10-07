@@ -7,10 +7,11 @@ output:
     df_print: paged
 ---
 
-### Last Edit: 12-31-2020
-
 ### This program:
   (1) Run factor analysis
+  
+# Notes
+  1. Combination2 is better for mass app
 
 ```{r}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
@@ -27,11 +28,16 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```{r Load datasets}
 load(here('data','processed', 'pmc-daily.RDa'))
 load(here('data','processed', 'aqs-sites.RDa'))
-load(here('data','processed', 'mass-apportioned.RDa'))
+#load(here('data','processed', 'mass-apportioned-c1.RDa'))
 ```
 
 ```{r Call functions}
 source(here('code','data-processors','air-data-smooth-mvavg-function.R'))
+
+so.coef <- function(model, cmp){
+  source = as.numeric(summary(model)$coefficients[,1][cmp])
+  return(source)
+}
 ```
 
 ```{r - preliminary factor analysis}
@@ -42,7 +48,7 @@ save(factor.loadings.ec, file = here('output','table','factor-loadings-ec.RDa'))
 #Traffic Soil Metals Biomass Salt Oil Coal Steel
 
 factor.scores <- factor.scores(dt.pmc.daily %>% select(AS:OC), fit)
-dt.fac.daily <- cbind(dt.pmc.daily %>% select(Site.ID, Date), factor.scores$scores) 
+dt.fac.ec.daily <- cbind(dt.pmc.daily %>% select(Site.ID, Date), factor.scores$scores) 
 save(dt.fac.ec.daily, file = here('data', 'processed', 'fac-ec-daily.RDa'))
 ```
 
@@ -59,7 +65,7 @@ dt.fac.daily <- cbind(dt.pmc.daily %>% select(Site.ID, Date), factor.scores$scor
 save(dt.fac.daily, file = here('data', 'processed', 'fac-daily.RDa'))
 ```
 
-```{r Smoothing Data & Caluculating 1-yr mvavg for each month}
+```{r Smoothing Factors & Caluculating 1-yr mvavg for each month}
 dt.air <- dt.fac.daily %>% 
   pivot_longer(cols = Factor1:Factor8,
                names_to = "Parameter.Symbol",
@@ -90,8 +96,8 @@ save(dt.fac.1yr, file = here('data', 'processed', 'fac-1yr.RDa'))
 write.csv(dt.fac.1yr, file = here('data', 'processed', 'fac-1yr.csv'), row.names = F)
 ```
 
-```{r Smoothing Data & Caluculating 1-yr mvavg for each month with EC}
-dt.air <- dt.fac.daily.ec %>% 
+```{r Smoothing Factors & Caluculating 1-yr mvavg for each month with EC}
+dt.air <- dt.fac.ec.daily %>% 
   pivot_longer(cols = Factor1:Factor8,
                names_to = "Parameter.Symbol",
                values_to = "Value") %>% 
@@ -144,7 +150,7 @@ dt.fac.residual <- dt.fac.daily %>%
 save(dt.fac.residual, file = here('data', 'processed', 'fac-residual.RDa'))
 ```
 
-```{r Smoothing Data & Caluculating 1-yr mvavg for each month}
+```{r Smoothing Factors Residuals & Caluculating 1-yr mvavg for each month}
 dt.air <- dt.fac.residual %>% 
   pivot_longer(cols = PM_Factor1:PM_Factor8,
                names_to = "Parameter.Symbol",
@@ -174,6 +180,103 @@ dt.fac.residual.1yr <- para.monthly %>%
 save(dt.fac.residual.1yr, file = here('data', 'processed', 'fac-residual-1yr.RDa'))
 
 ```
+
+```{r}
+Factor.to.Index <- tribble(
+  ~Index, ~Parameter,
+   "Soil", "Factor1",
+   "Metals", "Factor2",
+   "Traffic", "Factor3",
+   "Biomass", "Factor4",
+   "Coal", "Factor5",
+   "Salt", "Factor6",
+   "Oil", "Factor7",
+   "Steel", "Factor8"
+   ) %>% 
+  mutate(Index = as.factor(Index),
+         Parameter = as.factor(Parameter))
+```
+
+```{r Factor Score Mass Apportionment}
+dt.pm.daily <- dt.pmc.daily %>% 
+  select(Site.ID, Date, PM)
+
+dt.fac.pm.daily <- dt.fac.daily %>% 
+  merge(dt.pm.daily) %>% 
+  rename("Soil" = Factor1,
+         "Metals" = Factor2,
+         "Traffic" = Factor3,
+         "Biomass" = Factor4,
+         "Coal" = Factor5,
+         "Salt" = Factor6,
+         "Oil" = Factor7,
+         "Steel" = Factor8)
+
+factor.mass <- lmer(data = dt.fac.pm.daily,
+              PM ~ Soil + Metals + Traffic + Biomass + Coal + Salt + Oil + Steel+ (1|Site.ID))
+
+tab_model(factor.mass, show.se = T, show.ci = F, show.aic = T,
+          show.re.var = F, show.icc = T, show.obs = T, show.ngroups = T,
+          title = "Factor Related PM Mass")
+```
+
+```{r Smoothing Source mass & Caluculating 1-yr mvavg for each month}
+dt.air <- dt.fac.pm.daily %>%
+  mutate(Soil.mass = so.coef(factor.mass, 'Soil') * Soil,
+         Metals.mass = so.coef(factor.mass, 'Metals') * Metals,
+         Traffic.mass = so.coef(factor.mass, 'Traffic') * Traffic,
+         Biomass.mass = so.coef(factor.mass, 'Biomass') * Biomass,
+         Coal.mass = so.coef(factor.mass, 'Coal') * Coal,
+         Salt.mass = so.coef(factor.mass, 'Salt') * Salt,
+         Oil.mass = so.coef(factor.mass, 'Oil') * Oil,
+         Steel.mass = so.coef(factor.mass, 'Steel') * Steel) %>% 
+  select(Site.ID, Date, Soil.mass:Steel.mass) %>% 
+  pivot_longer(cols = c(Soil.mass:Steel.mass),
+               names_to = "Parameter.Symbol",
+               values_to = "Value") %>% 
+  arrange(Site.ID, Parameter.Symbol, Date)
+
+site.para <- dt.air %>% 
+  distinct(Site.ID, Parameter.Symbol)
+
+#using smoothed.yr function
+smooth.out <- mapply(Smoothed.Year, 
+                     site.para$Site.ID, site.para$Parameter.Symbol, 0.99, 350)
+para.monthly <- data.frame(Site.ID=unlist(smooth.out[1,]),
+                           Parameter.Symbol=unlist(smooth.out[2,]),
+                           Date=unlist(smooth.out[3,]), 
+                           para.1yr=unlist(smooth.out[4,]))
+
+dt.mass.app.1yr.fac <- para.monthly %>% 
+  mutate(Parameter.Symbol = sub("\\..*", "", Parameter.Symbol),
+         Year = floor(Date -0.01),
+         Month = round((Date - Year)*12)) %>% 
+  select(-Date) %>% 
+  pivot_wider(names_sort = T,
+              names_from = c(Parameter.Symbol),
+              values_from = c(para.1yr)) %>% 
+  arrange(Site.ID, Year, Month)
+
+save(dt.mass.app.1yr.fac, file = here('data', 'processed', 'mass-app-1yr-fac.RDa'))
+write.csv(dt.mass.app.1yr.fac, file = here('data', 'processed', 'mass-app-1yr-fac.csv'), row.names = F)
+```
+
+
+
+```{r IQR test}
+Soil  <-  so.coef(factor.mass, 'Soil') * 0.38
+Metals <- so.coef(factor.mass, 'Metals') * 0.16
+Traffic <- so.coef(factor.mass, 'Traffic') * 1.18
+Biomass <- so.coef(factor.mass, 'Biomass') * 0.18
+Coal <- so.coef(factor.mass, 'Coal') * 1.03
+Salt <- so.coef(factor.mass, 'Salt') * 0.18
+Oil <- so.coef(factor.mass, 'Oil') * 0.09
+Steel <- so.coef(factor.mass, 'Steel') * 0.15
+
+# Second way
+dt.mass.app.1yr.fac %>% summarise_at(vars(Biomass:Traffic), ~IQR(.x))
+```
+
 
 ```{r - Single Tracer Mass Regression Model Test}
 # Factor order: Soil Metals Traffic Biomass Coal Salt Oil Steel
@@ -205,7 +308,7 @@ tab_model(thurston, show.se = T, show.ci = F, show.aic = T, digits = 2,
 ```
 
 
-```{r - Single Tracer Mass Apportionment - function}
+```{r - Single Tracer Mass Apportionment}
 dt.sites <- dt.aqs.sites %>% 
   transmute(Site.ID,
             Latitude,
@@ -216,11 +319,6 @@ dt.sites <- dt.aqs.sites %>%
                                    ifelse(Region.IV == 3, "South", "Northeast"))))
             
 Sources <- c("Soil", "Metals", "Traffic", "Biomass", "Coal", "Salt", "Oil", "Steel")
-
-so.coef <- function(model, cmp){
-  source = as.numeric(summary(model)$coefficients[,1][cmp])
-  return(source)
-}
 ```
 
 
@@ -310,7 +408,7 @@ save(dt.mass.app.1yr.c1, file = here('data', 'processed', 'mass-app-1yr-c1.RDa')
 write.csv(dt.mass.app.1yr.c1, file = here('data', 'processed', 'mass-app-1yr-c1.csv'), row.names = F)
 ```
 
-```{r - Single Tracer Mass Apportionment - Combination 2}
+```{r - Single Tracer Mass Apportionment - Combination 2 - Preferred}
 dt.mass.app.c2 <- dt.pmc.daily %>% 
   mutate(Soil = so.coef(high.health, 'SI') * SI,
          Metals = so.coef(high.health, 'PB') * PB,
@@ -395,4 +493,17 @@ dt.mass.app.1yr.c2 <- para.monthly %>%
 save(dt.mass.app.1yr.c2, file = here('data', 'processed', 'mass-app-1yr-c2.RDa'))
 write.csv(dt.mass.app.1yr.c2, file = here('data', 'processed', 'mass-app-1yr-c2.csv'), row.names = F)
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
 

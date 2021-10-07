@@ -45,6 +45,7 @@ load(here('output','analysis','out-fac-region.RDa'))
 load(here('output','analysis','out-pmc-brfss.RDa'))
 load(here('output','analysis','out-pmc-buffer.RDa'))
 load(here('output','analysis','out-pmc-expo.RDa'))
+load(here('output','analysis','out-pmc-buffer-expo.RDa'))
 ```
 
 ```{r set theme 1 - single group plots}
@@ -92,6 +93,22 @@ ggtheme.multi.2 <- theme_classic() +
         legend.title = element_blank(),
         legend.text = element_text(size = 10, face = "bold"),
         legend.key.width = unit(0.25, units = 'in'))
+```
+
+```{r set theme 4 - matrix plots}
+ggtheme.matrix <- theme_bw() + 
+  theme(panel.spacing.x = unit(0.25, 'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = 'bold', color = "black"),
+        strip.background = element_rect(fill = "#B9CFED"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_text(size = 9, color = 'black'),
+        legend.position = 'right',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 9, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')
+  )
 ```
 
 ```{r}
@@ -557,7 +574,7 @@ data <- out.pmc.buffer %>%
                       ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null # 16-sigpos
   )
 
-plot.labs <- c("24-miles", "12-miles", "6-miles") 
+plot.labs <- c("24-mile", "12-mile", "6-mile") 
 plot.cols <- c("#EB2226", "#075AAA", "#01742F")
 
 Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
@@ -585,4 +602,35 @@ plot.cols <- c("#EB2226","#FF8200","#9D178D","#075AAA","#01742F")
 Plot.Multi.Color(dt = data, ggtheme = ggtheme.multi.1, n = 1) + 
 ggsave(here('output', 'plot','pmc-expo.png'), width = 6.5, height = 8.5)
 ```
+
+
+```{r Components Buffer & Exposure window}
+dt <- out.pmc.buffer.expo %>% 
+  arrange(Buffer, Window) %>% 
+  mutate(Cause = factor(Cause, levels = rev(cuz)),
+         Buffer = ifelse(Buffer == 6, "6-mile",
+                         ifelse(Buffer == 12, "12-mile", "24-mile")),
+         Buffer = factor(Buffer, levels = c("6-mile", "12-mile", "24-mile")),
+         Window = ifelse(Window == 1, "1-yr",
+                         ifelse(Window == 2, "2-yr",
+                                ifelse(Window == 3, "3-yr",
+                                       ifelse(Window == 4, "4-yr", "5-yr")))),
+         Window = as.factor(Window),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16))) #1-null # 16-sigpos
+
+Plot.Matrix(dt = dt, cmp = "SO4", title = expression(SO[4]^"2-"), 
+            ggtheme = ggtheme.matrix) +
+ggsave(here('output', 'plot','SO4-buffer-expo.png'), width = 9, height = 8)
+
+Plot.Matrix(dt = dt, cmp = "NO3", title = expression(NO[3]^"-"), 
+            ggtheme = ggtheme.matrix) +
+ggsave(here('output', 'plot','NO3-buffer-expo.png'), width = 9, height = 8)
+
+Plot.Matrix(dt = dt, cmp = "Si", title = "Si", 
+            ggtheme = ggtheme.matrix) +
+ggsave(here('output', 'plot','Si-buffer-expo.png'), width = 9, height = 8)
+```
+
+
 

@@ -27,6 +27,7 @@ load(here('output','analysis','out-pmc-ses.RDa'))
 load(here('output','analysis','out-fac-base.RDa'))
 load(here('output','analysis','out-fac-ses.RDa'))
 load(here('output','analysis','out-mass-ses.RDa'))
+load(here('output','analysis','out-mass-fac-ses.RDa'))
 #load(here('output','analysis','out-fac-base-ec.RDa'))
 #load(here('output','analysis','out-fac-ses-ec.RDa'))
 load(here('output','analysis','out-pmc-resid.RDa'))
@@ -46,6 +47,7 @@ load(here('output','analysis','out-fac-region.RDa'))
 load(here('output','analysis','out-pmc-brfss.RDa'))
 load(here('output','analysis','out-pmc-buffer.RDa'))
 load(here('output','analysis','out-pmc-expo.RDa'))
+load(here('output','analysis','out-pmc-buffer-expo.RDa'))
 ```
 
 ```{r set theme 1 - single group plots}
@@ -96,6 +98,22 @@ ggtheme.multi.2 <- theme_classic() +
         legend.title = element_blank(),
         legend.text = element_text(size = 10, face = "bold"),
         legend.key.width = unit(0.25, units = 'in'))
+```
+
+```{r set theme 4 - matrix plots}
+ggtheme.matrix <- theme_bw() + 
+  theme(panel.spacing.x = unit(0.25, 'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, face = 'bold', color = "black"),
+        strip.background = element_rect(fill = "#B9CFED"),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_text(size = 9, color = 'black'),
+        legend.position = 'right',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 9, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in')
+  )
 ```
 
 ```{r}
@@ -241,6 +259,27 @@ plot.cols <- c("#EB2226")
 
 Plot.Single(dt = data, ggtheme = ggtheme.single) +
 ggsave(here('output','plot','mass-ses.jpeg'), width = 7.5, height = 6.5, dpi = 600)
+```
+
+<br>
+
+### Mass Factor
+```{r - App Mass Factor SES-Adj, fig.dim = c(7.5, 6.5)}
+data <- out.mass.fac.ses %>% 
+  filter(Index %in% So.main,
+         Cause %in% cuz,
+         HR < 5,
+         HR.U < 5) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So.main),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null #16-sigpos
+  )
+
+plot.cols <- c("#EB2226")
+
+Plot.Single(dt = data, ggtheme = ggtheme.single) +
+ggsave(here('output','plot','mass-fac-ses.jpeg'), width = 7.5, height = 6.5, dpi = 600)
 ```
 
 <br>
@@ -561,7 +600,7 @@ ggsave(here('output','plot','fac-urban.jpeg'), width = 7.5, height = 6.5, dpi = 
 
 ### Components SES-urban
 ```{r Components SES-Urban, fig.dim = c(7.5, 7.5)}
-data <- out.pmc.sescat %>% 
+data <- out.pmc.sescat.upd %>% 
   filter(Index %in% cmp.multi,
          Cause %in% cuz) %>% 
   mutate(Cause = factor(Cause, levels = cuz),
@@ -586,7 +625,7 @@ guide.shapes <- c(15,16,17)
 Index.labels <- cmp.multi.labels
 
 Plot.Multi.lab(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
-ggsave(here('output', 'plot','pmc-sescat.jpeg'), width = 7.5, height = 7.5, dpi = 600)
+ggsave(here('output', 'plot','pmc-sescat-upd.jpeg'), width = 7.5, height = 7.5, dpi = 600)
 ```
 
 <br>
@@ -790,3 +829,30 @@ Plot.Multi.lab(dt = data, ggtheme = ggtheme.multi.1, n = 1) +
 ggsave(here('output', 'plot','pmc-expo.jpeg'), width = 7.5, height = 9.5, dpi = 600)
 ```
 
+```{r Components Buffer & Exposure window}
+dt <- out.pmc.buffer.expo %>% 
+  arrange(Buffer, Window) %>% 
+  mutate(Cause = factor(Cause, levels = rev(cuz)),
+         Buffer = ifelse(Buffer == 6, "6-mile",
+                         ifelse(Buffer == 12, "12-mile", "24-mile")),
+         Buffer = factor(Buffer, levels = c("6-mile", "12-mile", "24-mile")),
+         Window = ifelse(Window == 1, "1-yr",
+                         ifelse(Window == 2, "2-yr",
+                                ifelse(Window == 3, "3-yr",
+                                       ifelse(Window == 4, "4-yr", "5-yr")))),
+         Window = as.factor(Window),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16))) #1-null # 16-sigpos
+
+Plot.Matrix(dt = dt, cmp = "SO4", title = expression(SO[4]^"2-"), 
+            ggtheme = ggtheme.matrix) +
+ggsave(here('output', 'plot','SO4-buffer-expo.png'), width = 9, height = 8)
+
+Plot.Matrix(dt = dt, cmp = "NO3", title = expression(NO[3]^"-"), 
+            ggtheme = ggtheme.matrix) +
+ggsave(here('output', 'plot','NO3-buffer-expo.png'), width = 9, height = 8)
+
+Plot.Matrix(dt = dt, cmp = "Si", title = "Si", 
+            ggtheme = ggtheme.matrix) +
+ggsave(here('output', 'plot','Si-buffer-expo.png'), width = 9, height = 8)
+```

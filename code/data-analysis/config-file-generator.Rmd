@@ -54,6 +54,14 @@ pmc.sub.yr <- c("Yr_SE","Yr_CA","Yr_CL","Yr_NA","Yr_NI","Yr_NO3","Yr_OC",
              "Yr_PB","Yr_PM","Yr_SI","Yr_SO4","Yr_V","Yr_ZN")
 ```
 
+```{r List of Major PM Components Yr Sub}
+pmc.major.yr <- c("Yr1_SI","Yr1_NO3","Yr1_SO4",
+                "Yr2_SI","Yr2_NO3","Yr2_SO4",
+                "Yr3_SI","Yr3_NO3","Yr3_SO4",
+                "Yr4_SI","Yr4_NO3","Yr4_SO4",
+                "Yr5_SI","Yr5_NO3","Yr5_SO4")
+```
+
 ```{r List of Sources}
 so <- c("Yr_Biomass","Yr_Coal","Yr_Metal","Yr_Oil",
          "Yr_Salt","Yr_Soil","Yr_Steel","Yr_Traffic")
@@ -1369,7 +1377,7 @@ for (i in seq(1,length(expo),1)){
   }
 ```
 
-```{r ses adj. model for components - bz 6}
+```{r ses adj. model for components - bz6}
 dataname <- "ndi-pmc-bz6.csv"
 expo <- pmc.sub.yr
 
@@ -1391,7 +1399,7 @@ for (i in seq(1,length(expo),1)){
   }
 ```
 
-```{r ses adj. model for components - bz 12}
+```{r ses adj. model for components - bz12}
 dataname <- "ndi-pmc-bz12.csv"
 expo <- pmc.sub.yr
 
@@ -1413,7 +1421,7 @@ for (i in seq(1,length(expo),1)){
   }
 ```
 
-```{r ses adj. model for components - bz 24}
+```{r ses adj. model for components - bz24}
 dataname <- "ndi-pmc-bz24.csv"
 expo <- pmc.sub.yr
 
@@ -1547,6 +1555,72 @@ for (i in seq(1,length(expo),1)){
       cat(w, file=f, sep="\n")
       k=j+length(cuz.sub)*(i-1)
       writeLines(w, here('config-files','mass-ses', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for components - bz6 & 1-5yr}
+dataname <- "ndi-pmc-bz6-15yr.csv"
+expo <- pmc.major.yr
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.ses, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], z)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','pmc-bz6-15yr', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for components - bz12 & 1-5yr}
+dataname <- "ndi-pmc-bz12-15yr.csv"
+expo <- pmc.sub.yr
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.ses, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], z)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','pmc-bz12-15yr', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for components - bz 24 & 1-5yr}
+dataname <- "ndi-pmc-bz24.csv"
+expo <- pmc.sub.yr
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.ses, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], z)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','pmc-bz24-15yr', paste(k,'.txt', sep = "")))
     }
   }
   file.remove(f)

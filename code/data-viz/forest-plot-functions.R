@@ -229,3 +229,45 @@ Plot.Multi.Color <- function(dt, ggtheme, n) {
   return(p)
 }
 
+
+
+
+###############################################################################
+############################  Plot.Matrix  ###############################
+###############################################################################
+
+### Function *** Plot.Matrix ***
+# Plots subgroups with different colors
+# Function Arguments: 
+# dt : dataset that contains the HRs for each exposure, outcome and subgroups
+# cmp : component of interest
+# title : 
+# ggtheme : customized theme
+
+
+### Matrix Plot Function
+Plot.Matrix <- function(dt, cmp, title, ggtheme) {
+  
+  p <- ggplot(data = dt %>%  filter(Index == cmp),
+              aes(x = HR, xmin = HR.L, xmax = HR.U, y = Cause)) +
+    geom_vline(xintercept = 1, linetype = 2, color = "black") +
+    geom_segment(aes(x = HR.L, xend = HR.U, y = Cause, yend = Cause, color = Cause),
+                 size = 0.25, show.legend = T) + 
+    geom_point(aes(x = HR, y = Cause, shape = sig, color = Cause),
+               size = 2, show.legend = T) + 
+    scale_shape_identity() +
+    #scale_size_identity() +
+    #scale_color_manual(
+    # labels = plot.labs, 
+    #values = plot.cols) +
+    scale_color_tableau(palette = "Tableau 10") +
+    labs(x = "Hazard Ratio (95% CI) \n Solid shapes (point estimates) indicate statistically significant results at the 0.05 level", y = "") +
+    ggtitle(title) +
+    facet_grid(Buffer ~ Window,  scales = "fixed", switch = 'y',
+               shrink = T, space = 'fixed') +
+    ggtheme.matrix + 
+    guides(color = guide_legend(ncol = 1, byrow = T, reverse = T,
+                                direction = "vertical"))
+  return(p)
+}
+
