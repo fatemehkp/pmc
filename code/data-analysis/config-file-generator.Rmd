@@ -63,7 +63,7 @@ pmc.major.yr <- c("Yr1_SI","Yr1_NO3","Yr1_SO4",
 ```
 
 ```{r List of Sources}
-so <- c("Yr_Biomass","Yr_Coal","Yr_Metal","Yr_Oil",
+so <- c("Yr_Biomass","Yr_Coal","Yr_Metals","Yr_Oil",
          "Yr_Salt","Yr_Soil","Yr_Steel","Yr_Traffic")
 ```
 
@@ -1555,6 +1555,28 @@ for (i in seq(1,length(expo),1)){
       cat(w, file=f, sep="\n")
       k=j+length(cuz.sub)*(i-1)
       writeLines(w, here('config-files','mass-ses', paste(k,'.txt', sep = "")))
+    }
+  }
+  file.remove(f)
+  }
+```
+
+```{r ses adj. model for apportioned mass factor}
+dataname <- "ndi-mass-fac.csv"
+expo <- so
+
+for (i in seq(1,length(expo),1)){
+  filenames <- c( tempfile())
+  for( f in  filenames ){
+    cat(config.ses, file=f)
+    x <- readLines(f)
+    y <- gsub("dataset", dataname, x)
+    z <- gsub("exposure", expo[i], y)
+    for (j in seq(1,length(cuz.sub),1)){
+      w <- gsub("outcome", cuz.sub[j], z)
+      cat(w, file=f, sep="\n")
+      k=j+length(cuz.sub)*(i-1)
+      writeLines(w, here('config-files','mass-fac-ses', paste(k,'.txt', sep = "")))
     }
   }
   file.remove(f)

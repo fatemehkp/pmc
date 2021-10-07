@@ -23,7 +23,8 @@ load(here('data','processed','pmc-sub-2yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-3yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-4yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-5yr.RDa'))
-load(here('data','processed','mass-app-1yr-c2.RDa'))
+#load(here('data','processed','mass-app-1yr-c2.RDa'))
+load(here('data','processed','mass-app-1yr-fac.RDa'))
 load(here('data','processed','site-urban-ses-cat.RDa'))
 ```
 
@@ -134,6 +135,14 @@ fac.ec.1yr.iqr <- dt.fac.ec.1yr %>%
 
 ### Source Apportioned PM Mass
 mass.1yr.iqr <- dt.mass.app.1yr.c2 %>% 
+  summarise_at(vars(Biomass:Traffic), ~IQR(.x)) %>% 
+  pivot_longer(cols = Biomass:Traffic,
+               names_to = "Parameter",
+               values_to = "IQR")%>% 
+  mutate(Parameter = as.factor(Parameter))
+
+### Source Apportioned PM Mass with Factors
+mass.fac.1yr.iqr <- dt.mass.app.1yr.fac %>% 
   summarise_at(vars(Biomass:Traffic), ~IQR(.x)) %>% 
   pivot_longer(cols = Biomass:Traffic,
                names_to = "Parameter",
@@ -279,7 +288,7 @@ out.pmc.ses <- read.csv(here('output','analysis','pmc-ses.csv')) %>%
 save(out.pmc.ses, file = here('output','analysis','out-pmc-ses.RDa'))
 ```
 
-```{r Output Factors Ex. EC Base}
+```{r Output Factors Base}
 out.fac.base <- read.csv(here('output','analysis','fac-base.csv')) %>% 
   rename(Parameter = Predictor) %>% 
   merge(fac.1yr.iqr) %>% 
@@ -294,7 +303,7 @@ out.fac.base <- read.csv(here('output','analysis','fac-base.csv')) %>%
 save(out.fac.base, file = here('output','analysis','out-fac-base.RDa'))
 ```
 
-```{r Output Factors Ex. EC SES-Adj}
+```{r Output Factors SES-Adj}
 out.fac.ses <- read.csv(here('output','analysis','fac-ses.csv')) %>% 
   rename(Parameter = Predictor) %>% 
   merge(fac.1yr.iqr) %>% 
@@ -309,7 +318,7 @@ out.fac.ses <- read.csv(here('output','analysis','fac-ses.csv')) %>%
 save(out.fac.ses, file = here('output','analysis','out-fac-ses.RDa'))
 ```
 
-```{r Output Factors Base}
+```{r Output Factors Inc. EC Base}
 out.fac.ec.base <- read.csv(here('output','analysis','fac-ec-base.csv')) %>% 
   rename(Parameter = Predictor) %>% 
   merge(fac.ec.1yr.iqr) %>% 
@@ -324,7 +333,7 @@ out.fac.ec.base <- read.csv(here('output','analysis','fac-ec-base.csv')) %>%
 save(out.fac.ec.base, file = here('output','analysis','out-fac-ec-base.RDa'))
 ```
 
-```{r Output Factors SES-Adj}
+```{r Output Factors Factors Inc. EC SES-Adj}
 out.fac.ec.ses <- read.csv(here('output','analysis','fac-ec-ses.csv')) %>% 
   rename(Parameter = Predictor) %>% 
   merge(fac.ec.1yr.iqr) %>% 
@@ -353,6 +362,22 @@ out.mass.ses <- read.csv(here('output','analysis','mass-ses.csv')) %>%
   select(Index, Cause, HR, HR.L, HR.U)
 
 save(out.mass.ses, file = here('output','analysis','out-mass-ses.RDa'))
+```
+
+```{r Output App Mass Factor SES-Adj}
+out.mass.fac.ses <- read.csv(here('output','analysis','mass-fac-ses.csv')) %>%
+  mutate(Parameter = gsub(".*Yr_", "", Predictor),
+         Parameter = as.factor(Parameter)) %>%  
+  merge(mass.fac.1yr.iqr) %>% 
+  merge(Outcome.to.Cause) %>% 
+  mutate(HR = round(exp(Coef * IQR),3),
+         HR.L = round(exp((Coef-1.96*std) * IQR),3),
+         HR.U = round(exp((Coef+1.96*std) * IQR),3),
+         Index = Parameter) %>% 
+  arrange(Config) %>% 
+  select(Index, Cause, HR, HR.L, HR.U)
+
+save(out.mass.fac.ses, file = here('output','analysis','out-mass-fac-ses.RDa'))
 ```
 
 ```{r Output Carbon SES-Adj}
@@ -703,14 +728,14 @@ save(out.pmc.resid.region, file = here('output','analysis','out-pmc-resid-region
 ```
 
 ```{r Output Factor Region}
-out.fac.region = data.frame()
+out.fac.region.2 = data.frame()
 for (i in c("west", "midwest", "south", "northeast")){
   dt <- read.csv(here('output','analysis',paste('fac-',i,'.csv', sep= ""))) %>% 
     mutate(Region = i)
-  out.fac.region  <-  rbind(out.fac.region, dt)
+  out.fac.region.2  <-  rbind(out.fac.region.2, dt)
 }
 
-out.fac.region <- out.fac.region %>% 
+out.fac.region.2 <- out.fac.region.2 %>% 
   rename(Parameter = Predictor) %>% 
   merge(fac.1yr.iqr) %>% 
   merge(Factor.to.Index) %>% 
