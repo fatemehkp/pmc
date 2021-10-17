@@ -100,7 +100,26 @@ ggtheme.multi.2 <- theme_classic() +
         legend.key.width = unit(0.25, units = 'in'))
 ```
 
-```{r set theme 4 - matrix plots}
+```{r set theme 4 - components - effect modification, subgroups, multiple groups plots}
+ggtheme.multi.3 <- theme_classic() + 
+  theme(panel.spacing.x = unit(0.5,'lines'),
+        panel.spacing.y = unit(c(0.25,0,0.25,0,0.25,0,0.25,0,0.25,0,0.25),'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(size = 10, face = 'bold', color = "black"),
+        strip.text.y = element_text(size = 10, color = "black", angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "#B9CFED"),
+        axis.title.x = element_text(size = 10, color = 'black'),
+        axis.text.x = element_text(size = 8, color = 'black'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.key.width = unit(0.25, units = 'in'))
+```
+
+```{r set theme 5 - matrix plots}
 ggtheme.matrix <- theme_bw() + 
   theme(panel.spacing.x = unit(0.25, 'lines'),
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
@@ -124,6 +143,8 @@ cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
 cuz.top.row <-  c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")
 cuz.bot.row <- c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")
 
+cuz.g.abs <- c("All-Cause", "Cardiovascular", "Respiratory", "Lung Cancer")
+
 cmp.main <- c("Mn", "Fe", "V", "Ni", "Cl", "Na", "SO4", "Se", 
               "Cu", "K", "OC", "NO3", "Zn", "Pb", "Ca", "Si", "PM2.5")
 cmp.main.labels <- c("Mn", "Fe", "V", "Ni", "Cl", "Na", expression("SO"[4]^{"2-"}),
@@ -138,6 +159,7 @@ cmp.multi.labels <- c(expression("PM"[2.5]),"Si", "Ca", "Pb", "Zn",
 
 So.main <- c("Steel", "Oil", "Salt", "Coal", 
          "Biomass", "Traffic", "Metals", "Soil")
+
 So.multi <- c("Soil", "Metals", "Traffic",
               "Coal", "Oil")
 
@@ -160,6 +182,45 @@ cmp.multi.res <- c("PM2.5","-Si", "-Ca", "-Pb", "-Zn", "-NO3", "-OC",
 cmp.multi.res.labels <- c(expression("PM"[2.5]),"-Si", "-Ca", "-Pb", "-Zn", 
                           expression("-NO"[3]^{"-"}), "-OC","-Se",
                           expression("-SO"[4]^{"2-"}), "-Ni", "-V")
+```
+
+<br>
+
+# Ghraphical Abs
+```{r - Factor SES-Adj, fig.dim = c(7.5, 6.5)}
+data <- out.fac.ses %>% 
+  filter(Index %in% So.main,
+         Cause %in% cuz.g.abs) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = So.main),
+         sig = ifelse(HR.U < 1 , 16, #16-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 1, 16)) #1-null #16-sigpos
+  )
+
+plot.cols <- c("#EB2226")
+
+p <- ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
+    geom_vline(xintercept = 1, linetype = 2, color = "black") +
+    geom_segment(aes(x = HR.L, xend = HR.U, y = Index, yend = Index),
+                 color = plot.cols, size = 0.25, show.legend = F) + 
+    geom_point(aes(x = HR, y = Index, shape = sig), 
+               color = plot.cols, size = 1.5, show.legend = F) +
+  labs(x = "HR (95% CI) per IQR Increase", y = expression(paste("Source-Related ", PM[2.5])),
+       title = expression(paste("Association of Long-Term Source-Related ", PM[2.5], " Exposure and Cause-Specific Mortality"))) +
+    scale_shape_identity() +
+    facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
+   theme_bw() + 
+    theme(panel.spacing.x = unit(0.5, 'lines'),
+        panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
+        strip.text.x = element_text(face = 'bold', color = "black"),
+        strip.background = element_rect(fill = "#B9CFED"),
+        axis.title = element_text(size = 12, color = 'black'),
+        axis.text = element_text(size = 9, color = 'black'),
+        plot.title = element_text(size = 12, face = 'bold', color = 'black', hjust = 0.5, vjust = 2))
+
+annotate_figure(p, 
+                bottom = text_grob(expression(paste("IQRs in μg/",m^3, ": Soil = 0.29, Metals = 0.07, Traffic = 4.09, Biomass = 0.13, Coal = 4.36, Salt = 0.03, Oil = 0.03, Steel = 0.03")), size = 8)) + 
+  ggsave(here('output','plot','graphical-abstract.jpeg'), width = 9.5, height = 4, dpi = 600)
 ```
 
 <br>
@@ -665,6 +726,41 @@ ggsave(here('output', 'plot','pmc-region.jpeg'), width = 7.5, height = 8.5, dpi 
 
 <br>
 
+### Components Region
+```{r - Components Region, fig.dim = c(7.5, 8.5)}
+data <- out.pmc.region %>% 
+  filter(Index %in% c(cmp.multi, "K"),
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = c(cmp.multi, "K")),
+         Tag = ifelse(Region == "west", "d",
+                      ifelse(Region == "midwest", "c",
+                             ifelse(Region == "south", "b", "a"))),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & Region == "northeast"), 5,
+                      ifelse((sig == 15 & Region == "northeast"),18, sig)),
+         sig = ifelse((sig == 0 & Region == "south"), 2,
+                      ifelse((sig == 15 & Region == "south"),17, sig)),
+         sig = ifelse((sig == 0 & Region == "midwest"), 1,
+                      ifelse((sig == 15 & Region == "midwest"),16, sig)),
+         sig = as.integer(sig)
+  )
+
+levels(data$Index) <- c(cmp.multi.labels, "K")
+
+plot.labs <- c("Northeast", "South", "Midwest", "West")
+plot.cols <- c("#FF8200", "#075AAA", "#EB2226", "#01742F")
+guide.shapes <- c(15,16,17,18)
+Index.labels <- cmp.multi.labels
+
+Plot.Multi.lab(dt = data, ggtheme = ggtheme.multi.3, n = 1) +
+ggsave(here('output', 'plot','pmc-region-with-K.jpeg'), width = 7.5, height = 9.5, dpi = 600)
+```
+
+<br>
+
 ### Factors Region
 ```{r - Factor Region, fig.dim = c(7.5, 6.5)}
 data <- out.fac.region %>% 
@@ -693,6 +789,38 @@ guide.shapes <- c(15,16,17,18)
 
 Plot.Multi(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
 ggsave(here('output', 'plot','fac-region.jpeg'), width = 7.5, height = 6.5, dpi = 600)
+```
+
+<br>
+
+### Factors Region
+```{r - Factor Region, fig.dim = c(7.5, 6.5)}
+data <- out.fac.region %>% 
+  filter(Index %in% c("Soil", "Metals", "Traffic", "Biomass", "Coal", "Oil"),
+         Cause %in% cuz) %>% 
+  mutate(Cause = factor(Cause, levels = cuz),
+         Index = factor(Index, levels = c("Soil", "Metals", "Traffic", "Biomass", "Coal", "Oil")),
+  Tag = ifelse(Region == "west", "d",
+               ifelse(Region == "midwest", "c",
+                      ifelse(Region == "south", "b", "a"))),
+         Tag = as.factor(Tag),
+         sig = ifelse(HR.U < 1 , 15, #15-prtc
+                      ifelse((HR.L<=1 & HR.U>=1), 0, 15)), #0-null #15-sigpos
+         sig = ifelse((sig == 0 & Region == "northeast"), 5,
+                      ifelse((sig == 15 & Region == "northeast"),18, sig)),
+         sig = ifelse((sig == 0 & Region == "south"), 2,
+                      ifelse((sig == 15 & Region == "south"),17, sig)),
+         sig = ifelse((sig == 0 & Region == "midwest"), 1,
+                      ifelse((sig == 15 & Region == "midwest"),16, sig)),
+         sig = as.integer(sig)
+  )
+
+plot.labs <- c("Northeast", "South", "Midwest", "West")
+plot.cols <- c("#FF8200", "#075AAA", "#EB2226", "#01742F")
+guide.shapes <- c(15,16,17,18)
+
+Plot.Multi(dt = data, ggtheme = ggtheme.multi.2, n = 1) +
+ggsave(here('output', 'plot','fac-region-with-Biomass.jpeg'), width = 7.5, height = 7.5, dpi = 600)
 ```
 
 <br>

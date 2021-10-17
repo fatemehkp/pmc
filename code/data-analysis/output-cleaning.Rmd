@@ -254,6 +254,23 @@ pmc.1yr.sescat.iqr <- dt.site.urban.ses.cat %>%
   mutate(Parameter = as.factor(Parameter),
          SES.Cat = substr(ses.cat,1,1)) %>% 
   select(-ses.cat)
+
+table.ses <- pmc.1yr.sescat.iqr %>% 
+  mutate(IQR = ifelse(Parameter %in% c("PM", "NO3", "OC", "SO4"), IQR, IQR * 1000),
+         IQR = sprintf("%0.2f", IQR)) %>% 
+  pivot_wider(names_from = "SES.Cat",
+              values_from = "IQR",
+              names_sort = T) %>% 
+  merge(Para.to.Index) %>% 
+  rename(Component = Index) %>% 
+  select(Component, everything(), -Parameter) %>% 
+  filter(Component %in% cmp) %>% 
+  mutate(Component = factor(Component, levels = cmp)) %>% 
+  arrange(Component) %>% 
+  select(Component, L, M, H)
+
+write.csv(table.ses,
+          file = here('output','table', 'sescatiqr.csv'))
 ```
 
 ```{r Output PMC Base}

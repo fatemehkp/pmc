@@ -42,6 +42,7 @@ load(here('output','analysis','out-fac-race.RDa'))
 load(here('output','analysis','out-pmc-urbanicity.RDa'))
 load(here('output','analysis','out-fac-urbanicity.RDa'))
 load(here('output','analysis','out-pmc-sescat.RDa'))
+load(here('output','analysis','out-pmc-sescat-upd.RDa'))
 load(here('output','analysis','out-pmc-region.RDa'))
 load(here('output','analysis','out-pmc-resid-region.RDa'))
 load(here('output','analysis','out-fac-region.RDa'))
@@ -429,6 +430,20 @@ doc <- Table.Multi.sescat(dt = out.pmc.sescat, cmp = cmp.multi, cuz = cuz.bot.ro
                  cpt = "Table S13. Mortality Hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its constituents: by income category in urban areas., Continued", ftnt = "")
 ```
 
+### Figure 11 - constituents SES-urban - updated
+```{r}
+out.pmc.sescat.upd <- out.pmc.sescat.upd %>% 
+  mutate(SES.Cat = ifelse(SES.Cat == "L", "Low",
+                          ifelse(SES.Cat == "M", "Middle", "High")),
+         SES.Cat = factor(SES.Cat, levels = c("Low", "Middle", "High")))
+
+doc <- Table.Multi.sescat(dt = out.pmc.sescat.upd, cmp = cmp.multi, cuz = cuz.top.row,
+                 cpt = "Table S13. Mortality Hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its constituents: by income category in urban areas.", ftnt = "Continued ...")
+doc <- Table.Multi.sescat(dt = out.pmc.sescat.upd, cmp = cmp.multi, cuz = cuz.bot.row,
+                 cpt = "Table S13. Mortality Hazard ratios (95% CI) associated with an IQR increase in PM2.5 and its constituents: by income category in urban areas., Continued", ftnt = "")
+```
+
+
 ### Figure S3 - constituents Urban
 ```{r}
 doc <- Table.Single(dt = out.pmc.urbanicity %>% filter(Loc.Set == "urban") %>%
@@ -558,6 +573,6 @@ doc <- Table.Multi.buffer.expo(dt = out.pmc.buffer.expo, cmp = cmp.major, cuz = 
 
 
 ```{r}
-print(doc, target = here('output','table','supplement-tables-revision.docx'))
+print(doc, target = here('output','table','supplement-tables-revision-sescatupd.docx'))
 ```
 

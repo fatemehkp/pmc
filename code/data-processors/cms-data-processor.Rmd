@@ -49,7 +49,6 @@ load(here('data','processed','pmc-sub-3yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-2yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-1yr-5yr.RDa'))
 load(here('data','processed','mass-app-1yr-c2.RDa'))
-load(here('data','processed','mass-app-1yr-fac.RDa'))
 ```
 
 ```{r Import and save CMS(/ndi) data}
@@ -921,17 +920,6 @@ dt.site.urban.ses.cat <- dt.site.urban.ses.cat %>%
   mutate(ses.cat = ifelse(ses < qtl[1,], "Low",
                           ifelse(ses >qtl[1,] & ses < qtl[2,], "Mid", "High")))
 
-save(dt.site.urban.ses.cat, file = here('data', 'processed', 'site-urban-ses-cat.RDa'))
-
-dt.site.urban.ses.cat %>% 
-  distinct(Site.ID) %>% 
-  group_by(ses.cat) %>% 
-  summarise(n = n())
-
-dt.site.urban.ses.cat %>% 
-  group_by(ses.cat) %>% 
-  summarise(n = n())
-
 cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
              "PB", "PM", "SI", "SO4", "V", "ZN")
 
@@ -1014,7 +1002,7 @@ write.csv(dt.ndi.pmc.urban.sesH,
 
 ```{r PMC Region}
 cmp.sub <- c("SE", "CA", "CL", "NA", "NI", "NO3", "OC", 
-             "PB", "PM", "SI", "SO4", "V", "ZN")
+             "PB", "PM", "SI", "SO4", "V", "ZN", "K")
 
 dt.pmc <- dt.pmc.1yr %>% 
   select(Site.ID, Year, Month, cmp.sub)
@@ -1580,26 +1568,6 @@ write.csv(dt.ndi.pmc.1,
           row.names = F)
 ```
 
-```{r PM Apportioned Mass with Factors}
-dt.mass <- dt.mass.app.1yr.fac %>% 
-  rename_at(vars(Biomass: Traffic), ~paste("Yr", .x, sep = "_"))
-
-dt.ses <- dt.ses.site.bz12 %>% 
-  mutate(ses = SES.Zip.Norm) %>% 
-  select(Site.ID, Year, ses)
-
-dt.ndi.mass.fac <- dt.master.ndi.pmc %>% 
-  mutate(StrID = paste(age, sex, race)) %>% 
-  select(Site.ID, Year, Month, StrID, no_enrollee:no_death_kidn) %>%  
-  inner_join(dt.mass) %>% 
-  inner_join(dt.ses) %>% 
-  rename(SiteID = Site.ID)
-
-write.csv(dt.ndi.mass.fac, 
-          file = here('data', 'processed', 'ndi-mass-fac.csv'),
-          row.names = F)
-```
-
 ```{r PM Apportioned Mass}
 dt.mass <- dt.mass.app.1yr.c2 %>% 
   rename_at(vars(Biomass: Traffic), ~paste("Yr", .x, sep = "_"))
@@ -1696,6 +1664,7 @@ dt.ndi.pmc.bz24.15yr <- dt.master.ndi.pmc.bz24 %>%
   inner_join(dt.ses) %>% 
   rename(SiteID = Site.ID)
 
+view(dt.ndi.pmc.bz24.15yr)
 write.csv(dt.ndi.pmc.bz24.15yr, 
           file = here('data', 'processed', 'ndi-pmc-bz24-15yr.csv'),
           row.names = F)

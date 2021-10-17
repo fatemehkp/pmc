@@ -5,6 +5,7 @@
 
 library(tidyverse)
 library(ggpubr)
+library(RColorBrewer)
 
 
 ###############################################################################
@@ -260,7 +261,8 @@ Plot.Matrix <- function(dt, cmp, title, ggtheme) {
     #scale_color_manual(
     # labels = plot.labs, 
     #values = plot.cols) +
-    scale_color_tableau(palette = "Tableau 10") +
+    scale_color_manual(values = brewer.pal(n=10, "Paired")) +
+    #scale_color_tableau(palette = "Tableau 10") +
     labs(x = "Hazard Ratio (95% CI) \n Solid shapes (point estimates) indicate statistically significant results at the 0.05 level", y = "") +
     ggtitle(title) +
     facet_grid(Buffer ~ Window,  scales = "fixed", switch = 'y',
