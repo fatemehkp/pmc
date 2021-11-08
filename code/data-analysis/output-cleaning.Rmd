@@ -1,7 +1,7 @@
 ---
 title: "Analysis Output files"
 author: "Fatemeh Kazemi"
-date: "01-30-2021"
+date: "11-07-2021"
 ---
 
 ```{r}
@@ -134,12 +134,12 @@ fac.ec.1yr.iqr <- dt.fac.ec.1yr %>%
   mutate(Parameter = as.factor(Parameter))
 
 ### Source Apportioned PM Mass
-mass.1yr.iqr <- dt.mass.app.1yr.c2 %>% 
-  summarise_at(vars(Biomass:Traffic), ~IQR(.x)) %>% 
-  pivot_longer(cols = Biomass:Traffic,
-               names_to = "Parameter",
-               values_to = "IQR")%>% 
-  mutate(Parameter = as.factor(Parameter))
+# mass.1yr.iqr <- dt.mass.app.1yr.c2 %>% 
+#   summarise_at(vars(Biomass:Traffic), ~IQR(.x)) %>% 
+#   pivot_longer(cols = Biomass:Traffic,
+#                names_to = "Parameter",
+#                values_to = "IQR")%>% 
+#   mutate(Parameter = as.factor(Parameter))
 
 ### Source Apportioned PM Mass with Factors
 mass.fac.1yr.iqr <- dt.mass.app.1yr.fac %>% 

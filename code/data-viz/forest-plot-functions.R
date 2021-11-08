@@ -1,4 +1,4 @@
-### Author: Fatemeh Kazemi - 01-30-2021
+### Author: Fatemeh Kazemi - 10-06-2021
 
 # Functions for plotting results of exposure ~ outcome analysis
 # Hazard Ratio (HR) and 95% CI (HR.L, HR.U) (HR.Lower and HR.Upper)

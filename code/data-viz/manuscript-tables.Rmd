@@ -1,7 +1,7 @@
 ---
 title: "Tables for PM2.5 constituents Paper Manuscript"
 author: "Fatemeh Kazemi"
-date: "05/31/2021"
+date: "11/07/2021"
 output:
   html_document:
     df_print: paged
@@ -59,6 +59,13 @@ cuz <- c("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF",
 
 cuz.top.row <-  c ("All-Cause", "Cardiovascular", "IHD", "CBV", "CHF")
 cuz.bot.row <- c ("Respiratory", "COPD", "Pneumonia", "Cancer", "Lung Cancer")
+
+grp <- c('Main', 'Age', 'Sex', 'Race', 'Urbanicity', 'SES.Cat', 'Region', 'BRFSS')
+
+subgrp <- c('Main', '65-75', '> 75', 'Female', 'Male',
+            'Asian', 'Black', 'Hispanic', 'White',
+            'Urban', 'Rural', 'Low', 'Middle', 'High',
+            'West', 'Midwest', 'South', 'Northeast', 'BRFSS')
 
 cmp.main <- c("PM2.5", "Si","Ca", "Pb","Zn", "NO3","OC", "K","Cu",
               "Se","SO4", "Na","Cl", "Ni","V", "Fe","Mn")
@@ -313,6 +320,34 @@ doc <- body_add_par(doc, "a Source factors are unitless b Units are ng/m3 unless
 body_add(doc, run_pagebreak())
 ```
 
+### Table S3
+```{r}
+dt.mort.rate <- read.csv(here('output','table','pmc-mortality-rate.csv')) %>% 
+  `colnames<-`(c("Group", "Subgroup", cuz)) %>% 
+  mutate_at(.vars = cuz, ~as.integer(.x)) %>% 
+  mutate(Group = factor(Group, levels = grp),
+         Subgroup = factor(Subgroup, levels = subgrp)) %>% 
+  arrange(factor(Group, levels = grp), Subgroup)
+
+doc3 <- read_docx()
+
+ft <- flextable(dt.mort.rate)
+ft <- merge_v(ft, j = c('Group', 'Subgroup'))
+ft <- theme_vanilla(ft)
+ft <- vline(ft, j = c('Group', 'Subgroup'))
+ft <- padding(ft, padding = 0)
+ft <- fontsize(ft, size = 12)
+ft <- set_caption(ft, caption = "Table S3. Average monthly cause-specific mortality rate per 100,000 of Medicare enrollees for entire population and by subgroup, US 2000 - 2008.")
+ft <- fontsize(ft, i = 1, size = 12, part = "header")
+ft <- autofit(ft)
+  
+doc3 <- body_add_flextable(doc3, value = ft, split = T)
+doc3 <- body_add_par(doc3, "Abbreviations: IHD= Ischemic heart disease; CBV= Cerebrovascular disease; CHF = Congestive heart failure; COPD = chronic obstructive pulmonary disease.", style = "Normal")
+body_add(doc3, run_pagebreak())
+
+print(doc3, target = here('output','table','supplement-tables-revision-2nd-mort-rate.docx'))
+```
+
 ### Figure 1 - constituents SES
 ```{r}
 doc <- Table.Single(dt = out.pmc.ses, cmp = cmp.main, cuz = cuz.top.row,
@@ -555,7 +590,7 @@ print(doc, target = here('output','table','supplement-tables-2.docx'))
 ### Figure S18, S19, S20 - constituents Buffer & Expsoure Window
 ```{r}
 doc <- read_docx()
-cmp.major <- c("Si", "NO3", "SO4")
+cmp.major <- c("PM2.5", "Si", "NO3", "SO4")
 out.pmc.buffer.expo <- out.pmc.buffer.expo %>% 
   mutate(Buffer = ifelse(Buffer == "6", "6-mile",
                          ifelse(Buffer == "12", "12-mile", "24-mile")),
@@ -573,6 +608,6 @@ doc <- Table.Multi.buffer.expo(dt = out.pmc.buffer.expo, cmp = cmp.major, cuz = 
 
 
 ```{r}
-print(doc, target = here('output','table','supplement-tables-revision-sescatupd.docx'))
+print(doc, target = here('output','table','supplement-tables-revision-2nd.docx'))
 ```
 

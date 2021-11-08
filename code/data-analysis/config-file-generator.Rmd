@@ -1,7 +1,7 @@
 ---
 title: "Config File Generator"
 author: "Fatemeh Kazemi"
-date: "01-18-2021"
+date: "11-07-2021"
 ---
 
 ### This program:
@@ -59,7 +59,8 @@ pmc.major.yr <- c("Yr1_SI","Yr1_NO3","Yr1_SO4",
                 "Yr2_SI","Yr2_NO3","Yr2_SO4",
                 "Yr3_SI","Yr3_NO3","Yr3_SO4",
                 "Yr4_SI","Yr4_NO3","Yr4_SO4",
-                "Yr5_SI","Yr5_NO3","Yr5_SO4")
+                "Yr5_SI","Yr5_NO3","Yr5_SO4",
+                "Yr1_PM", "Yr2_PM", "Yr3_PM", "Yr4_PM", "Yr5_PM")
 ```
 
 ```{r List of Sources}
@@ -1585,7 +1586,7 @@ for (i in seq(1,length(expo),1)){
 
 ```{r ses adj. model for components - bz12 & 1-5yr}
 dataname <- "ndi-pmc-bz12-15yr.csv"
-expo <- pmc.sub.yr
+expo <- pmc.major.yr
 
 for (i in seq(1,length(expo),1)){
   filenames <- c( tempfile())
@@ -1607,7 +1608,7 @@ for (i in seq(1,length(expo),1)){
 
 ```{r ses adj. model for components - bz 24 & 1-5yr}
 dataname <- "ndi-pmc-bz24-15yr.csv"
-expo <- pmc.sub.yr
+expo <- pmc.major.yr
 
 for (i in seq(1,length(expo),1)){
   filenames <- c( tempfile())

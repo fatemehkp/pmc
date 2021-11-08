@@ -1,4 +1,4 @@
-### Author: Fatemeh Kazemi - 05-31-2021
+### Author: Fatemeh Kazemi - 11-07-2021
 
 # Functions for making table results of exposure ~ outcome analysis
 # Hazard Ratio (HR) and 95% CI (HR.L, HR.U) (HR.Lower and HR.Upper)
@@ -41,6 +41,9 @@ Table.Single <- function(dt, cmp, cuz, cpt, ftnt){
   
   return(doc)
 }
+
+
+
 
 
 # Age Group Table Function ------------------------------------------------

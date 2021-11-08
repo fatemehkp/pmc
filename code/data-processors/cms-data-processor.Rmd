@@ -1,7 +1,7 @@
 ---
 title: "Air Quality and CMS Data"
 author: "Fatemeh Kazemi"
-date: "1/18/2021"
+date: "11/07/2021"
 output: html_document
 ---
 #####To do for fututre/ not urgent in all
@@ -48,7 +48,7 @@ load(here('data','processed','pmc-sub-4yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-3yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-2yr-5yr.RDa'))
 load(here('data','processed','pmc-sub-1yr-5yr.RDa'))
-load(here('data','processed','mass-app-1yr-c2.RDa'))
+#load(here('data','processed','mass-app-1yr-c2.RDa'))
 ```
 
 ```{r Import and save CMS(/ndi) data}
@@ -1589,7 +1589,7 @@ write.csv(dt.ndi.mass,
 ```
 
 ```{r}
-cmp.major <- c("SI", "NO3", "SO4")
+cmp.major <- c("SI", "NO3", "SO4", "PM")
 
 dt.pmc5 <- dt.pmc.5yr %>% 
   select(Site.ID, Year, Month, cmp.major) %>% 
@@ -1614,8 +1614,6 @@ dt.pmc1 <- dt.pmc.1yr.5yr %>%
 dt.pmc.major <- dt.pmc1 %>% 
   merge(dt.pmc2) %>% merge(dt.pmc3) %>% 
   merge(dt.pmc4) %>% merge(dt.pmc5)
-
-
 ```
 
 ```{r PMC BZ6 - 1-5yr}
