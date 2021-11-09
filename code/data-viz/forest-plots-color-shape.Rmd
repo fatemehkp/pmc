@@ -205,7 +205,8 @@ p <- ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
                  color = plot.cols, size = 0.25, show.legend = F) + 
     geom_point(aes(x = HR, y = Index, shape = sig), 
                color = plot.cols, size = 1.5, show.legend = F) +
-  labs(x = "HR (95% CI) per IQR Increase", y = expression(paste("Source-Related ", PM[2.5])),
+  labs(x = "HR (95% CI) per IQR Increase", y = "",
+       #expression(paste("Source-Related ", PM[2.5]))
        title = expression(paste("Association of Long-Term Source-Related ", PM[2.5], " Exposure and Cause-Specific Mortality"))) +
     scale_shape_identity() +
     facet_wrap( ~ Cause, ncol = 5, scales = "fixed") +
@@ -214,7 +215,7 @@ p <- ggplot(data, aes(x = HR, xmin = HR.L, xmax = HR.U, y = Index)) +
         panel.border = element_rect(fill = NA, 'lines', color = "gray25"),
         strip.text.x = element_text(face = 'bold', color = "black"),
         strip.background = element_rect(fill = "#B9CFED"),
-        axis.title = element_text(size = 12, color = 'black'),
+        axis.title = element_text(size = 10, color = 'black'),
         axis.text = element_text(size = 9, color = 'black'),
         plot.title = element_text(size = 12, face = 'bold', color = 'black', hjust = 0.5, vjust = 2))
 
