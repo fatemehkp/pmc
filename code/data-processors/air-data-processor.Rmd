@@ -482,6 +482,8 @@ dt.air <- dt.pmc.sel %>%
                values_to = "Value") %>% 
   arrange(Site.ID, Parameter.Symbol, Date)
 
+# dt.air : "Site.ID", "Date", "Parameter.Symbol", "Value" 
+
 site.para <- dt.air %>% 
   distinct(Site.ID, Parameter.Symbol)
 

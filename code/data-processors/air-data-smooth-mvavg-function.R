@@ -16,6 +16,16 @@ library(mgcv)
 #    Value:
 #    Date:
 
+# Function Paramaeters:
+# si : list of sites
+# pr : list of parameters for each site
+# s  : 0.99 for 1-yr
+#      1.99 for 2-yr
+#      2.99 for 3-yr
+#      3.99 for 4-yr
+#      4.99 for 5-yr
+# n  : minimum number of days needed for calculating the x-year moving average
+
 Smoothed.Year <- function(si, pr, s, n){ 
 
     dt <- dt.air %>% 
