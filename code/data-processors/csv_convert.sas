@@ -658,3 +658,52 @@ proc export data=ndi_mass
 	dbms=csv
 	replace;
 run;
+
+/* mass factor */
+proc import datafile='/scratch/fatemehkp/projects/PM Components/data/analysis/ndi-mass-fac.csv'
+	out= ndi_mass_fac
+	dbms= csv;
+run;
+
+proc export data=ndi_mass_fac
+	outfile='/scratch/fatemehkp/projects/PM Components/data/analysis/ndi-mass-fac.csv'
+	dbms=csv
+	replace;
+run;
+
+
+/* pmc - bz6 - 1-5yr*/
+proc import datafile='/scratch/fatemehkp/projects/PM Components/data/analysis/ndi-pmc-bz6-15yr.csv'
+	out= ndi_pmc_bz6
+	dbms= csv;
+run;
+
+proc export data=ndi_pmc_bz6
+	outfile='/scratch/fatemehkp/projects/PM Components/data/analysis/ndi-pmc-bz6-15yr.csv'
+	dbms=csv
+	replace;
+run;
+
+/* pmc - bz12 - 1-5yr */
+proc import datafile='/scratch/fatemehkp/projects/PM Components/data/analysis/ndi-pmc-bz12-15yr.csv'
+	out= ndi_pmc_bz12
+	dbms= csv;
+run;
+
+proc export data=ndi_pmc_bz12
+	outfile='/scratch/fatemehkp/projects/PM Components/data/analysis/ndi-pmc-bz12-15yr.csv'
+	dbms=csv
+	replace;
+run;
+
+/* pmc - bz24 - 1-5yr */
+proc import datafile='/scratch/fatemehkp/projects/PM Components/data/analysis/ndi-pmc-bz24-15yr.csv'
+	out= ndi_pmc_bz24
+	dbms= csv;
+run;
+
+proc export data=ndi_pmc_bz24
+	outfile='/scratch/fatemehkp/projects/PM Components/data/analysis/ndi-pmc-bz24-15yr.csv'
+	dbms=csv
+	replace;
+run;
